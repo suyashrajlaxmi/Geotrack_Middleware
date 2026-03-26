@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Team Activity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR (unified) ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-tier svg{width:10px;height:10px;color:var(--amber)}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Section heads */
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* ── STATS GRID (4 cards) ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
+.stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-icon svg{width:13px;height:13px}
+.sc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
+.sc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.sc-sub{font-size:8.5px;color:var(--text3)}
+.ic-indigo {background:var(--indigo-lt)} .ic-indigo svg{color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt)} .ic-emerald svg{color:var(--emerald)}
+.ic-sky    {background:var(--sky-lt)}    .ic-sky svg{color:var(--sky)}
+.ic-amber  {background:var(--amber-lt)}  .ic-amber svg{color:var(--amber)}
+
+/* ── USER GRID (3 columns) ── */
+.user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.user-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .18s,transform .18s;opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+.user-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+.card-header{padding:14px 14px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.user-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:800;color:var(--text);margin-bottom:2px}
+.user-id{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-body{padding:12px 14px}
+.status-row{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.active{background:var(--emerald2)}
+.status-dot.inactive{background:var(--text3)}
+.status-text{font-size:12px;font-weight:600;color:var(--emerald)}
+.status-text.inactive{color:var(--text3)}
+.status-time{font-size:10px;color:var(--text3);margin-left:4px}
+.info-row{margin-bottom:8px}
+.info-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.info-value{font-size:12px;font-weight:500;color:var(--text2);word-break:break-word}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.mini-stat{background:var(--surface);border-radius:8px;padding:8px 10px}
+.mini-stat-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.mini-stat-value{font-family:var(--font-hd);font-size:16px;font-weight:800;color:var(--text);line-height:1}
+.mini-stat-sub{font-size:8px;color:var(--text3);margin-top:2px}
+.location-chip{background:var(--indigo-lt);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--indigo);margin-top:8px}
+.location-chip svg{width:12px;height:12px;flex-shrink:0}
+.action-buttons{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border)}
+.action-btn{padding:10px 0;font-size:10px;font-weight:600;cursor:pointer;border:none;border-right:1px solid var(--border);background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .12s;font-family:var(--font);color:var(--text2)}
+.action-btn:last-child{border-right:none}
+.action-btn:hover{background:var(--surface);color:var(--indigo)}
+.action-icon{font-size:14px}
+.empty-state{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:48px 20px;text-align:center;grid-column:1/-1}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:11px;color:var(--text3)}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.user-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{display:none}.user-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading team activity...</div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="coN">Loading...</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="nD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="nM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="nJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="nC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="nS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="nUM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="nBA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="nEC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbN">Admin</div><div class="sb-user-email" id="sbCoLabel"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3657525b5f587655595b4657584f1855595b">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">Team Activity</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn primary" onclick="loadData()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="sec-head"><span class="sec-head-label">Team Overview</span><div class="sec-head-line"></div></div>
+      <div class="stats-grid">
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sc-value" id="sT">0</div></div><div class="sc-label">Total Users</div><div class="sc-sub">Active team members</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="sc-value" id="sCl">0</div></div><div class="sc-label">Clocked In</div><div class="sc-sub">Currently working</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sc-value" id="sLo">0</div></div><div class="sc-label">With Location</div><div class="sc-sub">Have GPS tracking</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div class="sc-value" id="sEx">₹0</div></div><div class="sc-label">Total Expenses</div><div class="sc-sub">Cumulative spending</div></div>
+      </div>
+
+      <div class="sec-head"><span class="sec-head-label">Team Members</span><div class="sec-head-line"></div></div>
+      <div class="user-grid" id="grid"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Loading team members...</div><div class="empty-sub">Please wait while we fetch your team data</div></div></div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var _SM = "{{member_id}}", _SD = "{{DOMAIN}}";
+var _P  = new URLSearchParams(location.search);
+var GT_MID = (_SM && _SM !== "{{member_id}}") ? _SM : (_P.get("member_id") || "");
+var GT_DOM = (_SD && _SD !== "{{DOMAIN}}")     ? _SD : (_P.get("DOMAIN")    || "world.bitrix24.com");
+var HG = {"ngrok-skip-browser-warning":"true"};
+
+var COLORS = ["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
+function clr(n){var s=0;for(var i=0;i<(n||"").length;i++)s+=n.charCodeAt(i);return COLORS[s%COLORS.length];}
+function ini(n){if(!n)return"?";var p=n.trim().split(/\s+/);return(p.length>=2?(p[0][0]+p[1][0]):n.substring(0,2)).toUpperCase();}
+function fp(n){n=+n;if(!n||isNaN(n))return"₹0";if(n>=10000000)return"₹"+(n/10000000).toFixed(1)+"Cr";if(n>=100000)return"₹"+(n/100000).toFixed(1)+"L";if(n>=1000)return"₹"+(n/1000).toFixed(1)+"K";return"₹"+n.toLocaleString("en-IN");}
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+
+function nav(u){
+  if(window.history && window.history.pushState){ window.history.pushState(null,'',u); }
+  fetch(u,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){ window.location.href=u; });
+}
+
+function wNav(){
+  var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var m = {
+    nD:  "/bitrix/app",
+    nM:  "/bitrix/map",
+    nJ:  "/bitrix/journey",
+    nC:  "/bitrix/clients",
+    nS:  "/bitrix/client-services",
+    nUM: "/bitrix/user-management",
+    nBA: "/bitrix/bank-account",
+    nEC: "/bitrix/expand-capacity"
+  };
+  Object.keys(m).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onclick = function(){ nav(m[id]+p); };
+  });
+  var pb = document.getElementById("planBoxBtn");
+  if(pb) pb.onclick = function(){ nav("/bitrix/billing-plans"+p); };
+}
+
+var _USERS = [];
+
+function subPage(path, idx){
+  var u = _USERS[idx];
+  if(!u){ console.error("subPage: no user at index", idx); return; }
+  var uid = (u.user_id || u.id || "").toString().trim();
+  var unm = (u.full_name || u.email || "User").toString().trim();
+  var uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if(!uid || !uuidRe.test(uid)){
+    alert("Cannot load " + path.replace("team-","") + ": user ID is missing or invalid.");
+    return;
+  }
+  var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID)+"&user_id="+encodeURIComponent(uid)+"&user_name="+encodeURIComponent(unm);
+  nav("/bitrix/"+path+p);
+}
+
+function loadData(){
+  setLoader(true);
+  fetch("/bitrix/team-data?member_id="+encodeURIComponent(GT_MID), {headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var users = d.users || [];
+      document.getElementById("coN").textContent = d.company || "Company";
+      document.getElementById("sbN").textContent = d.company || "—";
+      document.getElementById("sbCoLabel").textContent = "Admin";
+      var sbAv = document.getElementById("sbAv");
+      if (sbAv) sbAv.textContent = (d.company||"G")[0].toUpperCase();
+      var pb = document.getElementById("planBoxUsers");
+      if (pb) pb.textContent = users.length + "/1000";
+      // Dynamic sidebar plan label
+      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+      document.getElementById("sT").textContent  = users.length;
+      document.getElementById("sCl").textContent = users.filter(function(u){return u.is_clocked_in;}).length;
+      document.getElementById("sLo").textContent = users.filter(function(u){return u.last_pincode;}).length;
+      document.getElementById("sEx").textContent = fp(users.reduce(function(s,u){return s+(+u.total_expenses||0);},0));
+      render(users);
+      setLoader(false);
+      fetchSidebarInfo();
+    })
+    .catch(function(e){
+      document.getElementById("grid").innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error loading data</div><div class="empty-sub">'+esc(e.message)+'</div></div>';
+      setLoader(false);
+    });
+}
+
+function render(users){
+  _USERS = users;
+  var g = document.getElementById("grid");
+  if(!users.length){g.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No team members found</div><div class="empty-sub">Add users from User Management to see them here</div></div>';return;}
+  g.innerHTML = users.map(function(u, i){
+    var uid  = (u.user_id || u.id || "").toString();
+    var uraw = (u.full_name || u.email || "");
+    var unm  = esc(uraw);
+    var on   = u.is_clocked_in;
+    var statusDot = on ? 'status-dot active' : 'status-dot inactive';
+    var statusText = on ? 'Active' : 'Offline';
+    var statusColor = on ? 'active' : 'inactive';
+    var lastSeen = u.last_seen_time ? ', '+esc(u.last_seen_time) : '';
+    var locH = u.last_pincode ? '<div class="location-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Pincode: '+esc(u.last_pincode)+'</div>' : '';
+    var mt = +u.total_meetings||0, md = +u.completed_meetings||0, ex = +u.total_expenses||0;
+    var uidDisplay = uid.length > 12 ? uid.substring(0,12)+'...' : uid;
+    return '<div class="user-card" style="animation-delay:'+(i*0.03).toFixed(2)+'s">'+
+      '<div class="card-header">'+
+        '<div class="user-avatar" style="background:'+clr(uraw)+'">'+ini(uraw)+'</div>'+
+        '<div class="user-info"><div class="user-name">'+unm+'</div><div class="user-id">'+esc(uidDisplay)+'</div></div>'+
+      '</div>'+
+      '<div class="card-body">'+
+        '<div class="status-row"><div class="'+statusDot+'"></div><div class="status-text '+statusColor+'">'+statusText+'</div><div class="status-time">'+lastSeen+'</div></div>'+
+        '<div class="info-row"><div class="info-label">Email</div><div class="info-value">'+esc(u.email||"—")+'</div></div>'+
+        '<div class="mini-stats">'+
+          '<div class="mini-stat"><div class="mini-stat-label">Meetings</div><div class="mini-stat-value">'+mt+'</div><div class="mini-stat-sub">'+md+' completed</div></div>'+
+          '<div class="mini-stat"><div class="mini-stat-label">Expenses</div><div class="mini-stat-value" style="font-size:14px">'+fp(ex)+'</div><div class="mini-stat-sub">Total spent</div></div>'+
+        '</div>'+
+        locH+
+      '</div>'+
+      '<div class="action-buttons">'+
+        '<button class="action-btn" onclick="subPage(\'team-logs\','+i+')"><span class="action-icon">📍</span>Logs</button>'+
+        '<button class="action-btn" onclick="subPage(\'team-meetings\','+i+')"><span class="action-icon">📅</span>Meetings</button>'+
+        '<button class="action-btn" onclick="subPage(\'team-expenses\','+i+')"><span class="action-icon">💰</span>Expenses</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+function ensureMemberId(cb){
+  if(GT_MID){ wNav(); return cb(); }
+  var s = document.createElement("script"); s.src = "//api.bitrix24.com/api/v1/";
+  s.onload = function(){
+    try{
+      BX24.init(function(){
+        var a = BX24.getAuth();
+        GT_DOM = a.domain || GT_DOM;
+        GT_MID = a.member_id || ("bx24_"+(GT_DOM||"x").replace(/[^a-z0-9]/gi,"").substring(0,14));
+        wNav(); cb();
+      });
+    }catch(e){
+      GT_MID = "auto_"+(location.hostname||"x").replace(/[^a-z0-9]/gi,"").substring(0,14);
+      wNav(); cb();
+    }
+  };
+  s.onerror = function(){
+    GT_MID = "auto_"+(location.hostname||"x").replace(/[^a-z0-9]/gi,"").substring(0,14);
+    wNav(); cb();
+  };
+  document.head.appendChild(s);
+}
+function fetchSidebarInfo(){
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error)return;
+      var users=d.users||[];
+      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=users.length+"/1000";
+      if(d.me){
+        var n=(d.me.full_name||d.me.email||"");
+        var parts=n.trim().split(/\s+/);
+        var ini=((parts[0]?parts[0][0]:"")+(parts[1]?parts[1][0]:"")).toUpperCase()||((d.me.email||"GT").substring(0,2).toUpperCase());
+        var av=document.getElementById("sbAv");if(av)av.textContent=ini;
+        var nm=document.getElementById("sbN");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
+        var cl=document.getElementById("sbCoLabel");if(cl)cl.textContent=d.me.email||"";
+        var pmn=document.getElementById("pmName");if(pmn)pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
+        var pme=document.getElementById("pmEmail");if(pme)pme.textContent=d.me.email||"";
+      }
+    }).catch(function(){});
+}
+ensureMemberId(function(){loadData();});
+
+(function(){
+  var btn=document.getElementById("profileBtn");
+  if(btn) btn.addEventListener("click",function(e){
+    e.stopPropagation();
+    document.getElementById("profileMenu").classList.toggle("open");
+  });
+})();
+document.addEventListener("mousedown",function(e){
+  var w=document.getElementById("profileDropdown");
+  if(w&&!w.contains(e.target)){
+    var m=document.getElementById("profileMenu");
+    if(m) m.classList.remove("open");
+  }
+});
+(function(){
+  var t=sessionStorage.getItem("bitrix_admin_token");
+  if(t){try{
+    var p=JSON.parse(atob(t.split(".")[1]));
+    var em=p.email||p.sub||"";
+    var nm=document.getElementById("pmName");
+    if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";
+    var el=document.getElementById("pmEmail");if(el)el.textContent=em;
+    return;
+  }catch(_){}}
+  var mid=typeof GT_MID!=="undefined"?GT_MID:"";
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),
+    {headers:{"ngrok-skip-browser-warning":"true"}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.me)return;
+      var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";
+      var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";
+    }).catch(function(){});
+})();
+function doLogout(){
+  if(!confirm("Sign out of GeoTrack admin?"))return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_mid");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  window.location.replace("/bitrix/login"+p);
+}
+</script>
+</body>
+</html>

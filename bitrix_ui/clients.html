@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Clients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:3px 9px 5px;padding:9px 11px;background:linear-gradient(135deg,#eef0fd,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r-sm);cursor:pointer;transition:border-color .13s}
+.plan-box:hover{border-color:var(--indigo)}
+.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.plan-tier svg{width:8px;height:8px}
+.plan-row{display:flex;justify-content:space-between;margin-top:2.5px}
+.plan-k{font-size:9px;color:var(--text2);font-weight:500}
+.plan-v{font-size:9px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:7px 9px 11px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:var(--r-sm);background:var(--surface)}
+.sb-avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff}
+.sb-user-name{font-size:10.5px;font-weight:700;color:var(--text);line-height:1.2}
+.sb-user-email{font-size:8.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:108px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
+.stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-icon svg{width:13px;height:13px}
+.sc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
+.sc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.sc-sub{font-size:8.5px;color:var(--text3)}
+.ic-indigo{background:var(--indigo-lt)}.ic-indigo svg{color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt)}.ic-emerald svg{color:var(--emerald)}
+.ic-sky{background:var(--sky-lt)}.ic-sky svg{color:var(--sky)}
+.ic-rose{background:var(--rose-lt)}.ic-rose svg{color:var(--rose)}
+.ic-amber{background:var(--amber-lt)}.ic-amber svg{color:var(--amber)}
+.ic-violet{background:var(--violet-lt)}.ic-violet svg{color:var(--violet)}
+.controls-bar{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;box-shadow:var(--sh)}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-wrap input{width:100%;padding:6px 10px 6px 30px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11px;font-family:var(--font);outline:none;color:var(--text);background:var(--surface);transition:border-color .15s}
+.search-wrap input:focus{border-color:var(--indigo);background:var(--white)}
+.search-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-ico svg{width:11px;height:11px}
+.vdiv{width:1px;height:22px;background:var(--border);flex-shrink:0}
+.filter-select{padding:6px 24px 6px 9px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11px;font-family:var(--font);font-weight:500;color:var(--text2);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c94b8' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;min-width:110px}
+.filter-select:focus{border-color:var(--indigo)}
+.ctrl-btn{padding:5.5px 11px;border-radius:var(--r-sm);font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .13s;display:flex;align-items:center;gap:5px;white-space:nowrap;font-family:var(--font)}
+.ctrl-btn svg{width:11px;height:11px;opacity:.7}
+.ctrl-btn:hover{background:var(--white);color:var(--text)}
+.ctrl-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;border-color:transparent;box-shadow:0 2px 7px var(--indigo-glow)}
+.ctrl-btn.primary svg{opacity:1}
+.ctrl-btn.secondary{background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:#fff;border-color:transparent}
+.ctrl-btn.outline{border-color:var(--border2);background:var(--white);color:var(--text2)}
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.table-header{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-header h3{font-size:10.5px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.6px}
+.table-count{background:var(--surface);color:var(--text2);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 12px;text-align:left;font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;background:var(--surface);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:10px 12px;font-size:12px;border-bottom:1px solid #f1f2f8;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:var(--indigo-lt)}
+.td-num{color:var(--text3);font-size:11px;width:36px}
+.client-name strong{font-size:12px;font-weight:700;color:var(--text)}
+.client-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.badge{padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap}
+.badge-active{background:var(--emerald-lt);color:var(--emerald)}
+.badge-inactive{background:var(--rose-lt);color:var(--rose)}
+.badge-gps{background:var(--sky-lt);color:var(--sky)}
+.badge-no-gps{background:var(--amber-lt);color:var(--amber)}
+.badge-synced{background:var(--indigo-lt);color:var(--indigo)}
+.action-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap;position:relative;z-index:1}
+.action-btn{padding:3.5px 9px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;white-space:nowrap;line-height:1.4;position:relative;z-index:2;pointer-events:all;display:inline-flex;align-items:center;gap:4px}
+.action-btn svg{width:10px;height:10px;flex-shrink:0}
+.action-edit{background:var(--indigo-lt);color:var(--indigo)}
+.action-services{background:var(--emerald-lt);color:var(--emerald)}
+.action-map{background:var(--sky-lt);color:var(--sky)}
+.action-edit:hover{background:#dde2fc;transform:translateY(-1px)}
+.action-services:hover{background:#bbf7d0;transform:translateY(-1px)}
+.action-map:hover{background:#bae6fd;transform:translateY(-1px)}
+.pin-cell{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--sky2)}
+.pin-cell svg{width:10px;height:10px;opacity:.7}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.pag-info{font-size:10px;color:var(--text3);font-weight:600}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--text2);transition:all .12s;font-family:var(--font)}
+.pag-btn:hover:not(:disabled){border-color:var(--indigo);color:var(--indigo)}
+.pag-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.pag-btn:disabled{opacity:.4;cursor:not-allowed}
+/* CLIENT MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:22px;width:540px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2);animation:modalIn .2s ease;max-height:90vh;overflow-y:auto}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-hd-left{display:flex;align-items:center;gap:8px}
+.modal-hd-title{font-family:var(--font-hd);font-size:14px;font-weight:800;color:var(--text)}
+.modal-id-badge{font-size:9.5px;font-weight:600;background:var(--surface);color:var(--text2);padding:2px 8px;border-radius:12px}
+.modal-close{width:26px;height:26px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.modal-close svg{width:12px;height:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.form-group label{display:block;font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;font-size:11.5px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .15s;background:var(--surface)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--indigo);background:var(--white)}
+.form-group textarea{resize:vertical;min-height:58px}
+.geo-row{display:flex;gap:8px;align-items:center}
+.geo-btn{flex-shrink:0;padding:7px 11px;background:linear-gradient(135deg,var(--sky),var(--sky2));color:#fff;border:none;border-radius:7px;font-size:10.5px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap}
+.geo-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.notes-box{background:var(--indigo-lt);border-radius:8px;padding:10px 12px;margin-top:8px}
+.notes-lbl{font-size:8.5px;font-weight:700;color:var(--indigo);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.m-btn{padding:8px 16px;border:none;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s}
+.m-save{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 6px var(--indigo-glow)}
+.m-cancel{background:var(--surface);color:var(--text2);border:1px solid var(--border2)}
+.m-btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.m-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+/* SERVICES MODAL */
+.svc-modal-bg{position:fixed;inset:0;background:rgba(14,22,40,.52);backdrop-filter:blur(2px);z-index:900;display:none;align-items:center;justify-content:center}
+.svc-modal-bg.open{display:flex}
+.svc-modal{background:var(--white);border-radius:16px;width:620px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 48px rgba(0,0,0,.22);animation:modalIn .2s ease;overflow:hidden}
+.svc-modal-hd{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.svc-modal-title{font-family:var(--font-hd);font-size:14px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:480px}
+.svc-modal-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0;transition:all .12s}
+.svc-modal-close:hover{background:var(--rose-lt);border-color:var(--rose2);color:var(--rose)}
+.svc-modal-close svg{width:13px;height:13px}
+.svc-modal-body{overflow-y:auto;flex:1;padding:16px 20px 20px}
+.svc-modal-body::-webkit-scrollbar{width:3px}
+.svc-modal-body::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.svc-form-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:16px}
+.svc-form-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.svc-form-title svg{width:13px;height:13px;color:var(--emerald)}
+.svc-fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.svc-fg-grid.full{grid-template-columns:1fr}
+.svc-fg-grid.three{grid-template-columns:1fr 1fr 1fr}
+.svc-fg label{display:block;font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.svc-fg input,.svc-fg select,.svc-fg textarea{width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;font-size:11.5px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .15s;background:var(--white)}
+.svc-fg input:focus,.svc-fg select:focus,.svc-fg textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
+.svc-fg textarea{resize:vertical;min-height:54px}
+.svc-form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.svc-btn-create{padding:8px 18px;background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:#fff;border:none;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s;display:inline-flex;align-items:center;gap:6px}
+.svc-btn-create svg{width:12px;height:12px}
+.svc-btn-create:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.svc-btn-create:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.svc-btn-cancel-edit{padding:8px 14px;background:var(--surface);color:var(--text2);border:1px solid var(--border2);border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.svc-list-hd{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.svc-count{background:var(--surface);color:var(--text3);padding:2px 8px;border-radius:12px;font-size:9.5px;font-weight:700}
+.svc-empty{text-align:center;padding:34px 20px;color:var(--text3)}
+.svc-empty svg{width:38px;height:38px;margin:0 auto 12px;display:block;opacity:.28}
+.svc-empty-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:4px}
+.svc-empty-sub{font-size:11px}
+.svc-item{background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;margin-bottom:8px;transition:box-shadow .15s}
+.svc-item:hover{box-shadow:var(--sh-md)}
+.svc-item-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.svc-item-name{font-size:12px;font-weight:700;color:var(--text)}
+.svc-item-desc{font-size:10.5px;color:var(--text3);font-style:italic;margin-bottom:7px}
+.svc-item-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.svc-meta-lbl{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.svc-meta-val{font-size:11px;font-weight:600;color:var(--text2)}
+.svc-item-foot{display:flex;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.svc-act{padding:3.5px 9px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;display:inline-flex;align-items:center;gap:4px}
+.svc-act svg{width:9px;height:9px}
+.svc-act-edit{background:var(--indigo-lt);color:var(--indigo)}
+.svc-act-del{background:var(--rose-lt);color:var(--rose)}
+.svc-act-edit:hover{background:#dde2fc}
+.svc-act-del:hover{background:#ffe4e6}
+/* TOAST & LOADER */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info{background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error{background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+.fi:nth-child(1){animation-delay:.03s}.fi:nth-child(2){animation-delay:.06s}
+.fi:nth-child(3){animation-delay:.09s}.fi:nth-child(4){animation-delay:.12s}
+.fi:nth-child(5){animation-delay:.15s}.fi:nth-child(6){animation-delay:.18s}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+.empty-row td{text-align:center;color:var(--text3);padding:40px;font-size:12px}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.sidebar{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.controls-bar{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+<div id="pageLoader" class="page-loader"><div class="spinner"></div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<!-- CLIENT MODAL -->
+<div class="modal-bg" id="clientModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-hd-left">
+        <span id="modalTitle" class="modal-hd-title">Add New Client</span>
+        <span class="modal-id-badge" id="clientIdBadge"></span>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>Client Name *</label><input id="fName" type="text" placeholder="Full name or company"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Email</label><input id="fEmail" type="email" placeholder="email@example.com"></div>
+      <div class="form-group"><label>Phone</label><input id="fPhone" type="text" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div class="form-row full"><div class="form-group"><label>Address</label><textarea id="fAddress" placeholder="Full address"></textarea></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Pincode</label><input id="fPin" type="text" placeholder="400001"></div>
+      <div class="form-group"><label>Status</label><select id="fStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Latitude</label>
+        <div class="geo-row"><input id="fLat" type="text" placeholder="19.0760" style="flex:1"><button class="geo-btn" onclick="getCoordinatesFromAddress()">📍 Get Coords</button></div>
+      </div>
+      <div class="form-group"><label>Longitude</label><input id="fLng" type="text" placeholder="72.8777"></div>
+    </div>
+    <div class="notes-box">
+      <div class="notes-lbl">📝 Notes / Additional Info</div>
+      <textarea id="fNotes" rows="2" placeholder="Group: Credit Card | Balance: 0.00 | Additional notes..." style="width:100%;padding:7px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--white);font-size:11px;font-family:var(--font);resize:vertical;margin-top:2px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="m-btn m-cancel" onclick="closeModal()">Cancel</button>
+      <button class="m-btn m-save" id="mSaveBtn" onclick="saveClient()">💾 Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES MODAL -->
+<div class="svc-modal-bg" id="servicesModal">
+  <div class="svc-modal">
+    <div class="svc-modal-hd">
+      <div class="svc-modal-title" id="svcModalTitle">Services</div>
+      <button class="svc-modal-close" id="svcCloseBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="svc-modal-body">
+      <div class="svc-form-panel">
+        <div class="svc-form-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="svcFormTitle">Add New Service</span>
+        </div>
+        <input type="hidden" id="svcEditId">
+        <div class="svc-fg-grid">
+          <div class="svc-fg"><label>Service Name *</label><input id="svcName" type="text" placeholder="e.g., Accounting Software"></div>
+          <div class="svc-fg"><label>Status</label><select id="svcStatus"><option value="active">Active</option><option value="inactive">Inactive</option><option value="expired">Expired</option></select></div>
+        </div>
+        <div class="svc-fg-grid full"><div class="svc-fg"><label>Description</label><textarea id="svcDesc" placeholder="Service description..."></textarea></div></div>
+        <div class="svc-fg-grid three">
+          <div class="svc-fg"><label>Start Date</label><input id="svcStart" type="date"></div>
+          <div class="svc-fg"><label>Expiry Date</label><input id="svcExpiry" type="date"></div>
+          <div class="svc-fg"><label>Price (₹)</label><input id="svcPrice" type="number" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="svc-fg-grid full"><div class="svc-fg"><label>Notes</label><textarea id="svcNotesF" placeholder="Additional notes..."></textarea></div></div>
+        <div class="svc-form-actions">
+          <button class="svc-btn-cancel-edit" id="svcCancelEditBtn" style="display:none" onclick="resetSvcForm()">Cancel Edit</button>
+          <button class="svc-btn-create" id="svcSaveBtn" onclick="saveService()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="svcSaveBtnTxt">Create Service</span>
+          </button>
+        </div>
+      </div>
+      <div class="svc-list-hd"><span>Existing Services</span><span class="svc-count" id="svcCount">0</span></div>
+      <div id="svcList">
+        <div class="svc-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <div class="svc-empty-title">No services found</div>
+          <div class="svc-empty-sub">Add services to track what this client is using</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="companyName">Loading…</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="snDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="snMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="snJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="snSvcPage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item" id="snTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="snUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="snBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="snExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn">
+      <div class="plan-tier"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Enterprise</div>
+      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">G</div>
+        <div style="min-width:0"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adccc9c0c4c3edcec2c0ddccc3d483cec2c0">[email&#160;protected]</a></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">Clients</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn primary" onclick="loadClients()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+          <div class="profile-menu" id="profileMenu">
+            <p class="profile-menu-name" id="pmName">Admin Account</p>
+            <p class="profile-menu-email" id="pmEmail">—</p>
+            <hr class="pm-divider">
+            <button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="sec-head"><span class="sec-head-label">Client Insights</span><div class="sec-head-line"></div></div>
+      <div class="stats-grid">
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="sc-value" id="stTotal">—</div></div><div class="sc-label">Total Clients</div><div class="sc-sub">All registered</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sc-value" id="stActive">—</div></div><div class="sc-label">Active</div><div class="sc-sub">Currently active</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sc-value" id="stGps">—</div></div><div class="sc-label">With GPS</div><div class="sc-sub">Location tracked</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></div><div class="sc-value" id="stAreas">—</div></div><div class="sc-label">Areas Covered</div><div class="sc-sub">Unique pincodes</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="sc-value" id="stInactive">—</div></div><div class="sc-label">Inactive</div><div class="sc-sub">Need attention</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sc-value" id="stSynced">—</div></div><div class="sc-label">Synced</div><div class="sc-sub">To Bitrix24</div></div>
+      </div>
+
+      <div class="sec-head"><span class="sec-head-label">Filters & Actions</span><div class="sec-head-line"></div></div>
+      <div class="controls-bar fi">
+        <div class="search-wrap"><span class="search-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" id="searchInput" placeholder="Search name, email, phone, pincode…" oninput="applyFilters()"></div>
+        <div class="vdiv"></div>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()"><option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        <select class="filter-select" id="filterGps" onchange="applyFilters()"><option value="">All GPS</option><option value="gps">With GPS</option><option value="no-gps">No GPS</option></select>
+        <select class="filter-select" id="sortBy" onchange="applyFilters()"><option value="name_asc">Name (A–Z)</option><option value="name_desc">Name (Z–A)</option><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>
+        <div class="vdiv"></div>
+        <button class="ctrl-btn primary" onclick="openModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client</button>
+        <button class="ctrl-btn secondary" onclick="exportCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
+        <button class="ctrl-btn outline" onclick="loadClients()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Refresh</button>
+      </div>
+
+      <div class="sec-head"><span class="sec-head-label">Client Directory</span><div class="sec-head-line"></div></div>
+      <div class="table-card fi">
+        <div class="table-header"><h3>All Clients</h3><span class="table-count" id="cliCount">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Client</th><th>Contact</th><th>Status</th><th>Location</th><th>GPS</th><th>Actions</th></tr></thead>
+            <tbody id="cliBody"><tr class="empty-row"><td colspan="7">Loading clients…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination"><div class="pag-info" id="pagInfo">—</div><div class="pag-btns" id="pagBtns"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Bootstrap ─────────────────────────────────────────
+var _P=new URLSearchParams(location.search);
+var _INJ_MID="{{member_id}}",_INJ_DOM="{{DOMAIN}}";
+var GT_MID=(_INJ_MID!=="{{member_id}}"?_INJ_MID:(_P.get("member_id")||""));
+var GT_DOM=(_INJ_DOM!=="{{DOMAIN}}"?_INJ_DOM:(_P.get("DOMAIN")||"world.bitrix24.com"));
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
+var ALL_CLIENTS=[],FILTERED=[],PAGE=1,PER_PAGE=25,CLIENT_MAP={};
+
+// ── Utils ─────────────────────────────────────────────
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+(type||"info");t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function navTo(url){fetch(url,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){window.location.replace(url);});}
+function fmtN(n){n=+n;if(n>=1e6)return(n/1e6).toFixed(1)+"M";if(n>=1000)return(n/1000).toFixed(1)+"K";return String(n);}
+function fmtDate(d){return d?new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"—";}
+
+// ── Nav ───────────────────────────────────────────────
+(function(){
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={snDash:"/bitrix/app",snMap:"/bitrix/map",snJourney:"/bitrix/journey",snSvcPage:"/bitrix/client-services",snTeam:"/bitrix/team-activity",snUser:"/bitrix/user-management",snBank:"/bitrix/bank-account",snExpand:"/bitrix/expand-capacity"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
+  var pb=document.getElementById("planBoxBtn");if(pb)pb.onclick=function(){navTo("/bitrix/billing-plans"+p);};
+})();
+
+// ── Geocoding ─────────────────────────────────────────
+function getCoordinatesFromAddress(){
+  var addr=document.getElementById("fAddress").value.trim();
+  if(!addr){toast("Please enter an address first","error");return;}
+  toast("Fetching coordinates…","info",2500);
+  fetch("https://nominatim.openstreetmap.org/search?format=json&q="+encodeURIComponent(addr)+"&limit=1")
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data&&data.length>0){
+        document.getElementById("fLat").value=parseFloat(data[0].lat).toFixed(6);
+        document.getElementById("fLng").value=parseFloat(data[0].lon).toFixed(6);
+        toast("Coordinates updated!","success",2000);
+      }else{toast("Address not found. Try a more specific address.","error");}
+    })
+    .catch(function(e){toast("Geocoding failed: "+e.message,"error");});
+}
+
+// ── Load clients ──────────────────────────────────────
+function loadClients(){
+  setLoader(true);
+  fetch("/bitrix/clients-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error){toast("Error: "+d.error,"error",8000);setLoader(false);return;}
+      ALL_CLIENTS=d.clients||[];
+      renderStats(ALL_CLIENTS);
+      document.getElementById("companyName").textContent=d.company||"Company";
+      // Dynamic sidebar plan label
+      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=(d.user_count||"—")+"/1000";
+      applyFilters();
+      setLoader(false);
+      fetchSidebarInfo();
+    })
+    .catch(function(e){toast("Load error: "+e.message,"error",6000);setLoader(false);});
+}
+
+// ── Stats ─────────────────────────────────────────────
+function renderStats(cl){
+  var total=cl.length,active=cl.filter(function(c){return c.status==="active";}).length;
+  var withGps=cl.filter(function(c){return c.lat&&c.lng;}).length;
+  var pins={};cl.forEach(function(c){if(c.pincode)pins[c.pincode]=1;});
+  document.getElementById("stTotal").textContent=fmtN(total);
+  document.getElementById("stActive").textContent=fmtN(active);
+  document.getElementById("stGps").textContent=fmtN(withGps);
+  document.getElementById("stAreas").textContent=fmtN(Object.keys(pins).length);
+  document.getElementById("stInactive").textContent=fmtN(total-active);
+  document.getElementById("stSynced").textContent=fmtN(cl.filter(function(c){return c.synced;}).length);
+}
+
+// ── Filters ───────────────────────────────────────────
+function applyFilters(){
+  var q=(document.getElementById("searchInput").value||"").toLowerCase().trim();
+  var status=document.getElementById("filterStatus").value;
+  var gps=document.getElementById("filterGps").value;
+  var sort=document.getElementById("sortBy").value;
+  FILTERED=ALL_CLIENTS.filter(function(c){
+    if(status&&c.status!==status)return false;
+    if(gps==="gps"&&(!c.lat||!c.lng))return false;
+    if(gps==="no-gps"&&c.lat&&c.lng)return false;
+    if(q){var hay=[c.name,c.email,c.phone,c.pincode,c.address].join(" ").toLowerCase();if(hay.indexOf(q)===-1)return false;}
+    return true;
+  });
+  FILTERED.sort(function(a,b){
+    if(sort==="name_asc") return(a.name||"").localeCompare(b.name||"");
+    if(sort==="name_desc")return(b.name||"").localeCompare(a.name||"");
+    if(sort==="newest")   return new Date(b.created_at||0)-new Date(a.created_at||0);
+    if(sort==="oldest")   return new Date(a.created_at||0)-new Date(b.created_at||0);
+    return 0;
+  });
+  PAGE=1;renderTable();
+}
+
+// ── Render table ──────────────────────────────────────
+function renderTable(){
+  var tb=document.getElementById("cliBody");
+  var total=FILTERED.length;
+  document.getElementById("cliCount").textContent=fmtN(total);
+  if(!total){
+    tb.innerHTML='<tr class="empty-row"><td colspan="7">No clients found</td></tr>';
+    document.getElementById("pagInfo").textContent="No results";
+    document.getElementById("pagBtns").innerHTML="";
+    return;
+  }
+  var totalPages=Math.ceil(total/PER_PAGE);
+  if(PAGE>totalPages)PAGE=totalPages;
+  var start=(PAGE-1)*PER_PAGE;
+  var slice=FILTERED.slice(start,start+PER_PAGE);
+  CLIENT_MAP={};
+  FILTERED.forEach(function(c){CLIENT_MAP[String(c.id)]=c;});
+  var pinI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var editI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+  var svcI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>';
+  var mapI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>';
+  tb.innerHTML=slice.map(function(c,i){
+    var idx=start+i+1;
+    var gpsTag=(c.lat&&c.lng)?'<span class="badge badge-gps">'+pinI+' GPS</span>':'<span class="badge badge-no-gps">No GPS</span>';
+    var syncTag=c.synced?'<span class="badge badge-synced">✓ Synced</span>':'';
+    var pinCell=c.pincode?'<div class="pin-cell">'+pinI+esc(c.pincode)+'</div>':'<span style="color:var(--text3);font-size:11px">No pincode</span>';
+    var mapBtn=(c.lat&&c.lng)?'<button class="action-btn action-map" data-action="map" data-id="'+c.id+'" data-lat="'+c.lat+'" data-lng="'+c.lng+'">'+mapI+' Map</button>':'';
+    return '<tr>'+
+      '<td class="td-num">'+idx+'</td>'+
+      '<td class="client-name"><strong>'+esc(c.name)+'</strong>'+(c.source?'<div class="client-sub">'+esc(c.source)+'</div>':'')+'</td>'+
+      '<td><div style="font-size:11px;color:var(--text2)">'+(c.email?esc(c.email):'<span style="color:var(--text3)">—</span>')+'</div><div class="client-sub">'+(c.phone?esc(c.phone):'No phone')+'</div></td>'+
+      '<td><span class="badge badge-'+(c.status||"inactive")+'">'+esc(c.status||"inactive")+'</span></td>'+
+      '<td>'+pinCell+'</td>'+
+      '<td>'+gpsTag+' '+syncTag+'</td>'+
+      '<td><div class="action-group">'+
+        '<button class="action-btn action-edit"     data-action="edit"     data-id="'+c.id+'">'+editI+' Edit</button>'+
+        '<button class="action-btn action-services" data-action="services" data-id="'+c.id+'">'+svcI+' Services</button>'+
+        mapBtn+
+      '</div></td>'+
+    '</tr>';
+  }).join("");
+  document.getElementById("pagInfo").textContent="Showing "+(start+1)+"–"+Math.min(start+PER_PAGE,total)+" of "+total+" clients";
+  var btns="";
+  btns+='<button class="pag-btn" data-page="'+(PAGE-1)+'" '+(PAGE===1?"disabled":"")+'>‹</button>';
+  var lo=Math.max(1,PAGE-2),hi=Math.min(totalPages,PAGE+2);
+  if(lo>1)btns+='<button class="pag-btn" data-page="1">1</button>'+(lo>2?'<span style="padding:0 4px;color:var(--text3)">…</span>':'');
+  for(var p=lo;p<=hi;p++)btns+='<button class="pag-btn'+(p===PAGE?" active":"")+'" data-page="'+p+'">'+p+'</button>';
+  if(hi<totalPages)btns+=(hi<totalPages-1?'<span style="padding:0 4px;color:var(--text3)">…</span>':'')+'<button class="pag-btn" data-page="'+totalPages+'">'+totalPages+'</button>';
+  btns+='<button class="pag-btn" data-page="'+(PAGE+1)+'" '+(PAGE===totalPages?"disabled":"")+'>›</button>';
+  document.getElementById("pagBtns").innerHTML=btns;
+}
+function goPage(p){var tp=Math.ceil(FILTERED.length/PER_PAGE);if(p<1||p>tp)return;PAGE=p;renderTable();document.querySelector(".content").scrollTop=0;}
+
+// ── Event delegation (table + pagination) ─────────────
+document.addEventListener("click",function(e){
+  var pagBtn=e.target.closest(".pag-btn");
+  if(pagBtn&&pagBtn.dataset.page&&!pagBtn.disabled){goPage(+pagBtn.dataset.page);return;}
+  var btn=e.target.closest("[data-action]");
+  if(!btn)return;
+  var action=btn.dataset.action,id=btn.dataset.id;
+  if(action==="edit")         editClient(id);
+  else if(action==="services") openSvcModal(id);
+  else if(action==="map")     window.open("https://www.google.com/maps?q="+btn.dataset.lat+","+btn.dataset.lng,"_blank");
+});
+
+// ── CLIENT MODAL ──────────────────────────────────────
+function openModal(){
+  document.getElementById("modalTitle").textContent="Add New Client";
+  document.getElementById("clientIdBadge").textContent="";
+  ["fName","fEmail","fPhone","fAddress","fPin","fLat","fLng","fNotes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("fStatus").value="active";
+  delete document.getElementById("clientModal").dataset.editId;
+  document.getElementById("clientModal").classList.add("open");
+}
+function editClient(id){
+  var c=CLIENT_MAP[String(id)];
+  if(!c){toast("Client not found","error");return;}
+  document.getElementById("modalTitle").textContent="Edit Client";
+  document.getElementById("clientIdBadge").textContent="ID: "+c.id;
+  document.getElementById("fName").value   =c.name    ||"";
+  document.getElementById("fEmail").value  =c.email   ||"";
+  document.getElementById("fPhone").value  =c.phone   ||"";
+  document.getElementById("fAddress").value=c.address ||"";
+  document.getElementById("fPin").value    =c.pincode ||"";
+  document.getElementById("fStatus").value =c.status  ||"active";
+  document.getElementById("fLat").value    =c.lat     ||"";
+  document.getElementById("fLng").value    =c.lng     ||"";
+  document.getElementById("fNotes").value  =c.notes   ||"";
+  document.getElementById("clientModal").dataset.editId=id;
+  document.getElementById("clientModal").classList.add("open");
+}
+function closeModal(){document.getElementById("clientModal").classList.remove("open");}
+document.getElementById("clientModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+function saveClient(){
+  var name=document.getElementById("fName").value.trim();
+  if(!name){toast("Client name is required","error");return;}
+  var btn=document.getElementById("mSaveBtn");
+  var editId=document.getElementById("clientModal").dataset.editId;
+  btn.disabled=true;btn.textContent="⏳ Saving…";
+  var payload={member_id:GT_MID,name:name,
+    email:   document.getElementById("fEmail").value.trim()   ||null,
+    phone:   document.getElementById("fPhone").value.trim()   ||null,
+    address: document.getElementById("fAddress").value.trim() ||null,
+    pincode: document.getElementById("fPin").value.trim()     ||null,
+    status:  document.getElementById("fStatus").value,
+    latitude: parseFloat(document.getElementById("fLat").value)||null,
+    longitude:parseFloat(document.getElementById("fLng").value)||null,
+    notes:   document.getElementById("fNotes").value.trim()   ||null};
+  if(editId)payload.id=+editId;
+  fetch("/bitrix/clients-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error){toast("Error: "+d.error,"error",6000);return;}
+      toast("Client saved successfully!","success");
+      closeModal();loadClients();
+    })
+    .catch(function(e){toast("Error: "+e.message,"error",6000);})
+    .finally(function(){btn.disabled=false;btn.textContent="💾 Save Client";});
+}
+
+// ── SERVICES MODAL ────────────────────────────────────
+var SVC_CLIENT_ID=null,SVC_CLIENT_NAME="";
+
+function openSvcModal(clientId){
+  var c=CLIENT_MAP[String(clientId)];
+  SVC_CLIENT_ID=clientId;
+  SVC_CLIENT_NAME=c?c.name:"Client";
+  document.getElementById("svcModalTitle").textContent="Services — "+SVC_CLIENT_NAME;
+  resetSvcForm();
+  document.getElementById("servicesModal").classList.add("open");
+  loadServices();
+}
+function closeSvcModal(){
+  document.getElementById("servicesModal").classList.remove("open");
+  SVC_CLIENT_ID=null;
+}
+document.getElementById("servicesModal").addEventListener("click",function(e){if(e.target===this)closeSvcModal();});
+document.getElementById("svcCloseBtn").addEventListener("click",closeSvcModal);
+
+function resetSvcForm(){
+  document.getElementById("svcEditId").value="";
+  document.getElementById("svcName").value="";
+  document.getElementById("svcDesc").value="";
+  document.getElementById("svcStatus").value="active";
+  document.getElementById("svcStart").value=new Date().toISOString().slice(0,10);
+  document.getElementById("svcExpiry").value="";
+  document.getElementById("svcPrice").value="";
+  document.getElementById("svcNotesF").value="";
+  document.getElementById("svcFormTitle").textContent="Add New Service";
+  document.getElementById("svcSaveBtnTxt").textContent="Create Service";
+  document.getElementById("svcCancelEditBtn").style.display="none";
+  document.getElementById("svcSaveBtn").disabled=false;
+}
+
+function loadServices(){
+  document.getElementById("svcList").innerHTML='<div class="svc-empty" style="padding:18px"><div style="font-size:11px;color:var(--text3)">Loading services…</div></div>';
+  fetch("/bitrix/services-data?member_id="+encodeURIComponent(GT_MID)+"&client_id="+encodeURIComponent(SVC_CLIENT_ID),{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error&&d.error!=="NO_COMPANY"){toast("Services error: "+d.error,"error");return;}
+      var svcs=(d.services||[]).filter(function(s){return String(s.client_id)===String(SVC_CLIENT_ID);});
+      renderSvcList(svcs);
+    })
+    .catch(function(e){toast("Load error: "+e.message,"error");});
+}
+
+function renderSvcList(svcs){
+  document.getElementById("svcCount").textContent=svcs.length;
+  if(!svcs.length){
+    document.getElementById("svcList").innerHTML=
+      '<div class="svc-empty">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'+
+      '<div class="svc-empty-title">No services found</div>'+
+      '<div class="svc-empty-sub">Add services to track what this client is using</div></div>';
+    return;
+  }
+  var editI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+  var delI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+  document.getElementById("svcList").innerHTML=svcs.map(function(s){
+    var sc=s.status==="active"?"badge-active":s.status==="expired"?"badge-inactive":"badge-no-gps";
+    var isExp=s.expiry_date&&new Date(s.expiry_date)<new Date();
+    var price=s.price!=null?"₹"+parseFloat(s.price).toLocaleString("en-IN",{minimumFractionDigits:2}):"—";
+    return '<div class="svc-item">'+
+      '<div class="svc-item-hd">'+
+        '<div class="svc-item-name">'+esc(s.service_name)+'</div>'+
+        '<span class="badge '+(isExp?"badge-inactive":sc)+'">'+(isExp?"Expired":esc(s.status))+'</span>'+
+      '</div>'+
+      (s.description?'<div class="svc-item-desc">'+esc(s.description)+'</div>':'')+
+      '<div class="svc-item-meta">'+
+        '<div><div class="svc-meta-lbl">Price</div><div class="svc-meta-val">'+price+'</div></div>'+
+        '<div><div class="svc-meta-lbl">Start Date</div><div class="svc-meta-val">'+fmtDate(s.start_date)+'</div></div>'+
+        '<div><div class="svc-meta-lbl">Expiry Date</div><div class="svc-meta-val" style="'+(isExp?"color:var(--rose)":"")+'">'+fmtDate(s.expiry_date)+'</div></div>'+
+      '</div>'+
+      '<div class="svc-item-foot">'+
+        '<button class="svc-act svc-act-edit" data-svc-action="edit"   data-svc-id="'+s.id+'">'+editI+' Edit</button>'+
+        '<button class="svc-act svc-act-del"  data-svc-action="delete" data-svc-id="'+s.id+'" data-svc-name="'+esc(s.service_name)+'">'+delI+' Delete</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+// Delegated click handler inside services modal
+document.getElementById("servicesModal").addEventListener("click",function(e){
+  var btn=e.target.closest("[data-svc-action]");
+  if(!btn)return;
+  var action=btn.dataset.svcAction,id=btn.dataset.svcId;
+  if(action==="edit"){
+    fetch("/bitrix/services-data?member_id="+encodeURIComponent(GT_MID)+"&client_id="+encodeURIComponent(SVC_CLIENT_ID),{headers:HG})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var s=(d.services||[]).find(function(x){return String(x.id)===String(id);});
+        if(!s){toast("Service not found","error");return;}
+        document.getElementById("svcEditId").value =s.id;
+        document.getElementById("svcName").value   =s.service_name  ||"";
+        document.getElementById("svcDesc").value   =s.description   ||"";
+        document.getElementById("svcStatus").value =s.status        ||"active";
+        document.getElementById("svcStart").value  =s.start_date    ?s.start_date.slice(0,10):"";
+        document.getElementById("svcExpiry").value =s.expiry_date   ?s.expiry_date.slice(0,10):"";
+        document.getElementById("svcPrice").value  =s.price         ||"";
+        document.getElementById("svcNotesF").value =s.notes         ||"";
+        document.getElementById("svcFormTitle").textContent ="Edit Service";
+        document.getElementById("svcSaveBtnTxt").textContent="Update Service";
+        document.getElementById("svcCancelEditBtn").style.display="inline-flex";
+        document.querySelector(".svc-modal-body").scrollTop=0;
+      }).catch(function(e){toast("Error: "+e.message,"error");});
+  }else if(action==="delete"){
+    if(!confirm('Delete service "'+btn.dataset.svcName+'"? This cannot be undone.'))return;
+    fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,id:+id,_delete:true,service_name:" ",client_id:SVC_CLIENT_ID})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error){toast("Delete failed: "+d.error,"error");return;}
+        toast("Service deleted","success");loadServices();
+      }).catch(function(e){toast("Error: "+e.message,"error");});
+  }
+});
+
+function saveService(){
+  var name=document.getElementById("svcName").value.trim();
+  if(!name){toast("Service name is required","error");return;}
+  if(!SVC_CLIENT_ID){toast("No client selected","error");return;}
+  var btn=document.getElementById("svcSaveBtn");
+  var editId=document.getElementById("svcEditId").value;
+  btn.disabled=true;
+  var payload={
+    member_id:GT_MID,client_id:SVC_CLIENT_ID,service_name:name,
+    description:document.getElementById("svcDesc").value.trim()||null,
+    status:document.getElementById("svcStatus").value,
+    start_date:document.getElementById("svcStart").value||null,
+    expiry_date:document.getElementById("svcExpiry").value||null,
+    price:parseFloat(document.getElementById("svcPrice").value)||null,
+    notes:document.getElementById("svcNotesF").value.trim()||null
+  };
+  if(editId)payload.id=+editId;
+  fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error){toast("Error: "+d.error,"error",6000);return;}
+      toast(editId?"Service updated!":"Service created!","success");
+      resetSvcForm();loadServices();
+    })
+    .catch(function(e){toast("Error: "+e.message,"error",6000);})
+    .finally(function(){btn.disabled=false;});
+}
+
+// ── Export CSV ────────────────────────────────────────
+function exportCSV(){
+  if(!FILTERED.length){toast("No data to export","info");return;}
+  var rows=[["#","Name","Email","Phone","Address","Pincode","Status","GPS","Synced","Created","Latitude","Longitude","Notes"]];
+  FILTERED.forEach(function(c,i){rows.push([i+1,c.name||"",c.email||"",c.phone||"",c.address||"",c.pincode||"",c.status||"",(c.lat&&c.lng)?"Yes":"No",c.synced?"Yes":"No",c.created_at?new Date(c.created_at).toLocaleDateString("en-IN"):"",c.lat||"",c.lng||"",c.notes||""]);});
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
+  var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);a.download="geotrack_clients_"+new Date().toISOString().slice(0,10)+".csv";a.click();
+  toast("CSV exported!","success");
+}
+
+// ── Sidebar info ──────────────────────────────────────
+function fetchSidebarInfo(){
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error)return;
+      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=(d.users||[]).length+"/1000";
+      if(d.me){
+        var n=d.me.full_name||d.me.email||"";var pts=n.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";
+        var av=document.getElementById("sbAvatar");if(av)av.textContent=ini;
+        var nm=document.getElementById("sbName");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
+        var em=document.getElementById("sbEmail");if(em)em.textContent=d.me.email||"";
+        var pmn=document.getElementById("pmName");if(pmn)pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
+        var pme=document.getElementById("pmEmail");if(pme)pme.textContent=d.me.email||"";
+      }
+    }).catch(function(){});
+}
+
+// ── Profile dropdown ──────────────────────────────────
+(function(){
+  var btn=document.getElementById("profileBtn");
+  if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});
+})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+
+// ── Logout ────────────────────────────────────────────
+function doLogout(){
+  if(!confirm("Sign out of GeoTrack admin?"))return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  window.location.replace("/bitrix/login?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID));
+}
+
+loadClients();
+</script>
+</body>
+</html>

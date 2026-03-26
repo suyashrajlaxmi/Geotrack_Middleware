@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Expand Capacity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR (unified) ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-tier svg{width:10px;height:10px;color:var(--amber)}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Section heads */
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* Hero Banner */
+.hero-banner{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.hero-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--emerald),var(--emerald2));display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff}
+.hero-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px}
+.hero-sub{font-size:11px;color:var(--text3)}
+
+/* Usage Cards */
+.usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.usage-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.usage-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.usage-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.usage-icon.users{background:var(--indigo-lt);color:var(--indigo)}
+.usage-icon.clients{background:var(--emerald-lt);color:var(--emerald)}
+.usage-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.usage-value{font-family:var(--font-hd);font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px}
+.usage-sub{font-size:10px;color:var(--text3);margin-bottom:6px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.progress-fill.users{background:linear-gradient(90deg,var(--indigo),var(--indigo2))}
+.progress-fill.clients{background:linear-gradient(90deg,var(--emerald),var(--emerald2))}
+
+/* Slot Selectors Grid */
+.slots-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.slot-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.slot-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.slot-title{font-size:12px;font-weight:800;color:var(--text)}
+.slot-price{font-size:10px;color:var(--text3);margin-top:2px}
+.slot-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.slot-icon.users{background:var(--indigo-lt);color:var(--indigo)}
+.slot-icon.clients{background:var(--emerald-lt);color:var(--emerald)}
+.counter-row{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0}
+.counter-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;color:var(--text2);transition:all .12s}
+.counter-btn:hover:not(.disabled){background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.counter-btn.disabled{opacity:.4;cursor:not-allowed}
+.counter-num{font-family:var(--font-hd);font-size:24px;font-weight:800;color:var(--text);line-height:1}
+.counter-label{font-size:9px;color:var(--text3);margin-top:2px}
+.slot-subtotal{background:var(--surface);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--indigo);text-align:center;margin-top:10px}
+.unlimited-center{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0;gap:6px}
+.unlimited-icon{font-size:32px}
+.unlimited-text{font-size:11px;font-weight:600;color:var(--emerald)}
+
+/* Order Card */
+.order-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px}
+.order-title{font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.order-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.order-row:last-of-type{border-bottom:none}
+.order-label{font-size:11px;color:var(--text2);font-weight:500}
+.order-value{font-size:11px;font-weight:700;color:var(--text)}
+.order-total{display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:2px solid var(--border)}
+.total-label{font-size:12px;font-weight:800;color:var(--text)}
+.total-value{font-family:var(--font-hd);font-size:18px;font-weight:800;color:var(--indigo)}
+
+/* Proceed Button */
+.proceed-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+.proceed-btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}
+.proceed-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.proceed-note{text-align:center;font-size:9px;color:var(--text3);margin-bottom:14px}
+
+/* Why Card */
+.why-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.why-title{font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.why-item{display:flex;align-items:flex-start;gap:8px}
+.why-check{width:18px;height:18px;background:var(--emerald-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--emerald);flex-shrink:0;margin-top:1px}
+.why-item-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.why-item-sub{font-size:9px;color:var(--text3)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:18px;padding:24px;width:480px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:800;color:var(--text)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--surface);color:var(--rose)}
+.modal-sub{font-size:11px;color:var(--text3);margin-bottom:16px}
+.order-summary-box{background:var(--surface);border-radius:12px;padding:14px;margin-bottom:16px}
+.osb-row{display:flex;justify-content:space-between;padding:5px 0;font-size:11px}
+.osb-row.total{font-weight:800;color:var(--indigo);border-top:1px solid var(--border);margin-top:5px;padding-top:8px}
+.form-group{margin-bottom:12px}
+.form-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block}
+.form-input{width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px;font-family:var(--font);outline:none;background:var(--surface);transition:border-color .15s}
+.form-input:focus{border-color:var(--indigo);background:var(--white)}
+.demo-note{background:var(--amber-lt);border:1px solid var(--amber2);border-radius:8px;padding:10px;font-size:10px;color:var(--amber);margin-bottom:16px}
+.pay-btn{width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s;margin-top:8px}
+.pay-btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}
+.pay-btn:disabled{opacity:.5;cursor:not-allowed}
+.success-center{text-align:center;padding:16px 0}
+.success-icon{font-size:48px;margin-bottom:12px}
+.success-title{font-size:16px;font-weight:800;color:var(--emerald);margin-bottom:6px}
+.success-sub{font-size:11px;color:var(--text2);margin-bottom:16px}
+.success-btn{width:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.sidebar{display:none}.usage-grid,.slots-grid{grid-template-columns:1fr}.why-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading capacity data...</div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="sbCompany">Loading...</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="navDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="navMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="navJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="navClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="navServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item" id="navTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="navUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="navBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="741510191d1a34171b1904151a0d5a171b19">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">Expand Capacity</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn primary" onclick="loadData()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="sec-head"><span class="sec-head-label">Expand Capacity</span><div class="sec-head-line"></div></div>
+      
+      <div class="hero-banner fi">
+        <div class="hero-icon">➕</div>
+        <div><div class="hero-title">Expand Your Capacity</div><div class="hero-sub">Purchase additional user slots for your Enterprise plan</div></div>
+      </div>
+
+      <div class="usage-grid">
+        <div class="usage-card fi"><div class="usage-header"><div class="usage-icon users">👥</div><div class="usage-label">User Slots</div></div><div class="usage-value" id="userUsage">— / —</div><div class="usage-sub" id="userRemaining">Loading...</div><div class="progress-bar"><div class="progress-fill users" id="userProgress" style="width:0%"></div></div></div>
+        <div class="usage-card fi"><div class="usage-header"><div class="usage-icon clients">📋</div><div class="usage-label">Client Slots</div></div><div class="usage-value" id="clientUsage">— / ∞</div><div class="usage-sub">Unlimited capacity</div><div class="progress-bar"><div class="progress-fill clients" style="width:100%"></div></div></div>
+      </div>
+
+      <div class="slots-grid">
+        <div class="slot-card fi"><div class="slot-header"><div><div class="slot-title">Additional User Slots</div><div class="slot-price">₹50 per slot</div></div><div class="slot-icon users">👥</div></div>
+          <div class="counter-row"><button class="counter-btn" id="userMinus" onclick="changeSlots('user',-1)">−</button><div class="counter-val"><div class="counter-num" id="userSlots">0</div><div class="counter-label">slots</div></div><button class="counter-btn" onclick="changeSlots('user',1)">+</button></div>
+          <div class="slot-subtotal">Subtotal: ₹<span id="userSubtotal">0</span></div>
+        </div>
+        <div class="slot-card fi"><div class="slot-header"><div><div class="slot-title">Client Slots</div><div class="slot-price">₹10 per slot</div></div><div class="slot-icon clients">📋</div></div>
+          <div class="unlimited-center"><div class="unlimited-icon">✅</div><div class="unlimited-text">Unlimited client slots included</div></div>
+        </div>
+      </div>
+
+      <div class="order-card fi"><div class="order-title">🛒 Order Summary</div>
+        <div class="order-row"><span class="order-label"><span id="summaryUserSlots">0</span> User Slots × ₹50</span><span class="order-value">₹<span id="summaryUserAmt">0</span></span></div>
+        <div class="order-row"><span class="order-label"><span id="summaryClientSlots">0</span> Client Slots × ₹10</span><span class="order-value">₹<span id="summaryClientAmt">0</span></span></div>
+        <div class="order-total"><span class="total-label">Total Amount</span><span class="total-value">₹<span id="totalAmount">0</span></span></div>
+      </div>
+
+      <button class="proceed-btn" id="proceedBtn" onclick="openPaymentModal()" disabled><span>💳</span> Proceed to Payment →</button>
+      <div class="proceed-note">Slots will be added to your account immediately after payment</div>
+
+      <div class="why-card fi"><div class="why-title">📈 Why Expand Your Capacity?</div>
+        <div class="why-grid"><div class="why-item"><div class="why-check">✓</div><div><div class="why-item-title">Scale Your Team</div><div class="why-item-sub">Add more users without upgrading your plan</div></div></div><div class="why-item"><div class="why-check">✓</div><div><div class="why-item-title">Grow Your Business</div><div class="why-item-sub">Handle more clients and opportunities</div></div></div><div class="why-item"><div class="why-check">✓</div><div><div class="why-item-title">Cost Effective</div><div class="why-item-sub">Pay only for what you need</div></div></div><div class="why-item"><div class="why-check">✓</div><div><div class="why-item-title">Instant Activation</div><div class="why-item-sub">Slots available immediately</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Complete Payment</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div id="payStep1"><div class="modal-sub">Enter your payment details to purchase slots</div>
+      <div class="order-summary-box"><div class="osb-row"><span>User Slots (<span id="mUserSlots">0</span> × ₹50)</span><span>₹<span id="mUserAmt">0</span></span></div><div class="osb-row"><span>Client Slots (<span id="mClientSlots">0</span> × ₹10)</span><span>₹<span id="mClientAmt">0</span></span></div><div class="osb-row total"><span>Total</span><span>₹<span id="mTotal">0</span></span></div></div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="payName" type="text" placeholder="John Doe"></div>
+      <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="payEmail" type="email" placeholder="john@company.com"></div>
+      <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" id="payPhone" type="tel" placeholder="+91 98765 43210"></div>
+      <div class="demo-note">💡 This is a demo payment flow. In production, integrate with Razorpay, PayU, or Stripe for real transactions.</div>
+      <button class="pay-btn" id="payBtn" onclick="processPayment()">🔒 Confirm & Pay ₹<span id="payBtnAmt">0</span></button>
+    </div>
+    <div id="payStep2" style="display:none"><div class="success-center"><div class="success-icon">✅</div><div class="success-title">Payment Successful!</div><div class="success-sub">Your slots have been added successfully.<br><strong id="successMsg"></strong></div><button class="success-btn" onclick="onPaymentSuccess()">🏠 Back to Dashboard</button></div></div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var GT_MID="{{member_id}}",GT_DOM="{{DOMAIN}}";
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
+var USER_PRICE=50, CLIENT_PRICE=10;
+var _userSlots=0, _clientSlots=0;
+var _planData={userLimit:1000,userCount:0,clientCount:0};
+
+function navTo(url){fetch(url,{headers:HG}).then(r=>r.text()).then(h=>{document.open();document.write(h);document.close();}).catch(()=>window.location.replace(url));}
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||3500);}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function initials(name,email){if(name&&name.trim()){var p=name.trim().split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}return((email||"??").substring(0,2)).toUpperCase();}
+
+function wNav(){
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={navDash:"/bitrix/app",navMap:"/bitrix/map",navJourney:"/bitrix/journey",navClients:"/bitrix/clients",navServices:"/bitrix/client-services",navTeam:"/bitrix/team-activity",navUser:"/bitrix/user-management",navBank:"/bitrix/bank-account"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
+  document.getElementById("planBoxBtn").onclick=function(){navTo("/bitrix/billing-plans"+p);};
+}
+
+function loadData(){
+  setLoader(true);
+  fetch("/bitrix/expand-capacity-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(r=>r.json()).then(d=>{
+      setLoader(false);
+      if(d.error){toast("Error: "+d.error,"error");return;}
+      _planData={userLimit:d.user_limit||1000,userCount:d.user_count||0,clientCount:d.client_count||0};
+      document.getElementById("sbCompany").textContent=d.company||"Default Company";
+      // Dynamic sidebar plan label
+      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+      if(d.me){
+        document.getElementById("sbName").textContent=d.me.full_name||d.me.email||"Admin";
+        document.getElementById("sbEmail").textContent=d.me.email||"";
+        document.getElementById("sbAv").textContent=initials(d.me.full_name,d.me.email);
+      }
+      document.getElementById("planUsers").textContent=_planData.userCount+"/"+_planData.userLimit;
+      document.getElementById("userUsage").textContent=_planData.userCount+" / "+_planData.userLimit;
+      var rem=_planData.userLimit-_planData.userCount;
+      document.getElementById("userRemaining").textContent=rem+" slots remaining";
+      var pct=Math.min(100,(_planData.userCount/_planData.userLimit*100));
+      document.getElementById("userProgress").style.width=pct+"%";
+      document.getElementById("clientUsage").textContent=_planData.clientCount+" / ∞";
+    }).catch(e=>{setLoader(false);toast("Load error: "+e.message,"error");});
+}
+
+function changeSlots(type, delta){
+  if(type==="user"){
+    _userSlots=Math.max(0,_userSlots+delta);
+    document.getElementById("userSlots").textContent=_userSlots;
+    document.getElementById("userSubtotal").textContent=(_userSlots*USER_PRICE).toLocaleString("en-IN");
+    document.getElementById("userMinus").className="counter-btn"+(_userSlots===0?" disabled":"");
+  }
+  updateSummary();
+}
+
+function updateSummary(){
+  var userAmt=_userSlots*USER_PRICE, clientAmt=_clientSlots*CLIENT_PRICE, total=userAmt+clientAmt;
+  document.getElementById("summaryUserSlots").textContent=_userSlots;
+  document.getElementById("summaryUserAmt").textContent=userAmt.toLocaleString("en-IN");
+  document.getElementById("summaryClientSlots").textContent=_clientSlots;
+  document.getElementById("summaryClientAmt").textContent=clientAmt.toLocaleString("en-IN");
+  document.getElementById("totalAmount").textContent=total.toLocaleString("en-IN");
+  var hasOrder=(_userSlots+_clientSlots)>0;
+  document.getElementById("proceedBtn").disabled=!hasOrder;
+}
+
+function openPaymentModal(){
+  var userAmt=_userSlots*USER_PRICE, clientAmt=_clientSlots*CLIENT_PRICE, total=userAmt+clientAmt;
+  document.getElementById("mUserSlots").textContent=_userSlots;
+  document.getElementById("mUserAmt").textContent=userAmt.toLocaleString("en-IN");
+  document.getElementById("mClientSlots").textContent=_clientSlots;
+  document.getElementById("mClientAmt").textContent=clientAmt.toLocaleString("en-IN");
+  document.getElementById("mTotal").textContent=total.toLocaleString("en-IN");
+  document.getElementById("payBtnAmt").textContent=total.toLocaleString("en-IN");
+  document.getElementById("payStep1").style.display="block";
+  document.getElementById("payStep2").style.display="none";
+  document.getElementById("payBtn").disabled=false;
+  document.getElementById("payBtn").innerHTML="🔒 Confirm & Pay ₹"+total.toLocaleString("en-IN");
+  document.getElementById("payModal").classList.add("open");
+}
+function closeModal(){document.getElementById("payModal").classList.remove("open");}
+document.getElementById("payModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+function processPayment(){
+  var name=document.getElementById("payName").value.trim();
+  var email=document.getElementById("payEmail").value.trim();
+  var phone=document.getElementById("payPhone").value.trim();
+  if(!name){toast("Please enter your full name","error");return;}
+  if(!email||!email.includes("@")){toast("Please enter a valid email","error");return;}
+  if(!phone){toast("Please enter your phone number","error");return;}
+  var btn=document.getElementById("payBtn");
+  btn.disabled=true;btn.textContent="Processing...";
+  var total=(_userSlots*USER_PRICE)+(_clientSlots*CLIENT_PRICE);
+  fetch("/bitrix/expand-capacity-order?member_id="+encodeURIComponent(GT_MID),{
+    method:"POST",headers:HJ,
+    body:JSON.stringify({userSlots:_userSlots,clientSlots:_clientSlots,totalAmount:total,payerName:name,payerEmail:email,payerPhone:phone})
+  }).then(r=>r.json()).then(d=>{
+    btn.disabled=false;
+    if(d.error){btn.innerHTML="🔒 Confirm & Pay ₹"+total.toLocaleString("en-IN");toast(d.message||d.error,"error");return;}
+    var parts=[];if(_userSlots>0)parts.push(_userSlots+" user slot"+(_userSlots>1?"s":"")+" added");
+    document.getElementById("successMsg").textContent=parts.join(" & ")+".";
+    document.getElementById("payStep1").style.display="none";
+    document.getElementById("payStep2").style.display="block";
+    _planData.userLimit=d.new_user_limit||_planData.userLimit;
+    document.getElementById("planUsers").textContent=_planData.userCount+"/"+_planData.userLimit;
+  }).catch(e=>{btn.disabled=false;btn.innerHTML="🔒 Confirm & Pay ₹"+total.toLocaleString("en-IN");toast("Error: "+e.message,"error");});
+}
+
+function onPaymentSuccess(){
+  closeModal();
+  _userSlots=0;_clientSlots=0;
+  document.getElementById("userSlots").textContent="0";
+  document.getElementById("userSubtotal").textContent="0";
+  updateSummary();
+  loadData();
+}
+wNav();loadData();
+
+(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+(function(){var t=sessionStorage.getItem("bitrix_admin_token");if(t){try{var p=JSON.parse(atob(t.split(".")[1]));var em=p.email||p.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}var mid=typeof GT_MID!=="undefined"?GT_MID:"";fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}}).then(r=>r.json()).then(d=>{if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(()=>{});})();
+function doLogout(){if(!confirm("Sign out of GeoTrack admin?"))return;sessionStorage.removeItem("bitrix_admin_token");sessionStorage.removeItem("bitrix_admin_mid");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  window.location.replace("/bitrix/login"+p);
+}
+</script>
+</body>
+</html>

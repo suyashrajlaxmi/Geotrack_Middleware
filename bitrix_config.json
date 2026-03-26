@@ -1,0 +1,22 @@
+{
+  "local.69afd5f0918b04.51582247": {
+    "email": "suyash@gmail.com",
+    "updated_at": "2026-03-10T12:35:20.333Z"
+  },
+  "2d4037fa64ce168c105f71c0a067c3b9": {
+    "email": "admin@test.com",
+    "updated_at": "2026-03-12T05:00:47.269Z",
+    "company_id": "d9740a4d-e20c-4964-b89b-cb1ae4015c92",
+    "company_name": "Default Company"
+  },
+  "": {
+    "company_id": "d9740a4d-e20c-4964-b89b-cb1ae4015c92",
+    "company_name": "Default Company",
+    "updated_at": "2026-03-18T06:03:55.795Z"
+  },
+  "auto_localhost": {
+    "company_id": "d9740a4d-e20c-4964-b89b-cb1ae4015c92",
+    "company_name": "Default Company",
+    "updated_at": "2026-03-21T05:48:25.615Z"
+  }
+}

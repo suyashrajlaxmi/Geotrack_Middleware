@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — User Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR (unified) ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-tier svg{width:10px;height:10px;color:var(--amber)}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.tb-icon-btn.success{background:linear-gradient(135deg,var(--emerald),var(--emerald2));border-color:transparent;color:#fff;box-shadow:0 2px 7px rgba(4,120,87,.17)}
+.tb-icon-btn.success:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Section heads */
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* ── STATS GRID (3 cards) ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
+.stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-icon svg{width:13px;height:13px}
+.sc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
+.sc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.sc-sub{font-size:8.5px;color:var(--text3)}
+.ic-indigo {background:var(--indigo-lt)} .ic-indigo svg{color:var(--indigo)}
+.ic-amber  {background:var(--amber-lt)}  .ic-amber svg{color:var(--amber)}
+.ic-emerald{background:var(--emerald-lt)} .ic-emerald svg{color:var(--emerald)}
+
+/* Search Bar */
+.search-bar{position:relative;margin-bottom:14px}
+.search-input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11px;font-family:var(--font);outline:none;color:var(--text);background:var(--surface);transition:border-color .15s}
+.search-input:focus{border-color:var(--indigo);background:var(--white)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-icon svg{width:14px;height:14px}
+
+/* ── USER GRID (3 columns) ── */
+.user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.user-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .18s,transform .18s;opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+.user-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+.card-header{padding:14px 14px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);position:relative}
+.user-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;position:relative}
+.admin-crown{position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;border:2px solid var(--white)}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px}
+.user-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px}
+.badge-you{background:var(--emerald-lt);color:var(--emerald)}
+.badge-admin{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff}
+.card-body{padding:12px 14px}
+.info-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:11px;color:var(--text2)}
+.info-icon{font-size:11px;color:var(--text3);width:18px;flex-shrink:0}
+.info-text{word-break:break-word}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.action-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.action-btn{padding:6px 0;border-radius:6px;border:1px solid var(--border2);background:var(--surface);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .12s;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:4px}
+.action-btn:hover{transform:translateY(-1px)}
+.action-btn.edit:hover{background:var(--indigo-lt);border-color:var(--indigo);color:var(--indigo)}
+.action-btn.reset:hover{background:var(--emerald-lt);border-color:var(--emerald);color:var(--emerald)}
+.action-btn.delete:hover{background:var(--rose-lt);border-color:var(--rose);color:var(--rose)}
+.action-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.empty-state{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:48px 20px;text-align:center;grid-column:1/-1}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:11px;color:var(--text3)}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}.user-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr}.user-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading users...</div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="sbCompany">Loading...</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="navDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="navMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="navJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="navClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="navServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item" id="navTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="navBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="navExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="debfbab3b7b09ebdb1b3aebfb0a7f0bdb1b3">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">User Management</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn success" onclick="openAddModal()" title="Add User"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="tb-icon-btn primary" onclick="loadUsers()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="sec-head"><span class="sec-head-label">User Overview</span><div class="sec-head-line"></div></div>
+      <div class="stats-grid">
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sc-value" id="statTotal">0</div></div><div class="sc-label">Total Users</div><div class="sc-sub">Active team members</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div class="sc-value" id="statAdmins">0</div></div><div class="sc-label">Administrators</div><div class="sc-sub">With admin privileges</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sc-value" id="statRegular">0</div></div><div class="sc-label">Regular Users</div><div class="sc-sub">Team members</div></div>
+      </div>
+
+      <div class="search-bar">
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search by name, email, or department..." oninput="filterUsers()">
+      </div>
+
+      <div class="user-grid" id="userGrid">
+        <div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Loading users...</div><div class="empty-sub">Please wait while we fetch user data</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal" style="position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center">
+  <div class="modal" style="background:var(--white);border-radius:18px;padding:24px;width:480px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:15px;font-weight:800;color:var(--text)">➕ Add New User</h3><button onclick="closeModal('addModal')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Email *</label><input class="form-input" id="addEmail" type="email" placeholder="user@example.com" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Password * (min. 6 characters)</label><input class="form-input" id="addPassword" type="password" placeholder="••••••••" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Full Name</label><input class="form-input" id="addName" type="text" placeholder="John Doe" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Department</label><input class="form-input" id="addDept" type="text" placeholder="Sales, Marketing, etc." style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px"><div><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Work Start Time</label><input class="form-input" id="addStart" type="time" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div><div><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Work End Time</label><input class="form-input" id="addEnd" type="time" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div></div>
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border2);border-radius:8px;margin-bottom:16px;cursor:pointer"><input type="checkbox" id="addIsAdmin" style="width:18px;height:18px"><span style="font-size:12px;font-weight:600">Grant Administrator Privileges</span></label>
+    <div style="display:flex;gap:10px"><button class="modal-btn cancel" onclick="closeModal('addModal')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-weight:600;cursor:pointer">Cancel</button><button class="modal-btn primary" id="addBtn" onclick="createUser()" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--emerald),var(--emerald2));color:#fff;font-weight:600;border:none;cursor:pointer">Create User</button></div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal" style="position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center">
+  <div class="modal" style="background:var(--white);border-radius:18px;padding:24px;width:480px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:15px;font-weight:800;color:var(--text)" id="editTitle">✏️ Edit User</h3><button onclick="closeModal('editModal')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button></div>
+    <input type="hidden" id="editUserId">
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Email</label><input class="form-input" id="editEmail" type="email" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Full Name</label><input class="form-input" id="editName" type="text" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Department</label><input class="form-input" id="editDept" type="text" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px"><div><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Work Start Time</label><input class="form-input" id="editStart" type="time" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div><div><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Work End Time</label><input class="form-input" id="editEnd" type="time" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div></div>
+    <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border2);border-radius:8px;margin-bottom:16px;cursor:pointer"><input type="checkbox" id="editIsAdmin" style="width:18px;height:18px"><span style="font-size:12px;font-weight:600">Administrator Privileges</span></label>
+    <div style="display:flex;gap:10px"><button class="modal-btn cancel" onclick="closeModal('editModal')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-weight:600;cursor:pointer">Cancel</button><button class="modal-btn primary" id="editBtn" onclick="updateUser()" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-weight:600;border:none;cursor:pointer">Update User</button></div>
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="modal-overlay" id="resetModal" style="position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center">
+  <div class="modal" style="background:var(--white);border-radius:18px;padding:24px;width:480px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:15px;font-weight:800;color:var(--text)">🔑 Reset Password</h3><button onclick="closeModal('resetModal')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button></div>
+    <input type="hidden" id="resetUserId">
+    <div style="background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2)">Resetting password for: <strong id="resetUserEmail" style="color:var(--indigo)">—</strong></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">New Password * (min. 6 characters)</label><input class="form-input" id="resetPassword" type="password" placeholder="Enter new password" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div>
+    <div class="form-group"><label style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;display:block">Confirm New Password</label><input class="form-input" id="resetConfirm" type="password" placeholder="Re-enter new password" style="width:100%;padding:8px 11px;border:1px solid var(--border2);border-radius:8px"></div>
+    <div style="display:flex;gap:10px"><button class="modal-btn cancel" onclick="closeModal('resetModal')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-weight:600;cursor:pointer">Cancel</button><button class="modal-btn primary" id="resetBtn" onclick="submitReset()" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-weight:600;border:none;cursor:pointer">Reset Password</button></div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal" style="position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(2px);z-index:800;display:none;align-items:center;justify-content:center">
+  <div class="modal" style="background:var(--white);border-radius:18px;padding:24px;width:420px;max-width:95vw;box-shadow:0 20px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h3 style="font-size:15px;font-weight:800;color:var(--text)">⚠️ Delete User?</h3><button onclick="closeModal('deleteModal')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3)">✕</button></div>
+    <input type="hidden" id="deleteUserId">
+    <div style="text-align:center"><div style="font-size:48px;margin-bottom:12px">⚠️</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:4px">This will permanently delete</div>
+    <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px" id="deleteUserName">User Name</div>
+    <div style="font-size:12px;color:var(--rose);margin-bottom:20px">This action cannot be undone. All user data including location logs, meetings, and expenses will be removed.</div></div>
+    <div style="display:flex;gap:10px"><button class="modal-btn cancel" onclick="closeModal('deleteModal')" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);font-weight:600;cursor:pointer">Cancel</button><button class="modal-btn primary" id="deleteBtn" onclick="submitDelete()" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--rose),var(--rose2));color:#fff;font-weight:600;border:none;cursor:pointer">Delete User</button></div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var GT_MID="{{member_id}}",GT_DOM="{{DOMAIN}}";
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
+var _USERS=[],_ME=null;
+
+function navTo(url){fetch(url,{headers:HG}).then(r=>r.text()).then(h=>{document.open();document.write(h);document.close();}).catch(()=>window.location.replace(url));}
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||3500);}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
+function initials(name,email){if(name&&name.trim()){var p=name.trim().split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}return((email||"??").substring(0,2)).toUpperCase();}
+var AVColors=["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
+function avatarColor(s){var h=0;for(var i=0;i<(s||"").length;i++)h=(h*31+s.charCodeAt(i))&0x7fffffff;return AVColors[h%AVColors.length];}
+function fmtDate(s){if(!s)return"";var d=new Date(s);return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});}
+
+function wNav(){
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={navDash:"/bitrix/app",navMap:"/bitrix/map",navJourney:"/bitrix/journey",navClients:"/bitrix/clients",navServices:"/bitrix/client-services",navTeam:"/bitrix/team-activity",navBank:"/bitrix/bank-account",navExpand:"/bitrix/expand-capacity"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
+  document.getElementById("planBoxBtn").onclick=function(){navTo("/bitrix/billing-plans"+p);};
+}
+
+function loadUsers(){
+  setLoader(true);
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(r=>r.json()).then(d=>{
+      setLoader(false);
+      if(d.error){toast("Error: "+d.error,"error");return;}
+      _USERS=d.users||[];_ME=d.me||null;
+      document.getElementById("sbCompany").textContent=d.company||"Default Company";
+      // Dynamic sidebar plan label
+      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+      if(_ME){
+        document.getElementById("sbName").textContent=_ME.full_name||_ME.email||"Admin";
+        document.getElementById("sbEmail").textContent=_ME.email||"";
+        document.getElementById("sbAv").textContent=initials(_ME.full_name,_ME.email);
+      }
+      document.getElementById("planUsers").textContent=_USERS.length+"/1000";
+      updateStats();render(_USERS);
+    }).catch(e=>{setLoader(false);toast("Load error: "+e.message,"error");});
+}
+
+function updateStats(){
+  var total=_USERS.length,admins=_USERS.filter(u=>u.is_admin||u.is_super_admin).length;
+  document.getElementById("statTotal").textContent=total;
+  document.getElementById("statAdmins").textContent=admins;
+  document.getElementById("statRegular").textContent=total-admins;
+}
+
+function filterUsers(){
+  var q=document.getElementById("searchInput").value.toLowerCase().trim();
+  if(!q){render(_USERS);return;}
+  render(_USERS.filter(u=>(u.email||"").toLowerCase().includes(q)||(u.full_name||"").toLowerCase().includes(q)||(u.department||"").toLowerCase().includes(q)));
+}
+
+function render(users){
+  var g=document.getElementById("userGrid");
+  if(!users.length){g.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div><div class="empty-sub">Try a different search or add a new user</div></div>';return;}
+  g.innerHTML=users.map((u,i)=>{
+    var uid=String(u.id||u.user_id||""),email=u.email||"",name=u.full_name||"",dept=u.department||"",joined=fmtDate(u.created_at);
+    var isAdmin=!!(u.is_admin||u.is_super_admin),isMe=_ME&&String(_ME.id||_ME.user_id)===uid;
+    var avClr=avatarColor(email),ini=initials(name,email),dn=name||email;
+    var ts=(u.work_hours_start&&u.work_hours_end)?u.work_hours_start+" – "+u.work_hours_end:"";
+    return '<div class="user-card" style="animation-delay:'+(i*0.03).toFixed(2)+'s">'+
+      '<div class="card-header"><div class="user-avatar" style="background:'+avClr+'">'+ini+(isAdmin?'<div class="admin-crown">👑</div>':'')+'</div>'+
+      '<div class="user-info"><div class="user-name">'+esc(dn)+'</div><div class="user-badges">'+(isMe?'<span class="badge badge-you">You</span>':'')+(isAdmin?'<span class="badge badge-admin">Administrator</span>':'')+'</div></div></div>'+
+      '<div class="card-body">'+
+        '<div class="info-row"><span class="info-icon">📧</span><span class="info-text">'+esc(email)+'</span></div>'+
+        (dept?'<div class="info-row"><span class="info-icon">🏢</span><span class="info-text">'+esc(dept)+'</span></div>':'')+
+        (ts?'<div class="info-row"><span class="info-icon">⏰</span><span class="info-text">'+esc(ts)+'</span></div>':'')+
+        (joined?'<div class="info-row"><span class="info-icon">📅</span><span class="info-text">Joined: '+esc(joined)+'</span></div>':'')+
+        '<div class="divider"></div>'+
+        '<div class="action-buttons">'+
+          '<button class="action-btn edit" onclick="openEditModal(\''+esc(uid)+'\')">✏️ Edit</button>'+
+          '<button class="action-btn reset" onclick="openResetModal(\''+esc(uid)+'\',\''+esc(email)+'\')">🔑 Reset</button>'+
+          '<button class="action-btn delete"'+(isMe?' disabled title="Cannot delete yourself"':' onclick="openDeleteModal(\''+esc(uid)+'\',\''+esc(dn)+'\')"')+'>🗑️ Delete</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+function openModal(id){var m=document.getElementById(id);if(m)m.style.display="flex";}
+function closeModal(id){var m=document.getElementById(id);if(m)m.style.display="none";}
+document.querySelectorAll(".modal-overlay").forEach(function(el){el.addEventListener("click",function(e){if(e.target===el)el.style.display="none";});});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")document.querySelectorAll(".modal-overlay").forEach(function(el){if(el.style.display==="flex")el.style.display="none";});});
+
+function openAddModal(){["addEmail","addPassword","addName","addDept","addStart","addEnd"].forEach(id=>document.getElementById(id).value="");document.getElementById("addIsAdmin").checked=false;openModal("addModal");setTimeout(()=>document.getElementById("addEmail").focus(),200);}
+function createUser(){
+  var email=document.getElementById("addEmail").value.trim(),pass=document.getElementById("addPassword").value,name=document.getElementById("addName").value.trim(),dept=document.getElementById("addDept").value.trim(),start=document.getElementById("addStart").value,end=document.getElementById("addEnd").value,isAdmin=document.getElementById("addIsAdmin").checked;
+  if(!email){toast("Email is required","error");return;}
+  if(!pass||pass.length<6){toast("Password must be at least 6 characters","error");return;}
+  var btn=document.getElementById("addBtn");btn.disabled=true;btn.textContent="Creating...";
+  fetch("/bitrix/user-management-create?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({email:email,password:pass,fullName:name||null,department:dept||null,workHoursStart:start||null,workHoursEnd:end||null,isAdmin:isAdmin})})
+    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Create User";if(d.error){toast(d.message||d.error,"error");return;}toast("User created successfully!","success");closeModal("addModal");loadUsers();})
+    .catch(e=>{btn.disabled=false;btn.textContent="Create User";toast("Error: "+e.message,"error");});
+}
+function openEditModal(uid){
+  var u=_USERS.find(x=>String(x.id||x.user_id)===uid);if(!u){toast("User not found","error");return;}
+  document.getElementById("editUserId").value=uid;document.getElementById("editTitle").innerHTML="✏️ Edit User – "+esc(u.email||"");
+  document.getElementById("editEmail").value=u.email||"";document.getElementById("editName").value=u.full_name||"";
+  document.getElementById("editDept").value=u.department||"";document.getElementById("editStart").value=u.work_hours_start||"";
+  document.getElementById("editEnd").value=u.work_hours_end||"";document.getElementById("editIsAdmin").checked=!!(u.is_admin||u.is_super_admin);
+  openModal("editModal");
+}
+function updateUser(){
+  var uid=document.getElementById("editUserId").value,email=document.getElementById("editEmail").value.trim(),name=document.getElementById("editName").value.trim(),dept=document.getElementById("editDept").value.trim(),start=document.getElementById("editStart").value,end=document.getElementById("editEnd").value,isAdmin=document.getElementById("editIsAdmin").checked;
+  if(!uid)return;
+  var btn=document.getElementById("editBtn");btn.disabled=true;btn.textContent="Updating...";
+  fetch("/bitrix/user-management-update?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid,email:email||undefined,fullName:name||undefined,department:dept||undefined,workHoursStart:start||undefined,workHoursEnd:end||undefined,isAdmin:isAdmin})})
+    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Update User";if(d.error){toast(d.message||d.error,"error");return;}toast("User updated!","success");closeModal("editModal");loadUsers();})
+    .catch(e=>{btn.disabled=false;btn.textContent="Update User";toast("Error: "+e.message,"error");});
+}
+function openResetModal(uid,email){
+  document.getElementById("resetUserId").value=uid;document.getElementById("resetUserEmail").innerHTML=esc(email);
+  document.getElementById("resetPassword").value="";document.getElementById("resetConfirm").value="";
+  openModal("resetModal");
+}
+function submitReset(){
+  var uid=document.getElementById("resetUserId").value,pwd=document.getElementById("resetPassword").value,conf=document.getElementById("resetConfirm").value;
+  if(!pwd||pwd.length<6){toast("Password must be at least 6 characters","error");return;}
+  if(pwd!==conf){toast("Passwords do not match","error");return;}
+  var btn=document.getElementById("resetBtn");btn.disabled=true;btn.textContent="Resetting...";
+  fetch("/bitrix/user-management-reset-password?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid,newPassword:pwd})})
+    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Reset Password";if(d.error){toast(d.message||d.error,"error");return;}toast("Password reset!","success");closeModal("resetModal");})
+    .catch(e=>{btn.disabled=false;btn.textContent="Reset Password";toast("Error: "+e.message,"error");});
+}
+function openDeleteModal(uid,dn){
+  document.getElementById("deleteUserId").value=uid;document.getElementById("deleteUserName").innerHTML=esc(dn);
+  openModal("deleteModal");
+}
+function submitDelete(){
+  var uid=document.getElementById("deleteUserId").value;if(!uid)return;
+  var btn=document.getElementById("deleteBtn");btn.disabled=true;btn.textContent="Deleting...";
+  fetch("/bitrix/user-management-delete?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid})})
+    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.innerHTML="Delete User";if(d.error){toast(d.message||d.error,"error");return;}toast("User deleted!","success");closeModal("deleteModal");loadUsers();})
+    .catch(e=>{btn.disabled=false;btn.innerHTML="Delete User";toast("Error: "+e.message,"error");});
+}
+wNav();loadUsers();
+
+(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+(function(){var t=sessionStorage.getItem("bitrix_admin_token");if(t){try{var p=JSON.parse(atob(t.split(".")[1]));var em=p.email||p.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}var mid=typeof GT_MID!=="undefined"?GT_MID:"";fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}}).then(r=>r.json()).then(d=>{if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(()=>{});})();
+function doLogout(){if(!confirm("Sign out of GeoTrack admin?"))return;sessionStorage.removeItem("bitrix_admin_token");sessionStorage.removeItem("bitrix_admin_mid");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  window.location.replace("/bitrix/login"+p);
+}
+</script>
+</body>
+</html>

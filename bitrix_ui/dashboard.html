@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:3px 9px 5px;padding:9px 11px;background:linear-gradient(135deg,#eef0fd,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r-sm);cursor:pointer;transition:border-color .13s}
+.plan-box:hover{border-color:var(--indigo)}
+.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.plan-tier svg{width:8px;height:8px}
+.plan-row{display:flex;justify-content:space-between;margin-top:2.5px}
+.plan-k{font-size:9px;color:var(--text2);font-weight:500}
+.plan-v{font-size:9px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:7px 9px 11px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:var(--r-sm);background:var(--surface)}
+.sb-avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff}
+.sb-user-name{font-size:10.5px;font-weight:700;color:var(--text);line-height:1.2}
+.sb-user-email{font-size:8.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:108px}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Sync row */
+.sync-row{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.sync-btn{padding:6px 12px;border:none;border-radius:7px;font-size:10.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font)}
+.sync-btn svg{width:10px;height:10px;flex-shrink:0}
+.sync-btn:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.sync-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;filter:none}
+.btn-all    {background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 8px var(--indigo-glow)}
+.btn-clients{background:linear-gradient(135deg,#0369a1,var(--sky2));color:#fff;box-shadow:0 2px 7px rgba(3,105,161,.17)}
+.btn-mtg    {background:linear-gradient(135deg,#047857,var(--emerald2));color:#fff;box-shadow:0 2px 7px rgba(4,120,87,.17)}
+.btn-refresh{background:var(--white);color:var(--text2);border:1px solid var(--border2);box-shadow:var(--sh)}
+.btn-refresh:hover{color:var(--text);background:var(--surface)}
+
+/* Section heads */
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* ══ HERO CARDS ══ */
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:9px}
+.hero-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px 11px;position:relative;overflow:hidden;transition:box-shadow .18s,transform .18s}
+.hero-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.hc-stripe{position:absolute;top:0;left:0;right:0;height:2.5px}
+.hc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.hc-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.9px}
+.hc-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hc-icon svg{width:15px;height:15px}
+.ic-indigo {background:var(--indigo-lt)}   .ic-indigo svg{color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt)}  .ic-emerald svg{color:var(--emerald)}
+.ic-sky    {background:var(--sky-lt)}      .ic-sky svg{color:var(--sky)}
+.ic-rose   {background:var(--rose-lt)}     .ic-rose svg{color:var(--rose)}
+.ic-amber  {background:var(--amber-lt)}    .ic-amber svg{color:var(--amber)}
+.ic-violet {background:var(--violet-lt)}   .ic-violet svg{color:var(--violet)}
+.ic-slate  {background:var(--slate-lt)}    .ic-slate svg{color:var(--slate)}
+/* ★ Key change: hero values now 24px not 36px */
+.hc-value{font-family:var(--font-hd);font-size:24px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.8px;margin-bottom:5px}
+.hc-sub{font-size:9.5px;font-weight:500;color:var(--text2)}
+.hc-bar{height:2.5px;background:var(--border);border-radius:4px;margin-top:10px;overflow:hidden}
+.hc-bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1);width:0%}
+
+/* ══ MINI GRID — 6 across ══ */
+.mini-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px}
+.mini-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
+.mini-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.mini-card.alert-card{border-color:#fecdd3;background:#fff9fa}
+.mc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.mc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mc-icon svg{width:13px;height:13px}
+/* ★ Key change: mini values 19px not 26px */
+.mc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
+.mc-value.alert-val{color:var(--rose2)}
+.mc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.mc-sub{font-size:8.5px;color:var(--text3)}
+
+/* ══ INSIGHT ROW ══ */
+.insight-row{display:grid;grid-template-columns:220px 1fr;gap:9px;margin-bottom:14px}
+.section-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px}
+.section-header{display:flex;align-items:center;gap:6px;margin-bottom:11px}
+.section-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-icon svg{width:12px;height:12px}
+.section-title{font-size:11.5px;font-weight:700;color:var(--text)}
+.section-sub{font-size:9px;color:var(--text3);margin-left:auto}
+.action-item{display:flex;align-items:flex-start;gap:7px;padding:8px 9px;border-radius:7px;margin-bottom:5px;border:1px solid transparent}
+.action-item:last-child{margin-bottom:0}
+.ai-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ai-icon svg{width:10px;height:10px}
+.ai-title{font-size:10.5px;font-weight:600;line-height:1.4}
+.ai-desc{font-size:9px;color:var(--text3);margin-top:1px;line-height:1.5}
+.ai-warn  {background:#fffbeb;border-color:#fde68a} .ai-warn  .ai-icon{background:#fef3c7} .ai-warn  .ai-icon svg,.ai-warn  .ai-title{color:#92400e}
+.ai-alert {background:#fff1f2;border-color:#fecdd3} .ai-alert .ai-icon{background:#ffe4e6} .ai-alert .ai-icon svg,.ai-alert .ai-title{color:#9f1239}
+.ai-good  {background:#f0fdf4;border-color:#bbf7d0} .ai-good  .ai-icon{background:#dcfce7} .ai-good  .ai-icon svg,.ai-good  .ai-title{color:#14532d}
+.ai-info  {background:#eff6ff;border-color:#bfdbfe} .ai-info  .ai-icon{background:#dbeafe} .ai-info  .ai-icon svg,.ai-info  .ai-title{color:#1e40af}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:9px}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px}
+.chart-title{font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:9px}
+.chart-wrap{position:relative;height:120px;display:flex;align-items:center;justify-content:center}
+.donut-center{position:absolute;text-align:center;pointer-events:none}
+.donut-val{font-family:var(--font-hd);font-size:17px;font-weight:800;color:var(--text);line-height:1}
+.donut-lbl{font-size:8px;color:var(--text3);font-weight:600;margin-top:1.5px}
+.chart-legend{display:flex;justify-content:center;gap:9px;margin-top:7px}
+.leg-item{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:600;color:var(--text2)}
+.leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* PERFORMERS */
+.performers-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:1px}
+.performer-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 8px;text-align:center;transition:all .18s}
+.performer-card:hover{background:var(--white);border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--sh-md)}
+.performer-card.rank1{background:#fffbeb;border-color:#fde68a}
+.rank-badge{width:24px;height:24px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800}
+.rb-gold  {background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 2px 5px rgba(217,119,6,.22)}
+.rb-silver{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
+.rb-bronze{background:linear-gradient(135deg,#cd7f32,#a16207);color:#fff}
+.rb-other {background:var(--border);color:var(--text2);font-size:9.5px}
+.perf-name{font-size:9.5px;font-weight:700;color:var(--text);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ★ Key change: performer count 17px not 22px */
+.perf-count{font-family:var(--font-hd);font-size:17px;font-weight:800;color:var(--indigo)}
+.perf-lbl{font-size:8.5px;color:var(--text3);font-weight:500}
+.perf-clients{font-size:8.5px;color:var(--text3);margin-top:2px}
+
+/* Loader / Toast */
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:28px;height:28px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.fi{opacity:0;transform:translateY(9px);animation:fup .32s ease forwards}
+.fi:nth-child(1){animation-delay:.03s}.fi:nth-child(2){animation-delay:.06s}.fi:nth-child(3){animation-delay:.09s}
+.fi:nth-child(4){animation-delay:.12s}.fi:nth-child(5){animation-delay:.15s}.fi:nth-child(6){animation-delay:.18s}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+@media(max-width:1200px){.mini-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.insight-row{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.sidebar{display:none}.hero-grid{grid-template-columns:1fr}.charts-row{grid-template-columns:1fr}.performers-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading dashboard…</div></div>
+<div id="gtToast" class="gt-toast"></div>
+<div class="shell">
+<aside class="sidebar">
+  <div class="sb-accent"></div>
+  <div class="sb-brand">
+    <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+    <div class="sb-brand-name">GeoTrack</div>
+  </div>
+  <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="companyName">Loading…</div></div>
+  <nav class="sb-nav">
+    <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+    <div class="sb-nav-item" id="snMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+    <div class="sb-nav-item" id="snJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+    <div class="sb-nav-item" id="snClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+    <div class="sb-nav-item" id="snServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+    <div class="sb-nav-item" id="snTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+    <div class="sb-nav-item" id="snUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+    <div class="sb-nav-item" id="snBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+    <div class="sb-nav-item" id="snExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+  </nav>
+  <div class="plan-box" id="planBoxBtn">
+    <div class="plan-tier"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Enterprise</div>
+    <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div>
+    <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
+    <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div style="min-width:0"><div class="sb-user-name" id="sbName">—</div><div class="sb-user-email" id="sbEmail">—</div></div>
+    </div>
+  </div>
+</aside>
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">Analytics</div>
+      <div class="tb-live"><div class="live-dot"></div> Live</div>
+    </div>
+    <div class="tb-actions">
+      <button class="tb-icon-btn primary" id="tbSync" title="Sync All" onclick="doSync('all')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </button>
+      <div class="profile-dropdown" id="profileDropdown">
+        <button class="profile-btn" id="profileBtn" title="Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </button>
+        <div class="profile-menu" id="profileMenu">
+          <p class="profile-menu-name" id="pmName">Admin Account</p>
+          <p class="profile-menu-email" id="pmEmail">Loading…</p>
+          <hr class="pm-divider">
+          <button class="profile-logout-btn" onclick="doLogout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="sync-row">
+      <button class="sync-btn btn-all" id="btnAll" onclick="doSync('all')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>Sync All to Bitrix24</button>
+      <button class="sync-btn btn-clients" id="btnClients" onclick="doSync('clients')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Sync Clients</button>
+      <button class="sync-btn btn-mtg" id="btnMtg" onclick="doSync('meetings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Sync Meetings</button>
+      <button class="sync-btn btn-refresh" onclick="loadDash()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Refresh</button>
+    </div>
+
+    <div class="sec-head"><span class="sec-head-label">Overview</span><div class="sec-head-line"></div></div>
+    <div class="hero-grid">
+      <div class="hero-card fi">
+        <div class="hc-stripe" style="background:linear-gradient(90deg,var(--indigo),var(--indigo2))"></div>
+        <div class="hc-top"><div class="hc-label">Total Clients</div><div class="hc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div>
+        <div class="hc-value" id="stTotal">—</div>
+        <div class="hc-sub" id="stTotalSub" style="color:var(--emerald)">Loading…</div>
+        <div class="hc-bar"><div class="hc-bar-fill" id="barTotal" style="background:linear-gradient(90deg,var(--indigo),var(--indigo2))"></div></div>
+      </div>
+      <div class="hero-card fi">
+        <div class="hc-stripe" style="background:linear-gradient(90deg,var(--emerald),var(--emerald2))"></div>
+        <div class="hc-top"><div class="hc-label">Active Rate</div><div class="hc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div>
+        <div class="hc-value" id="stActiveRate">—</div>
+        <div class="hc-sub" id="stActiveRateSub" style="color:var(--emerald)">Loading…</div>
+        <div class="hc-bar"><div class="hc-bar-fill" id="barActive" style="background:linear-gradient(90deg,var(--emerald),var(--emerald2))"></div></div>
+      </div>
+      <div class="hero-card fi">
+        <div class="hc-stripe" style="background:linear-gradient(90deg,var(--sky),var(--sky2))"></div>
+        <div class="hc-top"><div class="hc-label">GPS Coverage</div><div class="hc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div></div>
+        <div class="hc-value" id="stGps">—</div>
+        <div class="hc-sub" id="stGpsSub" style="color:var(--sky)">Loading…</div>
+        <div class="hc-bar"><div class="hc-bar-fill" id="barGps" style="background:linear-gradient(90deg,var(--sky),var(--sky2))"></div></div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-head-label">Key Metrics</span><div class="sec-head-line"></div></div>
+    <div class="mini-grid">
+      <div class="mini-card fi">
+        <div class="mc-row"><div class="mc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="mc-value" id="msTeam">—</div></div>
+        <div class="mc-label">Team Size</div><div class="mc-sub">Active members</div>
+      </div>
+      <div class="mini-card fi">
+        <div class="mc-row"><div class="mc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="mc-value" id="msSvc">—</div></div>
+        <div class="mc-label">Service Areas</div><div class="mc-sub">Unique pincodes</div>
+      </div>
+      <div class="mini-card fi">
+        <div class="mc-row"><div class="mc-icon ic-violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="mc-value" id="msDens">—</div></div>
+        <div class="mc-label">Density</div><div class="mc-sub">Clients / area</div>
+      </div>
+      <div class="mini-card fi" id="inactCard">
+        <div class="mc-row"><div class="mc-icon ic-rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="mc-value" id="msInact">—</div></div>
+        <div class="mc-label">Inactive</div><div class="mc-sub">Need attention</div>
+      </div>
+      <div class="mini-card fi">
+        <div class="mc-row"><div class="mc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="mc-value" id="msMiss">—</div></div>
+        <div class="mc-label">Missing GPS</div><div class="mc-sub">Need geocoding</div>
+      </div>
+      <div class="mini-card fi">
+        <div class="mc-row"><div class="mc-icon ic-slate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="mc-value" id="msLogs">—</div></div>
+        <div class="mc-label">Total Logs</div><div class="mc-sub">Tracking points</div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-head-label">Insights</span><div class="sec-head-line"></div></div>
+    <div class="insight-row">
+      <div class="section-card fi">
+        <div class="section-header"><div class="section-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="section-title">Action Items</span></div>
+        <div id="actionItems"><div class="action-item ai-info"><div class="ai-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="ai-title">Loading…</div></div></div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card fi">
+          <div class="chart-title">Client Status</div>
+          <div class="chart-wrap"><div class="donut-center"><div class="donut-val" id="donutStatusVal">—</div><div class="donut-lbl">Active</div></div><canvas id="chartStatus"></canvas></div>
+          <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--emerald2)"></div>Active</div><div class="leg-item"><div class="leg-dot" style="background:var(--rose2)"></div>Inactive</div></div>
+        </div>
+        <div class="chart-card fi">
+          <div class="chart-title">GPS Coverage</div>
+          <div class="chart-wrap"><div class="donut-center"><div class="donut-val" id="donutGpsVal">—</div><div class="donut-lbl">With GPS</div></div><canvas id="chartGps"></canvas></div>
+          <div class="chart-legend"><div class="leg-item"><div class="leg-dot" style="background:var(--sky2)"></div>With GPS</div><div class="leg-item"><div class="leg-dot" style="background:var(--rose2)"></div>Missing</div></div>
+        </div>
+        <div class="chart-card fi">
+          <div class="chart-title">Top Areas by Clients</div>
+          <div class="chart-wrap" style="height:140px"><canvas id="chartAreas"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head"><span class="sec-head-label">Top Performers</span><div class="sec-head-line"></div></div>
+    <div class="section-card fi">
+      <div class="section-header"><div class="section-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div><span class="section-title">Leaderboard</span><span class="section-sub">Best performers this month</span></div>
+      <div class="performers-grid" id="performersGrid"><div style="grid-column:span 5;text-align:center;color:var(--text3);padding:18px;font-size:11px">Loading…</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var _P=new URLSearchParams(location.search);
+var _INJ_MID="{{member_id}}";var _INJ_DOM="{{DOMAIN}}";
+var GT_MID=(_INJ_MID!=="{{member_id}}"?_INJ_MID:(_P.get("member_id")||""));
+var GT_DOM=(_INJ_DOM!=="{{DOMAIN}}"?_INJ_DOM:(_P.get("DOMAIN")||"world.bitrix24.com"));
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
+var CHS={};
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+(type||"info");t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
+function navTo(url){fetch(url,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){window.location.replace(url);});}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+(function(){
+  var pb=document.getElementById("planBoxBtn");if(pb)pb.onclick=function(){navTo("/bitrix/billing-plans?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID));};
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={snMap:"/bitrix/map",snJourney:"/bitrix/journey",snClients:"/bitrix/clients",snServices:"/bitrix/client-services",snTeam:"/bitrix/team-activity",snUser:"/bitrix/user-management",snBank:"/bitrix/bank-account",snExpand:"/bitrix/expand-capacity"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
+})();
+var SYNC_BTNS={all:"btnAll",clients:"btnClients",meetings:"btnMtg"};
+function doSync(type){
+  var btn=document.getElementById(SYNC_BTNS[type]);if(btn)btn.disabled=true;
+  document.getElementById("tbSync").disabled=true;
+  fetch("/bitrix/do-sync-ajax",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,DOMAIN:GT_DOM,type:type})})
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.error)toast("Sync failed: "+d.error,"error",6000);else{toast(d.message,"success",5000);loadDash();}})
+    .catch(function(e){toast("Error: "+e.message,"error",6000);})
+    .finally(function(){if(btn)btn.disabled=false;document.getElementById("tbSync").disabled=false;});
+}
+function loadDash(){
+  setLoader(true);
+  fetch("/bitrix/data?member_id="+encodeURIComponent(GT_MID)+"&DOMAIN="+encodeURIComponent(GT_DOM),{headers:HG})
+    .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(function(d){
+      if(d.error&&d.error!=="NO_COMPANY"){toast("API error: "+d.error,"error",8000);setLoader(false);return;}
+      if(d.error==="NO_COMPANY"){document.getElementById("companyName").textContent="No company";setLoader(false);return;}
+      render(d);fetchSidebarInfo();
+    })
+    .catch(function(e){toast("Load error: "+e.message,"error",8000);setLoader(false);});
+}
+function fmtN(n){n=+n;if(isNaN(n))return"—";if(n>=1e6)return(n/1e6).toFixed(1)+"M";if(n>=1000)return(n/1000).toFixed(1)+"K";return String(n);}
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
+function render(d){
+  var cs=(d.stats&&d.stats.clients)||{};var ms=(d.stats&&d.stats.meetings)||{};
+  var sy=d.synced||{};var an=d.analytics||{};var team=d.team||[];var topPins=(d.top&&d.top.pincodes)||[];
+  var tc=+cs.total||0;var ac=+cs.active||0;var sc=+sy.clients||0;var ic=Math.max(0,tc-ac);
+  var missingGps=+an.missing_gps||0;var withGpsCnt=Math.max(0,tc-missingGps);
+  var gpsPct=+an.gps_pct||(tc>0?+((withGpsCnt/tc)*100).toFixed(1):0);
+  var activeRate=tc>0?(ac/tc*100).toFixed(1):0;
+  var uniquePins=+an.unique_pins||topPins.length;
+  var teamSize=+an.total_users||+an.team_size||team.length||1;
+  var density=uniquePins>0?Math.round(tc/uniquePins):0;
+  var totalLogs=+an.total_logs||+(ms.total||0);
+  document.getElementById("companyName").textContent=d.company||"Company";
+  // Dynamic sidebar plan label
+  var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+  var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+  var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+  var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=teamSize+"/1000";
+  document.getElementById("stTotal").textContent=tc.toLocaleString("en-IN");
+  document.getElementById("stTotalSub").textContent=(+activeRate>=50?"↑ ":"↓ ")+fmtN(ac)+" active · "+fmtN(ic)+" inactive";
+  setTimeout(function(){var b=document.getElementById("barTotal");if(b)b.style.width=Math.min(100,tc>0?ac/tc*100:0)+"%";},400);
+  document.getElementById("stActiveRate").textContent=activeRate+"%";
+  document.getElementById("stActiveRateSub").textContent="↑ "+fmtN(ac)+" active clients";
+  setTimeout(function(){var b=document.getElementById("barActive");if(b)b.style.width=Math.min(100,+activeRate)+"%";},500);
+  document.getElementById("stGps").textContent=gpsPct+"%";
+  document.getElementById("stGpsSub").textContent="↑ "+fmtN(withGpsCnt)+" with GPS coords";
+  setTimeout(function(){var b=document.getElementById("barGps");if(b)b.style.width=Math.min(100,+gpsPct)+"%";},600);
+  document.getElementById("msTeam").textContent=teamSize;
+  document.getElementById("msSvc").textContent=fmtN(uniquePins);
+  document.getElementById("msDens").textContent=density;
+  var inEl=document.getElementById("msInact");inEl.textContent=fmtN(ic);
+  if(ic>0){inEl.classList.add("alert-val");document.getElementById("inactCard").classList.add("alert-card");}else{inEl.classList.remove("alert-val");document.getElementById("inactCard").classList.remove("alert-card");}
+  document.getElementById("msMiss").textContent=fmtN(missingGps);
+  document.getElementById("msLogs").textContent=fmtN(totalLogs);
+  var iWarn='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  var iPin='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var iOk='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+  var iLnk='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+  var acts=[];
+  if(ic>0)acts.push({c:"ai-alert",ic:iWarn,t:ic+" client"+(ic>1?"s":"")+" inactive",s:"Review and update client status"});
+  if(missingGps>0)acts.push({c:"ai-warn",ic:iPin,t:missingGps+" client"+(missingGps>1?"s":"")+" missing GPS",s:"Geocode to appear on map"});
+  if(gpsPct>=80)acts.push({c:"ai-good",ic:iOk,t:gpsPct+"% GPS coverage — excellent",s:"Keep geocoding new clients"});
+  else if(gpsPct>0)acts.push({c:"ai-warn",ic:iWarn,t:"GPS coverage "+gpsPct+"% — needs improvement",s:"Geocode remaining clients"});
+  if(sc<tc&&tc>0)acts.push({c:"ai-info",ic:iLnk,t:(tc-sc)+" client"+(tc-sc>1?"s":"")+" not synced to Bitrix24",s:"Click Sync Clients to push to CRM"});
+  if(!acts.length)acts.push({c:"ai-good",ic:iOk,t:"Everything looks great!",s:"No action needed right now"});
+  document.getElementById("actionItems").innerHTML=acts.map(function(a){return'<div class="action-item '+a.c+'"><div class="ai-icon">'+a.ic+'</div><div><div class="ai-title">'+a.t+'</div><div class="ai-desc">'+a.s+'</div></div></div>';}).join("");
+  var dSt=document.getElementById("donutStatusVal");if(dSt)dSt.textContent=(tc>0?(ac/tc*100).toFixed(0):0)+"%";
+  var dGp=document.getElementById("donutGpsVal");if(dGp)dGp.textContent=gpsPct+"%";
+  donut("chartStatus",[ac,ic],["#10b981","#f43f5e"],["Active","Inactive"]);
+  donut("chartGps",[withGpsCnt,missingGps],["#0ea5e9","#f43f5e"],["With GPS","Missing"]);
+  barChart("chartAreas",topPins);
+  renderPerformers(team);
+  setLoader(false);
+}
+function donut(id,data,colors,labels){
+  var ctx=document.getElementById(id);if(!ctx)return;if(CHS[id])CHS[id].destroy();
+  CHS[id]=new Chart(ctx,{type:"doughnut",data:{labels:labels,datasets:[{data:data,backgroundColor:colors,borderWidth:0,hoverOffset:4,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"75%",plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var tot=c.dataset.data.reduce(function(a,b){return a+b;},0);return " "+c.label+": "+c.parsed+" ("+(tot>0?(c.parsed/tot*100).toFixed(1):0)+"%)";}}}}
+  }});
+}
+function barChart(id,topPins){
+  var ctx=document.getElementById(id);if(!ctx)return;if(CHS[id])CHS[id].destroy();
+  var raw=topPins.map(function(p){return{label:String(p.area||p.pincode||"—"),val:+(p.clients||p.client_count)||0};});
+  if(!raw.length)raw=[{label:"No data",val:1}];
+  CHS[id]=new Chart(ctx,{type:"bar",data:{labels:raw.map(function(r){return r.label;}),datasets:[{data:raw.map(function(r){return r.val;}),backgroundColor:"rgba(67,56,202,.7)",hoverBackgroundColor:"rgba(67,56,202,1)",borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return " "+c.parsed+" clients";}}}},
+      scales:{x:{grid:{color:"rgba(0,0,0,.03)"},ticks:{color:"#8c94b8",font:{size:9}}},y:{grid:{display:false},ticks:{color:"#4a5278",font:{size:9.5,weight:"600"}}}}}});
+}
+function renderPerformers(team){
+  var g=document.getElementById("performersGrid");
+  if(!team||!team.length){g.innerHTML='<div style="grid-column:span 5;text-align:center;color:var(--text3);padding:18px;font-size:11px">No team data yet</div>';return;}
+  var rCls=["rb-gold","rb-silver","rb-bronze","rb-other","rb-other"];
+  var sorted=team.slice().sort(function(a,b){return(+b.meetings||0)-(+a.meetings||0);});
+  g.innerHTML=sorted.slice(0,5).map(function(t,i){
+    return'<div class="performer-card'+(i===0?" rank1":"")+'"><div class="rank-badge '+(rCls[i]||"rb-other")+'">'+(i+1)+'</div><div class="perf-name">'+esc(t.full_name||t.email||"Unknown")+'</div><div class="perf-count">'+(+t.meetings||0)+'</div><div class="perf-lbl">meetings</div><div class="perf-clients">'+(+t.clients||0)+' clients</div></div>';
+  }).join("");
+}
+function fetchSidebarInfo(){
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID||""),{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error)return;
+      var users=d.users||[];var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=users.length+"/1000";
+      if(d.me){
+        var n=d.me.full_name||d.me.email||"";var pts=n.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";
+        var av=document.getElementById("sbAvatar");if(av)av.textContent=ini;
+        var nm=document.getElementById("sbName");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
+        var em=document.getElementById("sbEmail");if(em)em.textContent=d.me.email||"";
+        var pmn=document.getElementById("pmName");if(pmn)pmn.textContent=(d.me.is_super_admin?"Super Admin":"Admin");
+        var pme=document.getElementById("pmEmail");if(pme)pme.textContent=d.me.email||"";
+      }
+    }).catch(function(){});
+}
+(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+function doLogout(){
+  if(!confirm("Sign out of GeoTrack admin?"))return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  window.location.replace("/bitrix/login?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID));
+}
+loadDash();
+</script>
+</body>
+</html>

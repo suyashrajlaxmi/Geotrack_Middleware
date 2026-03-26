@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Client Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:3px 9px 5px;padding:9px 11px;background:linear-gradient(135deg,#eef0fd,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r-sm);cursor:pointer;transition:border-color .13s}
+.plan-box:hover{border-color:var(--indigo)}
+.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.plan-row{display:flex;justify-content:space-between;margin-top:2.5px}
+.plan-k{font-size:9px;color:var(--text2);font-weight:500}
+.plan-v{font-size:9px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:7px 9px 11px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:var(--r-sm);background:var(--surface);cursor:pointer;transition:background .13s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:10.5px;font-weight:700;color:var(--text);line-height:1.2}
+.sb-user-email{font-size:8.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:30px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-btn{padding:5.5px 12px;border-radius:var(--r-sm);font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .13s;display:flex;align-items:center;gap:5px;font-family:var(--font)}
+.tb-btn svg{width:11px;height:11px}
+.tb-btn:hover{background:var(--surface);color:var(--text)}
+.tb-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-btn.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:13px;height:13px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px 13px;transition:all .15s;box-shadow:var(--sh)}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sc-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-icon svg{width:14px;height:14px}
+.sc-value{font-family:var(--font-hd);font-size:22px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.5px}
+.sc-label{font-size:10px;font-weight:700;color:var(--text2);margin-bottom:2px}
+.sc-sub{font-size:8.5px;color:var(--text3)}
+.ic-indigo{background:var(--indigo-lt);color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt);color:var(--emerald)}
+.ic-amber{background:var(--amber-lt);color:var(--amber)}
+.ic-rose{background:var(--rose-lt);color:var(--rose)}
+.ic-sky{background:var(--sky-lt);color:var(--sky)}
+
+/* ── CONTROLS ── */
+.controls-bar{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;box-shadow:var(--sh)}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-wrap input{width:100%;padding:7px 10px 7px 32px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11.5px;font-family:var(--font);outline:none;color:var(--text);background:var(--surface);transition:all .15s}
+.search-wrap input:focus{border-color:var(--indigo);background:var(--white);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-icon svg{width:13px;height:13px}
+.vdiv{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.filter-select{padding:6.5px 26px 6.5px 10px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11px;font-weight:500;color:var(--text2);background:var(--surface);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c94b8' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;min-width:110px}
+.filter-select:focus{border-color:var(--indigo)}
+.ctrl-btn{padding:5.5px 12px;border-radius:var(--r-sm);font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .13s;display:inline-flex;align-items:center;gap:5px;font-family:var(--font)}
+.ctrl-btn svg{width:11px;height:11px}
+.ctrl-btn:hover{background:var(--surface);color:var(--text);border-color:var(--indigo)}
+
+/* ── TABLE ── */
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.table-header{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-header h3{font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.7px}
+.table-count{background:var(--indigo-lt);color:var(--indigo);padding:2px 9px;border-radius:30px;font-size:10px;font-weight:700}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 12px;text-align:left;font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.9px;background:var(--surface);border-bottom:1px solid var(--border)}
+tbody td{padding:11px 12px;font-size:11.5px;border-bottom:1px solid #f0f2f9;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .1s}
+tbody tr:hover{background:#f5f6fd}
+.td-service strong{font-size:12px;font-weight:700;color:var(--text)}
+.svc-desc{font-size:9.5px;color:var(--text3);margin-top:2px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-client strong{font-size:12px;font-weight:700;color:var(--text)}
+.cli-email{font-size:9.5px;color:var(--text3);margin-top:1px}
+.badge{padding:3px 8px;border-radius:40px;font-size:9px;font-weight:700;display:inline-block;white-space:nowrap}
+.badge-active{background:var(--emerald-lt);color:var(--emerald)}
+.badge-expired{background:var(--rose-lt);color:var(--rose)}
+.badge-expiring{background:var(--amber-lt);color:var(--amber)}
+.badge-cancelled{background:var(--slate-lt);color:var(--slate)}
+.price-cell{font-size:11.5px;font-weight:700;color:var(--indigo);font-family:var(--font-mono)}
+.price-none{color:var(--text3);font-size:10px}
+.expiry-cell{font-size:11.5px;font-weight:700}
+.exp-red{color:var(--rose)}
+.exp-orange{color:var(--amber)}
+.exp-green{color:var(--emerald)}
+.exp-days{font-size:9px;font-weight:500;color:var(--text3);margin-top:1px}
+
+/* ── TABLE ACTION BUTTON (Manage) ── */
+.action-btn{padding:4px 12px;border-radius:30px;font-size:10px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;background:var(--indigo-lt);color:var(--indigo);white-space:nowrap}
+.action-btn:hover{background:var(--indigo);color:#fff;transform:translateY(-1px)}
+
+.showing-bar{padding:9px 14px;font-size:10px;color:var(--text3);border-top:1px solid var(--border);background:var(--surface)}
+.empty-row td{text-align:center;padding:36px 20px;color:var(--text3);font-size:11px}
+
+/* ── MODAL ── */
+.svc-modal-bg{position:fixed;inset:0;background:rgba(14,22,40,.5);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center}
+.svc-modal-bg.open{display:flex}
+.svc-modal{background:var(--white);border-radius:22px;width:700px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 48px rgba(0,0,0,.2);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.svc-head{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.svc-head-title{font-size:15px;font-weight:800;color:var(--text)}
+.svc-head-title span{font-weight:500;color:var(--text3);font-size:13px}
+.modal-close{width:28px;height:28px;border-radius:9px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;color:var(--text3)}
+.modal-close svg{width:12px;height:12px}
+.modal-close:hover{border-color:var(--rose2);color:var(--rose2);background:var(--rose-lt)}
+.svc-body{flex:1;overflow-y:auto;padding:16px 20px 20px}
+.m-alert{padding:8px 12px;border-radius:10px;font-size:11.5px;font-weight:600;margin-bottom:13px}
+.m-alert-err{background:var(--rose-lt);color:var(--rose);border:1px solid #fecdd3}
+.m-alert-ok{background:var(--emerald-lt);color:var(--emerald);border:1px solid #a7f3d0}
+
+/* Add service btn */
+.svc-add-new-btn{width:100%;padding:10px 16px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:16px;transition:all .15s}
+.svc-add-new-btn:hover{transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 6px 14px rgba(16,185,129,.22)}
+.svc-plus{width:14px;height:14px;position:relative;flex-shrink:0}
+.svc-plus::before,.svc-plus::after{content:'';position:absolute;background:currentColor;border-radius:1px}
+.svc-plus::before{width:2px;height:12px;top:1px;left:6px}
+.svc-plus::after{width:12px;height:2px;top:6px;left:1px}
+
+/* Service form */
+.svc-form-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px}
+.svc-form-card h3{font-size:12.5px;font-weight:800;color:var(--text);margin-bottom:13px}
+.sf-row{display:grid;gap:11px;margin-bottom:11px}
+.sf-row.c2{grid-template-columns:1fr 1fr}
+.sf-row.c3{grid-template-columns:1fr 1fr 1fr}
+.sf-fg label{display:block;font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+.sf-fg input,.sf-fg select,.sf-fg textarea{width:100%;padding:7.5px 10px;border:1px solid var(--border2);border-radius:9px;font-size:11.5px;font-family:var(--font);color:var(--text);outline:none;background:var(--white);transition:all .15s}
+.sf-fg input:focus,.sf-fg select:focus,.sf-fg textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
+.sf-fg textarea{resize:vertical;min-height:52px}
+.sf-err{font-size:10px;color:var(--rose2);margin-bottom:6px;min-height:14px}
+.sf-actions{display:flex;gap:10px;margin-top:13px}
+.sf-cancel{flex:1;padding:8px;border:1px solid var(--border2);border-radius:9px;background:var(--white);color:var(--text2);font-size:11.5px;font-weight:700;cursor:pointer;transition:all .13s;font-family:var(--font)}
+.sf-cancel:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-lt)}
+.sf-save{flex:1;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .13s;font-family:var(--font)}
+.sf-save:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.sf-save:disabled{opacity:.6;cursor:not-allowed}
+
+/* Service cards in modal */
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:14px 15px;margin-bottom:10px;transition:all .15s}
+.svc-card:hover{box-shadow:var(--sh-md);border-color:var(--border2)}
+.svc-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.svc-card-left{flex:1;min-width:0}
+.svc-card-name{font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.svc-status-badge{padding:2px 8px;border-radius:40px;font-size:9px;font-weight:700}
+.sb-active{background:var(--emerald-lt);color:var(--emerald)}
+.sb-expired{background:var(--rose-lt);color:var(--rose)}
+.sb-expiring{background:var(--amber-lt);color:var(--amber)}
+.sb-cancelled{background:var(--slate-lt);color:var(--slate)}
+.svc-card-desc{font-size:10.5px;color:var(--text2);margin-top:3px}
+
+/* ──────────────────────────────────────
+   SMALL EDIT / DELETE ICON BUTTONS
+   28×28px, icon-only, tight & clean
+────────────────────────────────────── */
+.svc-card-actions{display:flex;gap:5px;flex-shrink:0;margin-left:10px}
+.svc-action-btn{
+  width:26px;height:26px;
+  border-radius:7px;
+  border:1px solid var(--border2);
+  background:var(--white);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .13s;
+  color:var(--text3);
+  flex-shrink:0;
+}
+.svc-action-btn svg{width:12px;height:12px;display:block}
+.svc-edit-btn:hover{background:var(--indigo-lt);border-color:var(--indigo2);color:var(--indigo)}
+.svc-del-btn:hover{background:var(--rose-lt);border-color:var(--rose2);color:var(--rose2)}
+
+/* Service meta grid */
+.svc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 8px}
+.svc-meta-box{border-radius:11px;padding:8px 10px;background:var(--surface);border:1px solid var(--border)}
+.svc-meta-key{font-size:7.5px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:3px;letter-spacing:.6px}
+.svc-meta-val{font-size:12px;font-weight:700;color:var(--text)}
+.svc-price-box{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:11px;padding:9px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.price-icon{width:28px;height:28px;border-radius:50%;background:var(--emerald);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0}
+.svc-price-label{font-size:8px;font-weight:700;color:var(--emerald);text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px}
+.svc-price-val{font-size:14px;font-weight:800;color:var(--emerald);font-family:var(--font-mono)}
+.svc-card-foot{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border)}
+.svc-empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.svc-empty-icon{width:48px;height:48px;margin:0 auto 12px;border-radius:16px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.svc-empty-icon svg{width:22px;height:22px;color:var(--text3)}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:40px;font-size:11.5px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;box-shadow:var(--sh-md)}
+.toast-info{background:var(--indigo-lt);color:var(--indigo);border:1px solid #c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border:1px solid #a7f3d0}
+.toast-error{background:var(--rose-lt);color:var(--rose);border:1px solid #fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:10px}
+.page-loader.hidden{display:none}
+.loader-text{font-size:11px;color:var(--text3);font-weight:500}
+.spinner{width:24px;height:24px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fi{opacity:0;transform:translateY(6px);animation:fup .28s forwards}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+
+/* Confirm dialog */
+.confirm-overlay{position:fixed;inset:0;background:rgba(14,22,40,.45);backdrop-filter:blur(2px);z-index:1000;display:none;align-items:center;justify-content:center}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--white);border-radius:18px;padding:20px;width:340px;max-width:92vw;box-shadow:0 18px 36px rgba(0,0,0,.17);animation:modalIn .17s ease}
+.confirm-box h4{font-size:14px;font-weight:800;color:var(--text);margin-bottom:7px}
+.confirm-box p{font-size:11.5px;color:var(--text2);line-height:1.55;margin-bottom:18px}
+.confirm-actions{display:flex;gap:9px}
+.confirm-cancel-btn{flex:1;padding:8px;border:1px solid var(--border2);border-radius:9px;background:var(--white);color:var(--text2);font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .13s}
+.confirm-cancel-btn:hover{border-color:var(--border)}
+.confirm-delete-btn{flex:1;padding:8px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--rose),var(--rose2));color:#fff;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .13s}
+.confirm-delete-btn:hover{transform:translateY(-1px);filter:brightness(1.07)}
+
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.sidebar{display:none}.stats-grid{grid-template-columns:repeat(2,1fr)}.controls-bar{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+
+<!-- Page Loader -->
+<div id="pageLoader" class="page-loader">
+  <div class="spinner"></div>
+  <div class="loader-text">Loading services...</div>
+</div>
+
+<!-- Toast -->
+<div id="gtToast" class="gt-toast"></div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">Delete Service?</h4>
+    <p id="confirmMsg">This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="confirm-cancel-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-delete-btn" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Per-Client Services Modal -->
+<div class="svc-modal-bg" id="svcModal">
+  <div class="svc-modal">
+    <div class="svc-head">
+      <div class="svc-head-title">Services <span id="svcHeadName"></span></div>
+      <button class="modal-close" id="svcModalClose" title="Close">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M1 1l12 12M13 1L1 13"/>
+        </svg>
+      </button>
+    </div>
+    <div class="svc-body">
+      <div id="svcAlertBar"></div>
+      <button class="svc-add-new-btn" id="svcAddNewBtn" onclick="showSvcForm(null)">
+        <div class="svc-plus"></div> Add New Service
+      </button>
+      <div class="svc-form-card" id="svcFormCard" style="display:none">
+        <h3 id="svcFormTitle">Add New Service</h3>
+        <div class="sf-row c2">
+          <div class="sf-fg">
+            <label>Service Name *</label>
+            <input id="sfName" type="text" placeholder="e.g., Accounting Software">
+          </div>
+          <div class="sf-fg">
+            <label>Status</label>
+            <select id="sfStatus">
+              <option value="active">Active</option>
+              <option value="expired">Expired</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="sf-row">
+          <div class="sf-fg">
+            <label>Description</label>
+            <textarea id="sfDesc" rows="2" placeholder="Service description..."></textarea>
+          </div>
+        </div>
+        <div class="sf-row c3">
+          <div class="sf-fg">
+            <label>Start Date</label>
+            <input id="sfStart" type="date">
+          </div>
+          <div class="sf-fg">
+            <label>Expiry Date</label>
+            <input id="sfExpiry" type="date">
+          </div>
+          <div class="sf-fg">
+            <label>Price (Rs)</label>
+            <input id="sfPrice" type="number" step="0.01" min="0" placeholder="0.00">
+          </div>
+        </div>
+        <div class="sf-err" id="sfErr"></div>
+        <div class="sf-actions">
+          <button class="sf-cancel" onclick="hideSvcForm()">Cancel</button>
+          <button class="sf-save" id="sfSaveBtn" onclick="saveService()">Create Service</button>
+        </div>
+      </div>
+      <div id="svcCardList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company">
+      <div class="sb-co-label">Company</div>
+      <div class="sb-co-name" id="companyName">Loading...</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="navDash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-nav-item" id="navMap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        Map View
+      </div>
+      <div class="sb-nav-item" id="navJourney">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Journey Reports
+      </div>
+      <div class="sb-nav-item" id="navClients">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </div>
+      <div class="sb-nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Client Services
+      </div>
+      <div class="sb-nav-item" id="navTeam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Team Activity
+      </div>
+      <div class="sb-nav-item" id="navUser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        User Management
+      </div>
+      <div class="sb-nav-item" id="navBank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Bank Account
+      </div>
+      <div class="sb-nav-item" id="navExpand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Expand Capacity
+      </div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn">
+      <div class="plan-tier">⭐ ENTERPRISE</div>
+      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">G</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sbName">Admin</div>
+          <div class="sb-user-email" id="sbEmail">admin@geotrack.com</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="tb-left">
+        <div class="tb-title">Client Services</div>
+        <div class="tb-live"><div class="live-dot"></div> Live</div>
+      </div>
+      <div class="tb-actions">
+        <button class="tb-btn primary" onclick="loadServices()" title="Refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+          </svg>
+          Refresh
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-btn" id="profileBtn" title="Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+          </button>
+          <div class="profile-menu" id="profileMenu">
+            <p class="profile-menu-name" id="pmName">Admin Account</p>
+            <p class="profile-menu-email" id="pmEmail">—</p>
+            <hr class="pm-divider">
+            <button class="profile-logout-btn" onclick="doLogout()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Stats -->
+      <div class="sec-head"><span class="sec-head-label">Service Insights</span><div class="sec-head-line"></div></div>
+      <div class="stats-grid">
+        <div class="stat-card fi">
+          <div class="sc-row">
+            <div class="sc-icon ic-indigo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div class="sc-value" id="stTotal">0</div>
+          </div>
+          <div class="sc-label">Total Services</div>
+          <div class="sc-sub">All subscriptions</div>
+        </div>
+        <div class="stat-card fi" style="animation-delay:.04s">
+          <div class="sc-row">
+            <div class="sc-icon ic-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="sc-value" id="stActive">0</div>
+          </div>
+          <div class="sc-label">Active</div>
+          <div class="sc-sub">Currently active</div>
+        </div>
+        <div class="stat-card fi" style="animation-delay:.08s">
+          <div class="sc-row">
+            <div class="sc-icon ic-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="sc-value" id="stExpiring">0</div>
+          </div>
+          <div class="sc-label">Expiring Soon</div>
+          <div class="sc-sub">Within 30 days</div>
+        </div>
+        <div class="stat-card fi" style="animation-delay:.12s">
+          <div class="sc-row">
+            <div class="sc-icon ic-rose">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <div class="sc-value" id="stExpired">0</div>
+          </div>
+          <div class="sc-label">Expired</div>
+          <div class="sc-sub">Need renewal</div>
+        </div>
+        <div class="stat-card fi" style="animation-delay:.16s">
+          <div class="sc-row">
+            <div class="sc-icon ic-sky">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            </div>
+            <div class="sc-value" id="stRevenue">Rs 0</div>
+          </div>
+          <div class="sc-label">Total Revenue</div>
+          <div class="sc-sub">Service value</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="sec-head"><span class="sec-head-label">Filters & Actions</span><div class="sec-head-line"></div></div>
+      <div class="controls-bar fi">
+        <div class="search-wrap">
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input type="text" id="searchInput" placeholder="Search services, clients..." oninput="applyFilters()">
+        </div>
+        <div class="vdiv"></div>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+          <option value="expiring">Expiring Soon</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="filter-select" id="filterExpiry" onchange="applyFilters()">
+          <option value="">All Expiry</option>
+          <option value="30">Next 30 days</option>
+          <option value="60">Next 60 days</option>
+          <option value="90">Next 90 days</option>
+        </select>
+        <select class="filter-select" id="sortBy" onchange="applyFilters()">
+          <option value="expiry_asc">Expiry (Soonest)</option>
+          <option value="expiry_desc">Expiry (Latest)</option>
+          <option value="price_desc">Price (High)</option>
+          <option value="price_asc">Price (Low)</option>
+          <option value="name_asc">Name (A–Z)</option>
+        </select>
+        <button class="ctrl-btn" onclick="loadServices()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="sec-head"><span class="sec-head-label">Service Directory</span><div class="sec-head-line"></div></div>
+      <div class="table-card fi">
+        <div class="table-header">
+          <h3>Client Services</h3>
+          <span class="table-count" id="svcCount">0</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Client</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Start Date</th>
+                <th>Expiry</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="svcBody">
+              <tr class="empty-row"><td colspan="7">Loading services...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="showing-bar" id="showingBar">—</div>
+      </div>
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ── Bootstrap ──────────────────────────────────────────────────
+var _P = new URLSearchParams(location.search);
+var _INJ_MID  = "{{member_id}}";
+var _INJ_DOM  = "{{DOMAIN}}";
+var GT_MID = (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
+var GT_DOM = (_INJ_DOM !== "{{DOMAIN}}"    ? _INJ_DOM : (_P.get("DOMAIN")    || "world.bitrix24.com"));
+if (!GT_MID && window.__GT_MEMBER_ID__) GT_MID = window.__GT_MEMBER_ID__;
+if (!GT_DOM && window.__GT_DOMAIN__)    GT_DOM = window.__GT_DOMAIN__;
+
+var HG = { "ngrok-skip-browser-warning": "true" };
+var HJ = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" };
+
+var ALL_SERVICES  = [];
+var ALL_CLIENTS   = [];
+var FILTERED      = [];
+var FILTER_CLI    = _P.get("client_id") || "";
+var MODAL_CLIENT_ID   = null;
+var MODAL_CLIENT_NAME = "";
+var MODAL_EDIT_SVC_ID = null;
+var _confirmCallback  = null;
+
+// ── Utilities ──────────────────────────────────────────────────
+function toast(msg, type, ms) {
+  var t = document.getElementById("gtToast");
+  t.textContent = msg;
+  t.className   = "gt-toast toast-" + (type || "info");
+  t.style.display = "block";
+  clearTimeout(t._x);
+  t._x = setTimeout(function() { t.style.display = "none"; }, ms || 4000);
+}
+function setLoader(v) { document.getElementById("pageLoader").classList.toggle("hidden", !v); }
+function esc(s) {
+  return s ? String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;") : "";
+}
+function fmtD(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+function fmtPrice(n) {
+  n = +n;
+  if (!n || isNaN(n)) return null;
+  if (n >= 1e7)  return "Rs " + (n/1e7).toFixed(1) + "Cr";
+  if (n >= 1e5)  return "Rs " + (n/1e5).toFixed(1) + "L";
+  if (n >= 1000) return "Rs " + (n/1000).toFixed(1) + "K";
+  return "Rs " + n.toLocaleString("en-IN");
+}
+function daysUntil(ds) {
+  if (!ds) return null;
+  var n = new Date(); n.setHours(0,0,0,0);
+  var d = new Date(ds); d.setHours(0,0,0,0);
+  return Math.round((d-n)/86400000);
+}
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function navTo(url) {
+  fetch(url, { headers: HG })
+    .then(function(r){ return r.text(); })
+    .then(function(h){ document.open(); document.write(h); document.close(); })
+    .catch(function(){ window.location.replace(url); });
+}
+
+// ── Confirm dialog ─────────────────────────────────────────────
+function openConfirm(title, msg, cb) {
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmMsg").textContent   = msg;
+  _confirmCallback = cb;
+  document.getElementById("confirmOverlay").classList.add("open");
+  document.getElementById("confirmOkBtn").onclick = function() { closeConfirm(); if (_confirmCallback) _confirmCallback(); };
+}
+function closeConfirm() {
+  document.getElementById("confirmOverlay").classList.remove("open");
+  _confirmCallback = null;
+}
+
+// ── Sidebar navigation ─────────────────────────────────────────
+(function() {
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  var routes = {
+    navDash:    "/bitrix/app",
+    navMap:     "/bitrix/map",
+    navJourney: "/bitrix/journey",
+    navClients: "/bitrix/clients",
+    navTeam:    "/bitrix/team-activity",
+    navUser:    "/bitrix/user-management",
+    navBank:    "/bitrix/bank-account",
+    navExpand:  "/bitrix/expand-capacity"
+  };
+  Object.keys(routes).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.onclick = function() { navTo(routes[id] + p); };
+  });
+  var pb = document.getElementById("planBoxBtn");
+  if (pb) pb.onclick = function() { navTo("/bitrix/billing-plans" + p); };
+})();
+
+// ── Load services ──────────────────────────────────────────────
+function loadServices() {
+  setLoader(true);
+  fetch("/bitrix/services-data?member_id=" + encodeURIComponent(GT_MID), { headers: HG })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) { toast("Error: " + d.error, "error"); setLoader(false); return; }
+      ALL_SERVICES = d.services || [];
+      ALL_CLIENTS  = d.clients  || [];
+      document.getElementById("companyName").textContent = d.company || "Company";
+      renderStats();
+      applyFilters();
+      fetchSidebarInfo();
+      setLoader(false);
+    })
+    .catch(function(e){ toast("Load error: " + e.message, "error"); setLoader(false); });
+}
+
+// ── Stats ──────────────────────────────────────────────────────
+function renderStats() {
+  var total=ALL_SERVICES.length, active=0, expiring=0, expired=0, revenue=0;
+  ALL_SERVICES.forEach(function(s){
+    var d=daysUntil(s.expiry_date);
+    var isExp=(d!==null&&d<0)||s.status==="expired";
+    if (!isExp&&s.status!=="cancelled") active++;
+    if (d!==null&&d>=0&&d<=30&&s.status!=="cancelled") expiring++;
+    if (isExp) expired++;
+    revenue+=(+s.price||0);
+  });
+  document.getElementById("stTotal").textContent   = total;
+  document.getElementById("stActive").textContent   = active;
+  document.getElementById("stExpiring").textContent = expiring;
+  document.getElementById("stExpired").textContent  = expired;
+  document.getElementById("stRevenue").textContent  = fmtPrice(revenue)||"Rs 0";
+}
+
+// ── Filters ────────────────────────────────────────────────────
+function applyFilters() {
+  var q  = (document.getElementById("searchInput").value||"").toLowerCase().trim();
+  var st = document.getElementById("filterStatus").value;
+  var ex = document.getElementById("filterExpiry").value;
+  var so = document.getElementById("sortBy").value;
+  FILTERED = ALL_SERVICES.filter(function(s){
+    var d=daysUntil(s.expiry_date);
+    var isExp=(d!==null&&d<0)||s.status==="expired";
+    var isExpi=d!==null&&d>=0&&d<=30&&s.status!=="cancelled"&&!isExp;
+    var isAct=!isExp&&s.status!=="cancelled";
+    if (st==="active"    && !isAct)  return false;
+    if (st==="expired"   && !isExp)  return false;
+    if (st==="expiring"  && !isExpi) return false;
+    if (st==="cancelled" && s.status!=="cancelled") return false;
+    if (ex) { if (d===null||d<0||d>+ex) return false; }
+    if (FILTER_CLI && String(s.client_id)!==FILTER_CLI) return false;
+    if (q) {
+      var hay=[s.service_name,s.description,s.client_name,s.client_email].join(" ").toLowerCase();
+      if (hay.indexOf(q)===-1) return false;
+    }
+    return true;
+  });
+  FILTERED.sort(function(a,b){
+    var da=daysUntil(a.expiry_date), db=daysUntil(b.expiry_date);
+    if (so==="expiry_asc")  return (da!==null?da:99999)-(db!==null?db:99999);
+    if (so==="expiry_desc") return (db!==null?db:-99999)-(da!==null?da:-99999);
+    if (so==="price_desc")  return (+b.price||0)-(+a.price||0);
+    if (so==="price_asc")   return (+a.price||0)-(+b.price||0);
+    if (so==="name_asc")    return (a.service_name||"").localeCompare(b.service_name||"");
+    return 0;
+  });
+  renderTable();
+}
+
+// ── Render table ───────────────────────────────────────────────
+function renderTable() {
+  var tb=document.getElementById("svcBody");
+  document.getElementById("svcCount").textContent   = FILTERED.length;
+  document.getElementById("showingBar").textContent = "Showing "+FILTERED.length+" of "+ALL_SERVICES.length+" services";
+  if (!FILTERED.length) {
+    tb.innerHTML='<tr class="empty-row"><td colspan="7">'+(ALL_SERVICES.length===0?"No services yet. Open a client to add services.":"No services match your filters.")+'</td></tr>';
+    return;
+  }
+  tb.innerHTML = FILTERED.map(function(s){
+    var d=daysUntil(s.expiry_date);
+    var isExp=(d!==null&&d<0)||s.status==="expired";
+    var isExpi=d!==null&&d>=0&&d<=30&&!isExp;
+    var isCan=s.status==="cancelled";
+    var badge=isCan
+      ?'<span class="badge badge-cancelled">Cancelled</span>'
+      :isExp?'<span class="badge badge-expired">Expired</span>'
+      :isExpi?'<span class="badge badge-expiring">Expiring Soon</span>'
+      :'<span class="badge badge-active">Active</span>';
+    var expHtml;
+    if (s.expiry_date) {
+      var cls=isExp?"exp-red":(isExpi?"exp-orange":"exp-green");
+      var label=isExp?Math.abs(d)+" days ago":(d===0?"Today!":d+" days left");
+      expHtml='<div class="expiry-cell '+cls+'">'+fmtD(s.expiry_date)+'</div><div class="exp-days">'+label+'</div>';
+    } else {
+      expHtml='<span style="color:var(--text3);font-size:10px">No expiry</span>';
+    }
+    return '<tr>'+
+      '<td class="td-service"><strong>'+esc(s.service_name)+'</strong>'+(s.description?'<div class="svc-desc">'+esc(s.description)+'</div>':'')+
+      '</td><td class="td-client"><strong>'+esc(s.client_name||"—")+'</strong>'+(s.client_email?'<div class="cli-email">'+esc(s.client_email)+'</div>':'')+
+      '</td><td>'+badge+
+      '</td><td>'+(s.price?'<span class="price-cell">'+fmtPrice(s.price)+'</span>':'<span class="price-none">—</span>')+
+      '</td><td style="font-size:10.5px;color:var(--text2)">'+fmtD(s.start_date)+
+      '</td><td>'+expHtml+
+      '</td><td><button class="action-btn" onclick="openClientSvcModal(\''+s.client_id+'\',\''+esc(s.client_name||"Client")+'\')">Manage</button></td>'+
+    '</tr>';
+  }).join("");
+}
+
+// ── Per-client modal ───────────────────────────────────────────
+function openClientSvcModal(clientId, clientName) {
+  MODAL_CLIENT_ID=clientId; MODAL_CLIENT_NAME=clientName; MODAL_EDIT_SVC_ID=null;
+  document.getElementById("svcHeadName").textContent="— "+clientName;
+  document.getElementById("svcAlertBar").innerHTML="";
+  hideSvcForm();
+  document.getElementById("svcModal").classList.add("open");
+  renderModalSvcList();
+}
+function closeClientSvcModal() {
+  document.getElementById("svcModal").classList.remove("open");
+  MODAL_CLIENT_ID=null; MODAL_EDIT_SVC_ID=null;
+}
+function getClientServices() {
+  return ALL_SERVICES.filter(function(s){ return String(s.client_id)===String(MODAL_CLIENT_ID); });
+}
+
+// ── Render modal cards ─────────────────────────────────────────
+function renderModalSvcList() {
+  var svcs=getClientServices();
+  var el=document.getElementById("svcCardList");
+  if (!svcs.length) {
+    el.innerHTML='<div class="svc-empty"><div class="svc-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg></div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">No services yet</div><div style="font-size:11px">Add services to track what this client is using</div></div>';
+    return;
+  }
+  el.innerHTML=svcs.map(function(s){
+    var d=daysUntil(s.expiry_date);
+    var isExp=(d!==null&&d<0)||s.status==="expired";
+    var isExpi=d!==null&&d>=0&&d<=30&&!isExp;
+    var isCan=s.status==="cancelled";
+    var sCls=isCan?"sb-cancelled":isExp?"sb-expired":isExpi?"sb-expiring":"sb-active";
+    var expiryBox=isExpi?"style='border-color:#fde68a;background:var(--amber-lt)'":" ";
+    return '<div class="svc-card" id="svc-card-'+s.id+'">'+
+      '<div class="svc-card-head">'+
+        '<div class="svc-card-left">'+
+          '<div class="svc-card-name">'+esc(s.service_name)+
+            ' <span class="svc-status-badge '+sCls+'">'+esc(s.status||"active")+'</span>'+
+            (isExpi?' <span class="svc-status-badge sb-expiring">Expiring Soon</span>':'')+
+          '</div>'+
+          (s.description?'<div class="svc-card-desc">'+esc(s.description)+'</div>':'')+
+        '</div>'+
+        '<div class="svc-card-actions">'+
+          '<button class="svc-action-btn svc-edit-btn" onclick="editSvcCard('+s.id+')" title="Edit service">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+              '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>'+
+              '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>'+
+            '</svg>'+
+          '</button>'+
+          '<button class="svc-action-btn svc-del-btn" onclick="deleteSvcCard('+s.id+')" title="Delete service">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+              '<polyline points="3 6 5 6 21 6"/>'+
+              '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>'+
+              '<path d="M10 11v6M14 11v6"/>'+
+              '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>'+
+            '</svg>'+
+          '</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="svc-meta">'+
+        '<div class="svc-meta-box">'+
+          '<div class="svc-meta-key">📅 Start Date</div>'+
+          '<div class="svc-meta-val">'+(s.start_date?new Date(s.start_date).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"N/A")+'</div>'+
+        '</div>'+
+        '<div class="svc-meta-box" '+expiryBox+'>'+
+          '<div class="svc-meta-key">'+(isExp?"⚠️":isExpi?"⏰":"📅")+' Expiry</div>'+
+          '<div class="svc-meta-val" style="color:'+(isExp?"var(--rose)":isExpi?"var(--amber)":"var(--text)")+'">'+(s.expiry_date?new Date(s.expiry_date).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"No expiry")+'</div>'+
+        '</div>'+
+      '</div>'+
+      (s.price?'<div class="svc-price-box"><div class="price-icon">₹</div><div><div class="svc-price-label">Annual Price</div><div class="svc-price-val">Rs '+parseFloat(s.price).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})+'</div></div></div>':'')+
+      '<div class="svc-card-foot">'+
+        '<span>Created: '+new Date(s.created_at||Date.now()).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+'</span>'+
+        (s.client_name?'<span>'+esc(s.client_name)+'</span>':'')+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+// ── Form show/hide ─────────────────────────────────────────────
+function showSvcForm(editId) {
+  MODAL_EDIT_SVC_ID=editId||null;
+  document.getElementById("svcFormTitle").textContent=editId?"Edit Service":"Add New Service";
+  document.getElementById("sfSaveBtn").textContent=editId?"Update Service":"Create Service";
+  if (!editId) {
+    document.getElementById("sfName").value="";
+    document.getElementById("sfDesc").value="";
+    document.getElementById("sfStatus").value="active";
+    document.getElementById("sfStart").value=todayStr();
+    document.getElementById("sfExpiry").value="";
+    document.getElementById("sfPrice").value="";
+  }
+  document.getElementById("sfErr").textContent="";
+  document.getElementById("svcFormCard").style.display="block";
+  document.getElementById("svcAddNewBtn").style.display="none";
+  setTimeout(function(){ document.getElementById("sfName").focus(); },50);
+}
+function hideSvcForm() {
+  document.getElementById("svcFormCard").style.display="none";
+  document.getElementById("svcAddNewBtn").style.display="block";
+  MODAL_EDIT_SVC_ID=null;
+}
+
+// ── Edit ───────────────────────────────────────────────────────
+function editSvcCard(svcId) {
+  var s=ALL_SERVICES.find(function(x){ return x.id===svcId; });
+  if (!s) return;
+  showSvcForm(svcId);
+  document.getElementById("sfName").value  =s.service_name||"";
+  document.getElementById("sfDesc").value  =s.description||"";
+  document.getElementById("sfStatus").value=s.status||"active";
+  document.getElementById("sfStart").value =s.start_date ?new Date(s.start_date).toISOString().slice(0,10):"";
+  document.getElementById("sfExpiry").value=s.expiry_date?new Date(s.expiry_date).toISOString().slice(0,10):"";
+  document.getElementById("sfPrice").value =s.price||"";
+}
+
+// ── Delete ─────────────────────────────────────────────────────
+function deleteSvcCard(svcId) {
+  var s=ALL_SERVICES.find(function(x){ return x.id===svcId; });
+  if (!s) return;
+  openConfirm("Delete Service?","Are you sure you want to delete \""+( s.service_name||"this service")+"\"? This action cannot be undone.",function(){
+    fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify({
+      member_id:GT_MID,id:svcId,client_id:s.client_id,service_name:s.service_name,
+      description:s.description||"",price:s.price||null,status:"cancelled",
+      start_date:s.start_date?new Date(s.start_date).toISOString().slice(0,10):null,
+      expiry_date:s.expiry_date?new Date(s.expiry_date).toISOString().slice(0,10):null
+    })})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error){ showModalAlert("Error: "+d.error,"err"); return; }
+      showModalAlert("Service removed","ok"); toast("Service removed","success");
+      loadServicesAndRefreshModal();
+    })
+    .catch(function(e){ showModalAlert("Error: "+e.message,"err"); });
+  });
+}
+
+// ── Save ───────────────────────────────────────────────────────
+function saveService() {
+  var name=document.getElementById("sfName").value.trim();
+  if (!name){ document.getElementById("sfErr").textContent="Service name is required."; return; }
+  if (!MODAL_CLIENT_ID){ document.getElementById("sfErr").textContent="No client selected."; return; }
+  var btn=document.getElementById("sfSaveBtn");
+  btn.disabled=true; btn.textContent="Saving…";
+  var payload={
+    member_id:GT_MID,client_id:MODAL_CLIENT_ID,
+    service_name:name,
+    description:document.getElementById("sfDesc").value.trim(),
+    status:document.getElementById("sfStatus").value,
+    start_date:document.getElementById("sfStart").value||null,
+    expiry_date:document.getElementById("sfExpiry").value||null,
+    price:document.getElementById("sfPrice").value?parseFloat(document.getElementById("sfPrice").value):null
+  };
+  if (MODAL_EDIT_SVC_ID) payload.id=MODAL_EDIT_SVC_ID;
+  fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error){ document.getElementById("sfErr").textContent="Error: "+d.error; return; }
+      showModalAlert(MODAL_EDIT_SVC_ID?"Service updated!":"Service created!","ok");
+      toast(MODAL_EDIT_SVC_ID?"Service updated":"Service created","success");
+      hideSvcForm(); loadServicesAndRefreshModal();
+    })
+    .catch(function(e){ document.getElementById("sfErr").textContent="Error: "+e.message; })
+    .finally(function(){ btn.disabled=false; btn.textContent=MODAL_EDIT_SVC_ID?"Update Service":"Create Service"; });
+}
+
+// ── Reload keeping modal open ──────────────────────────────────
+function loadServicesAndRefreshModal() {
+  var cid=MODAL_CLIENT_ID, cname=MODAL_CLIENT_NAME;
+  fetch("/bitrix/services-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) return;
+      ALL_SERVICES=d.services||[]; ALL_CLIENTS=d.clients||[];
+      renderStats(); applyFilters();
+      if (cid && document.getElementById("svcModal").classList.contains("open")) {
+        MODAL_CLIENT_ID=cid; MODAL_CLIENT_NAME=cname; renderModalSvcList();
+      }
+    }).catch(function(){});
+}
+
+// ── Modal alert ────────────────────────────────────────────────
+function showModalAlert(msg,type) {
+  var el=document.getElementById("svcAlertBar");
+  el.innerHTML='<div class="m-alert m-alert-'+(type==="err"?"err":"ok")+'">'+esc(msg)+'</div>';
+  setTimeout(function(){ el.innerHTML=""; },3500);
+}
+
+// ── Sidebar info ───────────────────────────────────────────────
+function fetchSidebarInfo() {
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error) return;
+      var pb=document.getElementById("planBoxUsers");
+      if (pb) pb.textContent=(d.users||[]).length+"/1000";
+      var PLAN_META={
+        starter:{emoji:"🌱",label:"STARTER"},professional:{emoji:"⚡",label:"PROFESSIONAL"},
+        business:{emoji:"💼",label:"BUSINESS"},enterprise:{emoji:"⭐",label:"ENTERPRISE"}
+      };
+      var pm=PLAN_META[(d.current_plan||"enterprise")]||PLAN_META.enterprise;
+      var pt=document.querySelector("#planBoxBtn .plan-tier");
+      if (pt) pt.textContent=pm.emoji+" "+pm.label;
+      if (d.me) {
+        var n=d.me.full_name||d.me.email||"";
+        var pts=n.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";
+        var av=document.getElementById("sbAvatar"); if(av) av.textContent=ini;
+        var nm=document.getElementById("sbName"); if(nm) nm.textContent=d.me.full_name||d.me.email||"Admin";
+        var em=document.getElementById("sbEmail"); if(em) em.textContent=d.me.email||"";
+        var pmn=document.getElementById("pmName"); if(pmn) pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
+        var pme=document.getElementById("pmEmail"); if(pme) pme.textContent=d.me.email||"";
+      }
+    }).catch(function(){});
+}
+
+// ── Logout ─────────────────────────────────────────────────────
+function doLogout() {
+  if (!confirm("Sign out of GeoTrack admin?")) return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_user");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  navTo("/bitrix/logout"+p);
+}
+
+// ── Profile dropdown ───────────────────────────────────────────
+(function(){
+  var btn=document.getElementById("profileBtn");
+  if (btn) btn.addEventListener("click",function(e){ e.stopPropagation(); document.getElementById("profileMenu").classList.toggle("open"); });
+})();
+document.addEventListener("mousedown",function(e){
+  var w=document.getElementById("profileDropdown");
+  if (w&&!w.contains(e.target)) { var m=document.getElementById("profileMenu"); if(m) m.classList.remove("open"); }
+});
+
+// ── Modal listeners ────────────────────────────────────────────
+document.getElementById("svcModal").addEventListener("click",function(e){ if(e.target===this) closeClientSvcModal(); });
+document.getElementById("svcModalClose").addEventListener("click",closeClientSvcModal);
+document.getElementById("confirmOverlay").addEventListener("click",function(e){ if(e.target===this) closeConfirm(); });
+document.addEventListener("keydown",function(e){
+  if (e.key==="Escape"){
+    closeConfirm(); closeClientSvcModal();
+    var pm=document.getElementById("profileMenu"); if(pm) pm.classList.remove("open");
+  }
+});
+
+// ── Init ───────────────────────────────────────────────────────
+loadServices();
+</script>
+</body>
+</html>

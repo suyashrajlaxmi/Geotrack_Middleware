@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Admin Login</title>
+<!-- ngrok browser warning bypass — must be FIRST script in head -->
+<script>
+// If ngrok warning page is showing (URL is still the ngrok domain but content
+// is the warning), reload the page via fetch with the bypass header.
+// This is safe — it only fires once, and only on ngrok domains.
+(function(){
+  if(window.location.hostname.indexOf('ngrok')!==-1 ||
+     window.location.hostname.indexOf('ngrok-free')!==-1){
+    // Check if we're seeing the warning page (no cookie set yet)
+    if(!sessionStorage.getItem('ngrok_bypassed')){
+      sessionStorage.setItem('ngrok_bypassed','1');
+      // Re-fetch this exact page with the bypass header, then rewrite document
+      fetch(window.location.href,{
+        headers:{'ngrok-skip-browser-warning':'true','Cache-Control':'no-cache'}
+      })
+      .then(function(r){return r.text();})
+      .then(function(html){
+        document.open();document.write(html);document.close();
+      })
+      .catch(function(){
+        // Fallback: just reload (user will click Visit Site once)
+        window.location.reload();
+      });
+    }
+  }
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:#f0f1f8;display:flex;align-items:center;justify-content:center;}
+.card{background:#fff;border-radius:20px;padding:40px 36px 32px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(108,60,225,.12),0 2px 8px rgba(0,0,0,.06);animation:slideUp .35s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:28px;justify-content:center}
+.logo-box{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#6c3ce1,#a855f7);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(108,60,225,.35)}
+.brand-name{font-size:22px;font-weight:800;color:#1a1a2e;letter-spacing:-.4px}
+.card-title{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:4px;text-align:center}
+.card-sub{font-size:12px;color:#94a3b8;text-align:center;margin-bottom:28px;line-height:1.6}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.field input{width:100%;padding:11px 14px;border:1.5px solid #e8eaf0;border-radius:11px;font-size:14px;font-family:inherit;color:#1a1a2e;outline:none;transition:border-color .15s,box-shadow .15s;background:#fafbff}
+.field input:focus{border-color:#6c3ce1;box-shadow:0 0 0 3px rgba(108,60,225,.12);background:#fff}
+.field input::placeholder{color:#c4c9d6}
+.field input.err{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.1)}
+.forgot{text-align:right;margin-top:-10px;margin-bottom:20px}
+.forgot a{font-size:12px;color:#6c3ce1;text-decoration:none;font-weight:600;cursor:pointer}
+.forgot a:hover{text-decoration:underline}
+.back-link{display:block;text-align:center;margin-top:18px;font-size:13px;color:#6c3ce1;font-weight:600;cursor:pointer;text-decoration:none}
+.back-link:hover{text-decoration:underline}
+.btn-login{width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#6c3ce1,#8b5cf6);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.2px;box-shadow:0 4px 16px rgba(108,60,225,.35);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-login:hover:not(:disabled){filter:brightness(1.07);transform:translateY(-1px)}
+.btn-login:disabled{opacity:.65;cursor:not-allowed;transform:none}
+.spinner-sm{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-login.loading .spinner-sm{display:block}
+.btn-login.loading .btn-txt{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.alert-box{border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;margin-bottom:16px;display:none;align-items:center;gap:8px}
+.alert-box.show{display:flex}
+.alert-err{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.alert-ok {background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.note{text-align:center;font-size:11px;color:#94a3b8;margin-top:20px;padding-top:16px;border-top:1px solid #f0f1f8}
+.secure-badge{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:6px}
+.panel.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Always-visible logo -->
+  <div class="logo-row">
+    <div class="logo-box">&#x1F30D;</div>
+    <div class="brand-name">GeoTrack</div>
+  </div>
+
+  <!-- ══ LOGIN PANEL ══ -->
+  <div id="panelLogin" class="panel">
+    <div class="card-title">Admin Login</div>
+    <div class="card-sub">Sign in to manage your GeoTrack workspace</div>
+
+    <div class="alert-box alert-err" id="loginErr">
+      <span>&#x26A0;</span><span id="loginErrMsg">Invalid email or password</span>
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="admin@yourcompany.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="pwInput" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <div class="forgot"><a onclick="showForgot()">Forgot Password?</a></div>
+
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">
+      <div class="spinner-sm"></div>
+      <span class="btn-txt">Login</span>
+    </button>
+
+    <div class="note">
+      <div class="secure-badge">&#x1F512; Bitrix24 Workspace</div><br>
+      Multi-company system &bull; Company assignment required
+    </div>
+  </div>
+
+  <!-- ══ FORGOT PASSWORD PANEL ══ -->
+  <div id="panelForgot" class="panel hidden">
+    <div class="card-title">Forgot Password</div>
+    <div class="card-sub">Enter your email address and we'll send you a link to reset your password.</div>
+
+    <div class="alert-box alert-err" id="forgotErr">
+      <span>&#x26A0;</span><span id="forgotErrMsg">Something went wrong</span>
+    </div>
+    <div class="alert-box alert-ok" id="forgotOk">
+      <span>&#x2714;</span><span id="forgotOkMsg">Reset link sent! Check your email.</span>
+    </div>
+
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="forgotEmail" placeholder="admin@yourcompany.com" autocomplete="email">
+    </div>
+
+    <button class="btn-login" id="forgotBtn" onclick="doForgot()">
+      <div class="spinner-sm"></div>
+      <span class="btn-txt">Send Reset Link</span>
+    </button>
+
+    <a class="back-link" onclick="showLogin()">&#x2190; Back to Login</a>
+  </div>
+
+</div>
+
+<script>
+// ── Bulletproof member_id extraction ─────────────────────────
+var _P=new URLSearchParams(location.search);
+var _INJ_MID="{{member_id}}",_INJ_DOM="{{DOMAIN}}";
+var GT_MID=(window.__GT_MEMBER_ID__&&window.__GT_MEMBER_ID__.length>3)?window.__GT_MEMBER_ID__:
+           (_INJ_MID!=="{{member_id}}"?_INJ_MID:(_P.get("member_id")||""));
+var GT_DOM=(window.__GT_DOMAIN__&&window.__GT_DOMAIN__.length>3)?window.__GT_DOMAIN__:
+           (_INJ_DOM!=="{{DOMAIN}}"?_INJ_DOM:(_P.get("DOMAIN")||"world.bitrix24.com"));
+
+// Isolation: sessionStorage only — never touches React's localStorage("token")
+var BITRIX_TOKEN_KEY="bitrix_admin_token";
+var BITRIX_MID_KEY="bitrix_admin_mid";
+var HG={"ngrok-skip-browser-warning":"true"};
+
+// Auto-redirect if already logged in
+(function(){
+  if(sessionStorage.getItem(BITRIX_TOKEN_KEY)){
+    var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+    window.location.replace("/bitrix/app"+p);
+  }
+})();
+
+// ── Panel switching ───────────────────────────────────────────
+function showForgot(){
+  document.getElementById("panelLogin").classList.add("hidden");
+  document.getElementById("panelForgot").classList.remove("hidden");
+  // Pre-fill email if already typed
+  var existingEmail=document.getElementById("emailInput").value;
+  if(existingEmail) document.getElementById("forgotEmail").value=existingEmail;
+  document.getElementById("forgotErr").classList.remove("show");
+  document.getElementById("forgotOk").classList.remove("show");
+  document.getElementById("forgotEmail").focus();
+}
+function showLogin(){
+  document.getElementById("panelForgot").classList.add("hidden");
+  document.getElementById("panelLogin").classList.remove("hidden");
+  document.getElementById("emailInput").focus();
+}
+
+// ── Enter key routes to active panel ─────────────────────────
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  if(!document.getElementById("panelForgot").classList.contains("hidden")) doForgot();
+  else doLogin();
+});
+
+// ── Login helpers ─────────────────────────────────────────────
+function showLoginErr(msg){
+  document.getElementById("loginErrMsg").textContent=msg;
+  document.getElementById("loginErr").classList.add("show");
+  document.getElementById("emailInput").classList.add("err");
+  document.getElementById("pwInput").classList.add("err");
+}
+function clearLoginErr(){
+  document.getElementById("loginErr").classList.remove("show");
+  document.getElementById("emailInput").classList.remove("err");
+  document.getElementById("pwInput").classList.remove("err");
+}
+function setLoginLoading(v){
+  var btn=document.getElementById("loginBtn");
+  btn.disabled=v; btn.classList.toggle("loading",v);
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────
+async function doLogin(){
+  clearLoginErr();
+  var email=document.getElementById("emailInput").value.trim();
+  var password=document.getElementById("pwInput").value;
+  if(!email||!password){showLoginErr("Please enter your email and password.");return;}
+
+  setLoginLoading(true);
+  try{
+    var res=await fetch(window.location.origin+"/auth/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",...HG},
+      body:JSON.stringify({email:email,password:password})
+    });
+    var data;
+    try{data=await res.json();}catch(_){throw new Error("Server error. Please try again.");}
+    if(!res.ok||data.error) throw new Error(data.error||data.message||"Invalid email or password");
+
+    var token=data.token;
+    if(!token) throw new Error("No token received from server.");
+
+    var payload;
+    try{payload=JSON.parse(atob(token.split(".")[1]));}
+    catch(_){throw new Error("Invalid token format.");}
+
+    if(!payload.isAdmin&&!payload.is_admin)
+      throw new Error("You are not authorized to access the admin dashboard.");
+
+    // Store in sessionStorage — ISOLATED from React's localStorage("token")
+    sessionStorage.setItem(BITRIX_TOKEN_KEY,token);
+    sessionStorage.setItem(BITRIX_MID_KEY,GT_MID);
+
+    var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+    window.location.replace("/bitrix/app"+p);
+  }catch(e){
+    showLoginErr(e.message||"Login failed. Please try again.");
+  }finally{
+    setLoginLoading(false);
+  }
+}
+
+// ── FORGOT PASSWORD ───────────────────────────────────────────
+async function doForgot(){
+  document.getElementById("forgotErr").classList.remove("show");
+  document.getElementById("forgotOk").classList.remove("show");
+  document.getElementById("forgotEmail").classList.remove("err");
+
+  var email=document.getElementById("forgotEmail").value.trim();
+  if(!email){
+    document.getElementById("forgotErrMsg").textContent="Please enter your email address.";
+    document.getElementById("forgotErr").classList.add("show");
+    document.getElementById("forgotEmail").classList.add("err");
+    return;
+  }
+
+  document.getElementById("forgotBtn").disabled=true;
+  document.getElementById("forgotBtn").classList.add("loading");
+  try{
+    var res=await fetch(window.location.origin+"/auth/forgot-password",{
+      method:"POST",
+      headers:{"Content-Type":"application/json",...HG},
+      body:JSON.stringify({email:email})
+    });
+    var data;
+    try{data=await res.json();}catch(_){throw new Error("Server error. Please try again.");}
+    if(!res.ok&&res.status!==200) throw new Error(data.error||data.message||"Failed to send reset link.");
+
+    // Always show success (prevents email enumeration)
+    document.getElementById("forgotOkMsg").textContent=
+      "If an admin account exists for "+email+", a reset link has been sent.";
+    document.getElementById("forgotOk").classList.add("show");
+    document.getElementById("forgotEmail").value="";
+  }catch(e){
+    document.getElementById("forgotErrMsg").textContent=e.message||"Failed to send reset link.";
+    document.getElementById("forgotErr").classList.add("show");
+    document.getElementById("forgotEmail").classList.add("err");
+  }finally{
+    document.getElementById("forgotBtn").disabled=false;
+    document.getElementById("forgotBtn").classList.remove("loading");
+  }
+}
+</script>
+</body>
+</html>

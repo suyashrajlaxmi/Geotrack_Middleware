@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — User Expenses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR (unified) ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-tier svg{width:10px;height:10px;color:var(--amber)}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Breadcrumb */
+.breadcrumb{margin-bottom:12px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--indigo);cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .12s}
+.back-btn:hover{background:var(--indigo-lt);transform:translateX(-2px)}
+.back-btn svg{width:12px;height:12px}
+
+/* Page Header */
+.page-header{margin-bottom:18px}
+.page-header h1{font-family:var(--font-hd);font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:4px}
+.page-header .user-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.user-badge{background:var(--indigo-lt);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;color:var(--indigo);font-family:var(--font-mono)}
+
+/* Warning Banner */
+.warning-banner{background:var(--amber-lt);border:1px solid var(--amber2);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.warning-content{display:flex;align-items:center;gap:10px}
+.warning-icon{font-size:18px}
+.warning-text{font-size:11px;font-weight:500;color:var(--amber)}
+.warning-text strong{font-weight:700}
+.warning-btn{padding:5px 12px;border-radius:6px;border:none;background:linear-gradient(135deg,var(--amber),var(--amber2));color:#fff;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .12s}
+.warning-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+
+/* ── PAYMENT SUMMARY CARDS (3 cards) ── */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.summary-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:12px;transition:box-shadow .18s,transform .18s}
+.summary-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sm-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sm-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sm-icon svg{width:16px;height:16px}
+.sm-value{font-family:var(--font-hd);font-size:22px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.5px}
+.sm-label{font-size:10px;font-weight:700;color:var(--text2);margin-bottom:3px}
+.sm-sub{font-size:9px;color:var(--text3);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.progress-fill.green{background:linear-gradient(90deg,var(--emerald),var(--emerald2))}
+.progress-fill.rose{background:linear-gradient(90deg,var(--rose),var(--rose2))}
+.percent-badge{padding:2px 6px;border-radius:10px;font-size:8px;font-weight:700}
+.percent-badge.green{background:var(--emerald-lt);color:var(--emerald)}
+.percent-badge.rose{background:var(--rose-lt);color:var(--rose)}
+
+/* ── EXPENSE BREAKDOWN (PROPER CARD) ── */
+.breakdown-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.breakdown-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.breakdown-header h3{font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.8px}
+.breakdown-items{padding:0}
+.breakdown-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.breakdown-item:last-child{border-bottom:none}
+.breakdown-left{display:flex;align-items:center;gap:12px}
+.breakdown-dot{width:10px;height:10px;border-radius:50%}
+.breakdown-dot.paid{background:var(--emerald2);box-shadow:0 0 0 2px var(--emerald-lt)}
+.breakdown-dot.pending{background:var(--rose2);box-shadow:0 0 0 2px var(--rose-lt)}
+.breakdown-label{font-size:12px;font-weight:600;color:var(--text)}
+.breakdown-right{text-align:right}
+.breakdown-amount{font-size:14px;font-weight:800;margin-bottom:2px}
+.breakdown-amount.paid{color:var(--emerald)}
+.breakdown-amount.pending{color:var(--rose)}
+.breakdown-count{font-size:10px;color:var(--text3)}
+.breakdown-alert{background:var(--violet-lt);border-radius:var(--r-sm);margin:12px 16px 16px 16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.alert-icon{font-size:20px}
+.alert-content{flex:1}
+.alert-title{font-size:11px;font-weight:800;color:var(--violet);margin-bottom:2px}
+.alert-sub{font-size:10px;color:var(--violet);opacity:.8}
+
+/* ── STATS GRID (4 cards) ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
+.stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.sc-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sc-icon svg{width:13px;height:13px}
+.sc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
+.sc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.sc-sub{font-size:8.5px;color:var(--text3)}
+.ic-indigo {background:var(--indigo-lt)} .ic-indigo svg{color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt)} .ic-emerald svg{color:var(--emerald)}
+.ic-sky    {background:var(--sky-lt)}    .ic-sky svg{color:var(--sky)}
+.ic-amber  {background:var(--amber-lt)}  .ic-amber svg{color:var(--amber)}
+
+/* Section Header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.6px}
+.section-badge{background:var(--surface);color:var(--text2);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600}
+
+/* Expense List */
+.expense-list{display:flex;flex-direction:column;gap:12px}
+.expense-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .18s,transform .18s;opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+.expense-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+.card-inner{padding:14px 16px}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.card-left{display:flex;align-items:center;gap:12px}
+.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon svg{width:18px;height:18px}
+.card-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px}
+.card-amount-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-amount{font-size:13px;font-weight:700;color:var(--indigo)}
+.leg-badge{background:linear-gradient(135deg,var(--amber),var(--amber2));color:#fff;padding:2px 6px;border-radius:6px;font-size:9px;font-weight:700}
+.card-right{flex-shrink:0}
+.paid-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--emerald-lt);color:var(--emerald);font-size:10px;font-weight:700}
+.pay-button{padding:4px 10px;border-radius:20px;border:none;background:var(--indigo-lt);color:var(--indigo);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .12s}
+.pay-button:hover{background:var(--indigo);color:#fff;transform:translateY(-1px)}
+.details-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.detail-field{background:var(--surface);border-radius:8px;padding:8px 10px}
+.detail-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.detail-value{font-size:11px;font-weight:500;color:var(--text2)}
+.location-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.location-item{display:flex;align-items:flex-start;gap:6px}
+.location-dot{width:8px;height:8px;border-radius:50%;margin-top:3px}
+.location-dot.start{background:var(--emerald2)}
+.location-dot.end{background:var(--rose2)}
+.location-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:2px}
+.location-value{font-size:11px;color:var(--text2);word-break:break-word}
+.notes-box{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:flex-start;gap:6px}
+.notes-icon{font-size:12px}
+.notes-text{font-size:11px;color:var(--text2);flex:1}
+.journey-box{background:linear-gradient(135deg,var(--amber-lt),#fff1e6);border-radius:10px;padding:12px;margin-bottom:12px}
+.journey-header{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.journey-icon{font-size:14px}
+.journey-title{font-size:11px;font-weight:700;color:var(--amber)}
+.leg-item{background:var(--white);border-radius:8px;padding:10px;margin-bottom:6px}
+.leg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.leg-number{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700}
+.leg-amount{font-size:11px;font-weight:700;color:var(--emerald)}
+.leg-locations{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px;color:var(--text2);margin-bottom:4px}
+.leg-meta{font-size:9px;color:var(--text3);margin-top:4px}
+.leg-notes{font-size:9px;color:var(--text3);margin-top:4px}
+.receipts-section{margin-bottom:12px}
+.receipts-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.receipts-grid{display:flex;gap:8px;flex-wrap:wrap}
+.receipt-img{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:transform .2s}
+.receipt-img:hover{transform:scale(1.05)}
+.card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.footer-date{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--text3)}
+.footer-badges{display:flex;align-items:center;gap:8px}
+.footer-badge{display:flex;align-items:center;gap:3px;font-size:9px;font-weight:600;color:var(--text2)}
+.empty-state{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:48px 20px;text-align:center}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:11px;color:var(--text3)}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+@media(max-width:1100px){.summary-grid{grid-template-columns:repeat(3,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}.details-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{display:none}.summary-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading expenses...</div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="coN">Loading...</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="nD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="nM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="nJ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="nC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="nS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item active" id="nTA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="nUM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="nBA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="nEC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbN">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="85e4e1e8ecebc5e6eae8f5e4ebfcabe6eae8">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">User Expenses</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn primary" onclick="loadData()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="breadcrumb">
+        <button class="back-btn" id="backBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to Team Activity</button>
+      </div>
+
+      <div class="page-header">
+        <h1 id="ptitle">Expense Logs</h1>
+        <div class="user-meta" id="userMeta">User ID: <span class="user-badge" id="userIdBadge">—</span></div>
+      </div>
+
+      <div id="warningBanner" class="warning-banner" style="display:none">
+        <div class="warning-content"><span class="warning-icon">⚠️</span><span class="warning-text"><strong>All expenses pending</strong> — Use "Mark All Paid" if these were already paid</span></div>
+        <button class="warning-btn" onclick="markAllPaid()">Mark All Paid</button>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card fi"><div class="sm-row"><div class="sm-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div class="sm-value" id="totalAmount">₹0</div></div><div class="sm-label">Total Amount</div><div class="sm-sub" id="totalCount">0 expenses</div></div>
+        <div class="summary-card fi"><div class="sm-row"><div class="sm-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sm-value" id="paidAmount">₹0</div></div><div class="sm-label">Paid Amount</div><div class="sm-sub"><span id="paidCount">0 paid</span><span class="percent-badge green" id="paidPercent">0%</span></div><div class="progress-bar"><div class="progress-fill green" id="paidProgress" style="width:0%"></div></div></div>
+        <div class="summary-card fi"><div class="sm-row"><div class="sm-icon ic-rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="sm-value" id="pendingAmount">₹0</div></div><div class="sm-label">Pending Amount</div><div class="sm-sub"><span id="pendingCount">0 pending</span><span class="percent-badge rose" id="pendingPercent">0%</span></div><div class="progress-bar"><div class="progress-fill rose" id="pendingProgress" style="width:0%"></div></div></div>
+      </div>
+
+      <!-- Expense Breakdown Card - Properly styled -->
+      <div class="breakdown-card" id="breakdownCard">
+        <div class="breakdown-header"><h3>Expense Breakdown</h3></div>
+        <div class="breakdown-items" id="breakdownContent">
+          <div class="breakdown-item">
+            <div class="breakdown-left"><div class="breakdown-dot paid"></div><div class="breakdown-label">Paid Expenses</div></div>
+            <div class="breakdown-right"><div class="breakdown-amount paid" id="breakdownPaidAmount">₹0</div><div class="breakdown-count" id="breakdownPaidCount">0 of 0 expenses</div></div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-left"><div class="breakdown-dot pending"></div><div class="breakdown-label">Pending Expenses</div></div>
+            <div class="breakdown-right"><div class="breakdown-amount pending" id="breakdownPendingAmount">₹0</div><div class="breakdown-count" id="breakdownPendingCount">0 of 0 expenses</div></div>
+          </div>
+        </div>
+        <div id="breakdownAlert"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sc-value" id="totalExpenses">0</div></div><div class="sc-label">Total Expenses</div><div class="sc-sub">All records</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div class="sc-value" id="totalAmountStat">₹0</div></div><div class="sc-label">Total Amount</div><div class="sc-sub">Cumulative spending</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-value" id="avgAmount">₹0</div></div><div class="sc-label">Avg Amount</div><div class="sc-sub">Per expense</div></div>
+        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sc-value" id="totalDistance">0km</div></div><div class="sc-label">Total Distance</div><div class="sc-sub">Traveled</div></div>
+      </div>
+
+      <div class="section-header"><div class="section-title">All Expenses</div><div class="section-badge" id="expenseCount">0 records</div></div>
+      <div class="expense-list" id="expenseList"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">Loading expenses...</div><div class="empty-sub">Please wait while we fetch expense data</div></div></div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var _SM="{{member_id}}",_SD="{{DOMAIN}}",_SU="{{user_id}}",_SN="{{user_name}}";
+var _P=new URLSearchParams(location.search);
+var GT_MID=(_SM&&_SM!=="{{member_id}}")?_SM:(_P.get("member_id")||"");
+var GT_DOM=(_SD&&_SD!=="{{DOMAIN}}")?_SD:(_P.get("DOMAIN")||"world.bitrix24.com");
+var UID=(_SU&&_SU!=="{{user_id}}")?_SU:(_P.get("user_id")||"");
+var UNM=(_SN&&_SN!=="{{user_name}}")?_SN:(_P.get("user_name")||"User");
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
+
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
+function fmtPrice(n){n=+n;if(!n||isNaN(n))return"₹0";if(n>=1e7)return"₹"+(n/1e7).toFixed(1)+"Cr";if(n>=1e5)return"₹"+(n/1e5).toFixed(1)+"L";if(n>=1000)return"₹"+(n/1000).toFixed(1)+"K";return"₹"+n.toLocaleString("en-IN");}
+function fmtDate(d){if(!d)return"—";try{var dt=new Date(d);return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+" "+dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true});}catch(e){return"—";}}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
+function nav(u){fetch(u,{headers:HG}).then(r=>r.text()).then(h=>{document.open();document.write(h);document.close();}).catch(()=>window.location.replace(u));}
+function normPaid(v){if(v===true||v==="t"||v==="true"||v===1||v==="1")return true;if(typeof v==="string"&&v.toUpperCase()==="PAID")return true;return false;}
+function normExp(e){return{id:e.id,amount_spent:e.amount_spent!=null?+e.amount_spent:(e.amountSpent!=null?+e.amountSpent:0),distance_km:e.distance_km!=null?+e.distance_km:(e.distanceKm!=null?+e.distanceKm:0),transport_mode:(e.transport_mode||e.transportMode||"").toUpperCase(),start_location:e.start_location||e.startLocation||"",end_location:e.end_location||e.endLocation||"",notes:e.notes||"",currency:e.currency||"₹",trip_name:e.trip_name||e.tripName||"",client_name:e.client_name||e.clientName||"",created_at:e.created_at||e.createdAt||null,travel_date_display:(function(){var raw=e.travel_date||e.travelDate;if(!raw)return"";try{var n=typeof raw==="number"?raw:(/^\d+$/.test(String(raw).trim())?parseInt(raw,10):NaN);var d=isNaN(n)?new Date(raw):new Date(n);return isNaN(d.getTime())?"":d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});}catch(_){return"";}})(),is_paid:normPaid(e.is_paid!=null?e.is_paid:(e.isPaid!=null?e.isPaid:(e.payment_status||e.paymentStatus))),is_multi_leg:!!(e.is_multi_leg||e.isMultiLeg),legs:(e.legs||[]).map(function(lg){return{leg_number:lg.leg_number||lg.legNumber||0,start_location:lg.start_location||lg.startLocation||"",end_location:lg.end_location||lg.endLocation||"",distance_km:lg.distance_km!=null?+lg.distance_km:(lg.distanceKm!=null?+lg.distanceKm:0),transport_mode:lg.transport_mode||lg.transportMode||"",amount_spent:lg.amount_spent!=null?+lg.amount_spent:(lg.amountSpent!=null?+lg.amountSpent:0),notes:lg.notes||""};}),receipt_images:(function(){var imgs=e.receipt_images||e.receiptImages||e.receiptUrls||e.receipt_urls||[];if(!Array.isArray(imgs))imgs=[];return imgs.filter(function(u){return u&&String(u).trim();});})()};}
+
+function wNav(){
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={nD:"/bitrix/app",nM:"/bitrix/map",nJ:"/bitrix/journey",nC:"/bitrix/clients",nS:"/bitrix/client-services",nTA:"/bitrix/team-activity",nUM:"/bitrix/user-management",nBA:"/bitrix/bank-account",nEC:"/bitrix/expand-capacity"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){nav(routes[id]+p);};});
+  document.getElementById("backBtn").onclick=function(){nav("/bitrix/team-activity"+p);};
+  document.getElementById("planBoxBtn").onclick=function(){nav("/bitrix/billing-plans"+p);};
+}
+
+function markPaid(eid){setLoader(true);fetch("/bitrix/team-expense-pay",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,expense_id:String(eid)})}).then(r=>r.json()).then(d=>{if(d.error){toast("Error: "+d.error,"error");setLoader(false);return;}toast("✅ Expense marked as paid","success");loadData();}).catch(e=>{toast("Failed: "+e.message,"error");setLoader(false);});}
+function markAllPaid(){if(!confirm("Mark all pending expenses for this user as paid?"))return;setLoader(true);fetch("/bitrix/team-expense-pay-all",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,user_id:UID})}).then(r=>r.json()).then(d=>{if(d.error){toast("Error: "+d.error,"error");setLoader(false);return;}toast("✅ All expenses marked as paid","success");loadData();}).catch(e=>{toast("Failed: "+e.message,"error");setLoader(false);});}
+
+function renderBreakdown(paid,pend,paidCt,pendCt,total){
+  document.getElementById("breakdownPaidAmount").innerHTML=fmtPrice(paid);
+  document.getElementById("breakdownPaidCount").innerHTML=paidCt+" of "+total+" expenses";
+  document.getElementById("breakdownPendingAmount").innerHTML=fmtPrice(pend);
+  document.getElementById("breakdownPendingCount").innerHTML=pendCt+" of "+total+" expenses";
+  var alertDiv=document.getElementById("breakdownAlert");
+  if(pendCt>0){
+    alertDiv.innerHTML='<div class="breakdown-alert"><span class="alert-icon">⚠️</span><div class="alert-content"><div class="alert-title">Action Required</div><div class="alert-sub">'+pendCt+' expense'+(pendCt>1?'s':'')+' waiting for payment</div></div></div>';
+  }else{
+    alertDiv.innerHTML='';
+  }
+}
+
+function renderExpenses(exps){
+  var el=document.getElementById("expenseList");
+  document.getElementById("expenseCount").textContent=exps.length+" record"+(exps.length!==1?"s":"");
+  if(!exps.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No expenses found</div><div class="empty-sub">This user hasn\'t recorded any expenses yet</div></div>';return;}
+  var transportColors={BIKE:"#10b981",CAR:"#0ea5e9",TRAIN:"#f59e0b",BUS:"#22c55e",AUTO:"#ec4899",WALK:"#8c94b8",TAXI:"#6366f1",METRO:"#a855f7",OTHER:"#8c94b8"};
+  el.innerHTML=exps.map(function(e,i){var isPaid=e.is_paid===true;var isML=e.is_multi_leg===true;var tr=e.transport_mode;var icoColor=isML?"linear-gradient(135deg,#f59e0b,#f97316)":"linear-gradient(135deg,"+(transportColors[tr]||"#6366f1")+","+(transportColors[tr]||"#6366f1")+"bb)";var title=e.trip_name||e.notes||(tr||(isML?"Multi-Leg Trip":"Expense"));if(title.length>45)title=title.substring(0,45)+"…";var amtRow='<span class="card-amount">'+fmtPrice(e.amount_spent)+'</span>';if(isML&&e.legs&&e.legs.length)amtRow+=' <span class="leg-badge">'+e.legs.length+' Legs</span>';var action=isPaid?'<span class="paid-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Paid</span>':'<button class="pay-button" onclick="markPaid(\''+esc(String(e.id))+'\')">✓ Mark Paid</button>';var details='<div class="details-grid">';if(e.distance_km>0)details+='<div class="detail-field"><div class="detail-label">Distance</div><div class="detail-value">'+e.distance_km.toFixed(2)+' km</div></div>';if(tr)details+='<div class="detail-field"><div class="detail-label">Transport</div><div class="detail-value">'+esc(tr)+'</div></div>';if(e.travel_date_display)details+='<div class="detail-field"><div class="detail-label">Travel Date</div><div class="detail-value">'+esc(e.travel_date_display)+'</div></div>';if(e.client_name)details+='<div class="detail-field"><div class="detail-label">Client</div><div class="detail-value">'+esc(e.client_name)+'</div></div>';details+='</div>';var locH="";if(!isML&&(e.start_location||e.end_location)){locH='<div class="location-grid">';if(e.start_location)locH+='<div class="location-item"><div class="location-dot start"></div><div><div class="location-label">From</div><div class="location-value">'+esc(e.start_location)+'</div></div></div>';if(e.end_location)locH+='<div class="location-item"><div class="location-dot end"></div><div><div class="location-label">To</div><div class="location-value">'+esc(e.end_location)+'</div></div></div>';locH+='</div>';}var notesH=e.notes?'<div class="notes-box"><span class="notes-icon">📝</span><span class="notes-text">'+esc(e.notes)+'</span></div>':"";var legH="";if(isML&&e.legs&&e.legs.length){legH='<div class="journey-box"><div class="journey-header"><span class="journey-icon">🚗</span><span class="journey-title">Journey Breakdown ('+e.legs.length+' legs)</span></div>'+e.legs.map(function(lg,li){return'<div class="leg-item"><div class="leg-header"><span class="leg-number">Leg '+(lg.leg_number||li+1)+'</span>'+(lg.amount_spent>0?'<span class="leg-amount">'+fmtPrice(lg.amount_spent)+'</span>':'')+'</div><div class="leg-locations"><div><strong>From:</strong> '+esc(lg.start_location||"—")+'</div><div><strong>To:</strong> '+esc(lg.end_location||"—")+'</div></div>'+(lg.distance_km>0||lg.transport_mode?'<div class="leg-meta">'+(lg.distance_km>0?lg.distance_km.toFixed(2)+' km':'')+((lg.distance_km>0&&lg.transport_mode)?' · ':'')+esc(lg.transport_mode||'')+'</div>':'')+(lg.notes?'<div class="leg-notes">📌 '+esc(lg.notes)+'</div>':'')+'</div>';}).join("")+'</div>';}var recH="";if(e.receipt_images&&e.receipt_images.length){recH='<div class="receipts-section"><div class="receipts-label"><span>📎</span> Receipts ('+e.receipt_images.length+')</div><div class="receipts-grid">'+e.receipt_images.slice(0,4).map(function(img){var src=img.startsWith("data:")?img:(img.startsWith("http")?img:"data:image/webp;base64,"+img);return'<img class="receipt-img" src="'+esc(src)+'" alt="receipt" onerror="this.style.display=\'none\'" onclick="window.open(\''+esc(src)+'\',\'_blank\')">';}).join("")+(e.receipt_images.length>4?'<div style="display:flex;align-items:center;font-size:10px;color:var(--indigo)">+'+(e.receipt_images.length-4)+' more</div>':'')+'</div></div>';}var footerRight="";if(e.receipt_images&&e.receipt_images.length)footerRight+='<div class="footer-badge"><span>📎</span> '+e.receipt_images.length+' receipt'+(e.receipt_images.length!==1?'s':'')+'</div>';if(isML&&e.legs&&e.legs.length)footerRight+='<div class="footer-badge"><span>🚗</span> '+e.legs.length+' leg'+(e.legs.length!==1?'s':'')+'</div>';return'<div class="expense-card" style="animation-delay:'+(i*0.03).toFixed(2)+'s"><div class="card-inner"><div class="card-header"><div class="card-left"><div class="card-icon" style="background:'+icoColor+'"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div><div class="card-title">'+esc(title)+'</div><div class="card-amount-row">'+amtRow+'</div></div></div><div class="card-right">'+action+'</div></div>'+details+locH+notesH+legH+recH+'<div class="card-footer"><div class="footer-date"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'+fmtDate(e.created_at)+'</div>'+(footerRight?'<div class="footer-badges">'+footerRight+'</div>':'')+'</div></div></div>';}).join("");
+}
+
+function fetchSidebarInfo(){fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG}).then(r=>r.json()).then(d=>{if(d.error)return;var users=d.users||[];document.getElementById("planUsers").textContent=users.length+"/1000";if(d.me){var n=d.me.full_name||d.me.email||"";var pts=n.trim().split(/\s+/);var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";document.getElementById("sbAv").textContent=ini;document.getElementById("sbN").textContent=d.me.full_name||d.me.email||"Admin";document.getElementById("sbEmail").textContent=d.me.email||"";document.getElementById("pmName").textContent=d.me.is_super_admin?"Super Admin":"Admin Account";document.getElementById("pmEmail").textContent=d.me.email||"";}}).catch(()=>{});}
+
+function loadData(){
+  setLoader(true);
+  if(!UID){setLoader(false);document.getElementById("expenseList").innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">No user selected</div><div class="empty-sub"><a href="#" onclick="nav(\'/bitrix/team-activity?DOMAIN=\'+encodeURIComponent(GT_DOM)+\'&member_id=\'+encodeURIComponent(GT_MID))">Go back to Team Activity</a></div></div>';return;}
+  document.getElementById("ptitle").innerHTML="Expense Logs - "+esc(UNM);document.getElementById("userIdBadge").innerHTML=UID.substring(0,16)+(UID.length>16?"...":"");
+  fetch("/bitrix/team-expenses-data?member_id="+encodeURIComponent(GT_MID)+"&user_id="+encodeURIComponent(UID),{headers:HG}).then(r=>r.json()).then(d=>{if(d.error&&d.error!=="NO_COMPANY"){document.getElementById("expenseList").innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">API Error</div><div class="empty-sub">'+esc(d.error)+(d.detail?' — '+esc(d.detail):'')+'</div></div>';setLoader(false);return;}
+    document.getElementById("coN").innerHTML=d.company||"Company";document.getElementById("sbN").innerHTML=d.company||"—";document.getElementById("sbAv").innerHTML=(d.company||"G")[0].toUpperCase();var pb=document.getElementById("planUsers");if(pb)pb.textContent=(d.user_count||"—")+"/1000";
+    // Dynamic sidebar plan label
+    var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+    var exps=(d.expenses||[]).map(normExp);var s=d.summary||{};var tot=s.total_amount!=null?+s.total_amount:exps.reduce(function(a,e){return a+e.amount_spent;},0);var paid=s.paid_amount!=null?+s.paid_amount:exps.filter(function(e){return e.is_paid;}).reduce(function(a,e){return a+e.amount_spent;},0);var pend=tot-paid;var paidCt=s.paid_count!=null?+s.paid_count:exps.filter(function(e){return e.is_paid;}).length;var pendCt=exps.length-paidCt;var dist=s.total_distance!=null?+s.total_distance:exps.reduce(function(a,e){return a+e.distance_km;},0);var avg=s.avg_amount!=null?+s.avg_amount:(exps.length?tot/exps.length:0);var paidPct=tot>0?Math.round(paid/tot*100):0;var pendPct=tot>0?Math.round(pend/tot*100):0;
+    document.getElementById("totalAmount").innerHTML=fmtPrice(tot);document.getElementById("totalCount").innerHTML=exps.length+" expense"+(exps.length!==1?"s":"");document.getElementById("paidAmount").innerHTML=fmtPrice(paid);document.getElementById("paidCount").innerHTML=paidCt+" paid";document.getElementById("paidPercent").innerHTML=paidPct+"%";document.getElementById("paidProgress").style.width=paidPct+"%";document.getElementById("pendingAmount").innerHTML=fmtPrice(pend);document.getElementById("pendingCount").innerHTML=pendCt+" pending";document.getElementById("pendingPercent").innerHTML=pendPct+"%";document.getElementById("pendingProgress").style.width=pendPct+"%";
+    document.getElementById("totalExpenses").innerHTML=exps.length;document.getElementById("totalAmountStat").innerHTML=fmtPrice(tot);document.getElementById("avgAmount").innerHTML=fmtPrice(Math.round(avg));document.getElementById("totalDistance").innerHTML=dist>0?dist.toFixed(1)+"km":"0km";
+    var wb=document.getElementById("warningBanner");if(wb)wb.style.display=(exps.length>0&&paidCt===0)?"flex":"none";
+    renderBreakdown(paid,pend,paidCt,pendCt,exps.length);renderExpenses(exps);fetchSidebarInfo();setLoader(false);}).catch(function(e){console.error("expenses fetch error:",e);document.getElementById("expenseList").innerHTML='<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load</div><div class="empty-sub">'+esc(e.message||"Network error")+'</div></div>';setLoader(false);});}
+wNav();loadData();
+setTimeout(function(){setLoader(false);},12000);
+(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+(function(){var t=sessionStorage.getItem("bitrix_admin_token");if(t){try{var p=JSON.parse(atob(t.split(".")[1]));var em=p.email||p.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}var mid=typeof GT_MID!=="undefined"?GT_MID:"";fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}}).then(function(r){return r.json();}).then(function(d){if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(function(){});})();
+function doLogout(){if(!confirm("Sign out of GeoTrack admin?"))return;sessionStorage.removeItem("bitrix_admin_token");sessionStorage.removeItem("bitrix_admin_mid");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  window.location.replace("/bitrix/login"+p);
+}
+</script>
+</body>
+</html>

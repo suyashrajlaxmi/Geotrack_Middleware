@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoTrack — Bank Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
+  --text:#0e1628;--text2:#4a5278;--text3:#8c94b8;
+  --indigo:#4338ca;--indigo2:#6366f1;--indigo-lt:#eef0fd;--indigo-glow:rgba(67,56,202,.14);
+  --emerald:#047857;--emerald2:#10b981;--emerald-lt:#ecfdf5;
+  --sky:#0369a1;--sky2:#0ea5e9;--sky-lt:#e0f2fe;
+  --rose:#be123c;--rose2:#f43f5e;--rose-lt:#fff1f2;
+  --amber:#b45309;--amber2:#f59e0b;--amber-lt:#fffbeb;
+  --violet:#6d28d9;--violet-lt:#f5f3ff;--slate:#475569;--slate-lt:#f1f5f9;
+  --r:11px;--r-sm:7px;
+  --font:"DM Sans",sans-serif;--font-hd:"Bricolage Grotesque",sans-serif;--font-mono:"DM Mono",monospace;
+  --sh:0 1px 3px rgba(14,22,40,.05),0 1px 6px rgba(14,22,40,.04);
+  --sh-md:0 3px 16px rgba(67,56,202,.09),0 1px 4px rgba(14,22,40,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR (unified) ── */
+.sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
+.sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
+.sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
+.sb-logo{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px var(--indigo-glow)}
+.sb-logo svg{width:14px;height:14px;color:#fff}
+.sb-brand-name{font-family:var(--font-hd);font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.sb-company{margin:9px 9px 2px;background:var(--indigo-lt);border:1px solid #c7d2fe;border-radius:var(--r-sm);padding:7px 9px}
+.sb-co-label{font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.sb-co-name{font-size:11px;font-weight:700;color:var(--indigo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nav{padding:6px 7px;flex:1}
+.sb-nav-item{display:flex;align-items:center;gap:7px;padding:6.5px 8px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;transition:all .13s}
+.sb-nav-item svg{width:12px;height:12px;flex-shrink:0;opacity:.6}
+.sb-nav-item:hover{background:var(--surface);color:var(--text)}
+.sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
+.sb-nav-item.active svg{opacity:1}
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-tier svg{width:10px;height:10px;color:var(--amber)}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.tb-left{display:flex;align-items:center;gap:9px}
+.tb-title{font-family:var(--font-hd);font-size:15px;font-weight:800;color:var(--text);letter-spacing:-.35px}
+.tb-live{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;background:var(--emerald-lt);border:1px solid #a7f3d0;font-size:9px;font-weight:600;color:var(--emerald)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.tb-actions{display:flex;align-items:center;gap:6px}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .13s;color:var(--text2)}
+.tb-icon-btn svg{width:13px;height:13px}
+.tb-icon-btn:hover{background:var(--surface);border-color:var(--indigo);color:var(--indigo)}
+.tb-icon-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;box-shadow:0 2px 7px var(--indigo-glow)}
+.tb-icon-btn.primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.profile-dropdown{position:relative;display:inline-flex}
+.profile-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .13s}
+.profile-btn svg{width:14px;height:14px;color:var(--text2)}
+.profile-btn:hover{border-color:var(--indigo)}
+.profile-menu{display:none;position:absolute;right:0;top:calc(100% + 7px);width:200px;border-radius:11px;padding:11px;z-index:9999;background:var(--white);border:1px solid var(--border2);box-shadow:var(--sh-md)}
+.profile-menu.open{display:block}
+.profile-menu-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.profile-menu-email{font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.profile-logout-btn{width:100%;display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--rose);font-family:inherit;background:var(--rose-lt);transition:all .12s}
+.profile-logout-btn svg{width:12px;height:12px;flex-shrink:0}
+.profile-logout-btn:hover{background:#ffe4e6}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:14px 18px 28px}
+
+/* Section heads */
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
+.sec-head-line{flex:1;height:1px;background:var(--border)}
+
+/* Search Bar */
+.search-bar{position:relative;margin-bottom:14px}
+.search-input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--border2);border-radius:var(--r-sm);font-size:11px;font-family:var(--font);outline:none;color:var(--text);background:var(--surface);transition:border-color .15s}
+.search-input:focus{border-color:var(--indigo);background:var(--white)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-icon svg{width:14px;height:14px}
+
+/* User List */
+.user-list{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.user-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.user-item:last-child{border-bottom:none}
+.user-item:hover{background:var(--surface)}
+.user-left{display:flex;align-items:center;gap:12px}
+.user-avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.user-info{flex:1}
+.user-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.user-email{font-size:10px;color:var(--text3)}
+.saved-badge{background:var(--emerald-lt);color:var(--emerald);padding:2px 6px;border-radius:12px;font-size:9px;font-weight:600;margin-left:6px}
+.user-right-icon{width:32px;height:32px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--indigo)}
+
+/* Detail View */
+.detail-view{display:none}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--indigo);cursor:pointer;padding:4px 8px;border-radius:6px;margin-bottom:16px;transition:all .12s}
+.back-btn:hover{background:var(--indigo-lt);transform:translateX(-2px)}
+.back-btn svg{width:12px;height:12px}
+.detail-title{font-family:var(--font-hd);font-size:18px;font-weight:800;color:var(--text);margin-bottom:18px}
+
+/* User Info Bar */
+.user-info-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.user-info-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.user-info-details{flex:1}
+.user-info-name{font-size:13px;font-weight:800;color:var(--text);margin-bottom:2px}
+.user-info-email{font-size:11px;color:var(--text3)}
+.saved-badge-large{background:var(--emerald-lt);color:var(--emerald);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+
+/* Form Sections */
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.form-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:8px}
+.form-header-icon{font-size:16px}
+.form-header-title{font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.6px}
+.form-body{padding:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.form-input{padding:8px 11px;border:1px solid var(--border2);border-radius:8px;font-size:12px;font-family:var(--font);outline:none;color:var(--text);background:var(--surface);transition:border-color .15s}
+.form-input:focus{border-color:var(--indigo);background:var(--white)}
+.form-hint{font-size:9px;color:var(--text3);margin-top:2px}
+.or-divider{text-align:center;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;padding:8px 0}
+.tip-box{background:var(--amber-lt);border:1px solid var(--amber2);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;align-items:flex-start;gap:8px}
+.tip-icon{font-size:14px}
+.tip-text{font-size:10px;color:var(--amber);line-height:1.4}
+.tip-text strong{font-weight:800}
+.save-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px}
+.save-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.save-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Empty State */
+.empty-state{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:48px 20px;text-align:center}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty-sub{font-size:11px;color:var(--text3)}
+
+/* Toast & Loader */
+.gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
+.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
+.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.page-loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:11px}
+.page-loader.hidden{display:none}
+.spinner{width:26px;height:26px;border-radius:50%;border:2px solid var(--indigo-lt);border-top-color:var(--indigo);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:11px;color:var(--text2);font-weight:500}
+.fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
+@keyframes fup{to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.sidebar{display:none}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading bank accounts...</div></div>
+<div id="gtToast" class="gt-toast"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-accent"></div>
+    <div class="sb-brand">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="sb-brand-name">GeoTrack</div>
+    </div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="sbCompany">Loading...</div></div>
+    <nav class="sb-nav">
+      <div class="sb-nav-item" id="navDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="navMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item" id="navJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="navClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="navServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item" id="navTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="navUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="navExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+    </nav>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="09686d646067496a666479686770276a6664">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left"><div class="tb-title">Bank Account</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-actions">
+        <button class="tb-icon-btn primary" onclick="loadUsers()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="sec-head"><span class="sec-head-label">Bank Accounts</span><div class="sec-head-line"></div></div>
+
+      <!-- User List View -->
+      <div id="listView">
+        <div class="search-bar">
+          <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input class="search-input" id="searchInput" type="text" placeholder="Search by name, email..." oninput="filterUsers()">
+        </div>
+        <div class="user-list" id="userList"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Loading users...</div><div class="empty-sub">Please wait while we fetch user data</div></div></div>
+      </div>
+
+      <!-- Detail View -->
+      <div id="detailView" class="detail-view">
+        <button class="back-btn" onclick="showList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back to User List</button>
+        <div class="detail-title">Bank Account Details</div>
+
+        <div class="user-info-bar">
+          <div class="user-info-avatar" id="detailAvatar" style="background:linear-gradient(135deg,var(--indigo),var(--indigo2))">JD</div>
+          <div class="user-info-details">
+            <div class="user-info-name" id="detailName">User Name</div>
+            <div class="user-info-email" id="detailEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a2d7d1c7d0e2c7dac3cfd2cec78cc1cdcf">[email&#160;protected]</a></div>
+          </div>
+          <div id="savedBadge" style="display:none"><span class="saved-badge-large">✓ Saved</span></div>
+        </div>
+        <input type="hidden" id="detailUserId">
+
+        <!-- Bank Account Section -->
+        <div class="form-card">
+          <div class="form-header"><span class="form-header-icon">🏦</span><span class="form-header-title">Bank Account (NEFT/IMPS/RTGS)</span></div>
+          <div class="form-body">
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label">Account Holder Name</label><input class="form-input" id="holderName" type="text" placeholder="John Doe"></div>
+              <div class="form-group"><label class="form-label">Account Number</label><input class="form-input" id="accountNumber" type="text" placeholder="1234567890"></div>
+              <div class="form-group"><label class="form-label">IFSC Code</label><input class="form-input" id="ifscCode" type="text" placeholder="HDFC0001234" oninput="this.value=this.value.toUpperCase()"><div class="form-hint">11-character code (e.g., HDFC0001234)</div></div>
+              <div class="form-group"><label class="form-label">Bank Name</label><input class="form-input" id="bankName" type="text" placeholder="HDFC Bank"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="or-divider">— OR —</div>
+
+        <!-- UPI Section -->
+        <div class="form-card">
+          <div class="form-header"><span class="form-header-icon">📱</span><span class="form-header-title">UPI (Faster Payments)</span></div>
+          <div class="form-body">
+            <div class="form-group full"><label class="form-label">UPI ID / VPA</label><input class="form-input" id="upiId" type="text" placeholder="yourname@paytm"><div class="form-hint">User's UPI ID (e.g., yourname@paytm, yourname@phonepe)</div></div>
+            <div class="tip-box"><span class="tip-icon">💡</span><span class="tip-text"><strong>Tip:</strong> You can add either bank account details OR UPI ID, or both. UPI payments are typically faster (instant to few minutes) compared to bank transfers.</span></div>
+          </div>
+        </div>
+
+        <button class="save-btn" id="saveBtn" onclick="saveBankDetails()"><span>💾</span> Save Bank Details</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var GT_MID="{{member_id}}",GT_DOM="{{DOMAIN}}";
+var HG={"ngrok-skip-browser-warning":"true"};
+var HJ={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
+var _USERS=[],_CURRENT=null;
+
+function navTo(url){fetch(url,{headers:HG}).then(r=>r.text()).then(h=>{document.open();document.write(h);document.close();}).catch(()=>window.location.replace(url));}
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||3500);}
+function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
+function initials(name,email){if(name&&name.trim()){var p=name.trim().split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}return((email||"??").substring(0,2)).toUpperCase();}
+var AVColors=["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
+function avatarColor(s){var h=0;for(var i=0;i<(s||"").length;i++)h=(h*31+s.charCodeAt(i))&0x7fffffff;return AVColors[h%AVColors.length];}
+
+function wNav(){
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  var routes={navDash:"/bitrix/app",navMap:"/bitrix/map",navJourney:"/bitrix/journey",navClients:"/bitrix/clients",navServices:"/bitrix/client-services",navTeam:"/bitrix/team-activity",navUser:"/bitrix/user-management",navExpand:"/bitrix/expand-capacity"};
+  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
+  document.getElementById("planBoxBtn").onclick=function(){navTo("/bitrix/billing-plans"+p);};
+}
+
+function loadUsers(){
+  setLoader(true);
+  fetch("/bitrix/bank-account-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+    .then(r=>r.json()).then(d=>{
+      setLoader(false);
+      if(d.error){toast("Error: "+d.error,"error");return;}
+      _USERS=d.users||[];
+      document.getElementById("sbCompany").textContent=d.company||"Default Company";
+      // Dynamic sidebar plan label
+      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
+      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
+      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
+      if(d.me){
+        document.getElementById("sbName").textContent=d.me.full_name||d.me.email||"Admin";
+        document.getElementById("sbEmail").textContent=d.me.email||"";
+        document.getElementById("sbAv").textContent=initials(d.me.full_name,d.me.email);
+      }
+      document.getElementById("planUsers").textContent=_USERS.length+"/1000";
+      renderList(_USERS);
+    }).catch(e=>{setLoader(false);toast("Load error: "+e.message,"error");});
+}
+
+function filterUsers(){
+  var q=document.getElementById("searchInput").value.toLowerCase().trim();
+  if(!q){renderList(_USERS);return;}
+  renderList(_USERS.filter(u=>(u.email||"").toLowerCase().includes(q)||(u.full_name||"").toLowerCase().includes(q)));
+}
+
+function renderList(users){
+  var el=document.getElementById("userList");
+  if(!users.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div><div class="empty-sub">Try a different search</div></div>';return;}
+  el.innerHTML=users.map((u,i)=>{
+    var uid=String(u.id||u.user_id||""),name=u.full_name||"",email=u.email||"",ini=initials(name,email),avClr=avatarColor(email);
+    var hasBankData=!!(u.account_number||u.upi_id);
+    return '<div class="user-item" onclick="openUser(\''+esc(uid)+'\')">'+
+      '<div class="user-left">'+
+        '<div class="user-avatar" style="background:'+avClr+'">'+ini+'</div>'+
+        '<div class="user-info">'+
+          '<div class="user-name">'+esc(name||email)+'</div>'+
+          '<div class="user-email">'+esc(email)+'</div>'+
+        '</div>'+
+        (hasBankData?'<span class="saved-badge">✓ Saved</span>':'')+
+      '</div>'+
+      '<div class="user-right-icon">→</div>'+
+    '</div>';
+  }).join("");
+}
+
+function openUser(uid){
+  var u=_USERS.find(x=>String(x.id||x.user_id)===uid);
+  if(!u){toast("User not found","error");return;}
+  _CURRENT=u;
+  var name=u.full_name||"",email=u.email||"",ini=initials(name,email),avClr=avatarColor(email);
+  document.getElementById("detailUserId").value=uid;
+  document.getElementById("detailName").textContent=name||email;
+  document.getElementById("detailEmail").textContent=email;
+  var avEl=document.getElementById("detailAvatar");
+  avEl.textContent=ini;
+  avEl.style.background=avClr;
+  document.getElementById("holderName").value=u.holder_name||"";
+  document.getElementById("accountNumber").value=u.account_number||"";
+  document.getElementById("ifscCode").value=u.ifsc_code||"";
+  document.getElementById("bankName").value=u.bank_name||"";
+  document.getElementById("upiId").value=u.upi_id||"";
+  var hasBankData=!!(u.account_number||u.upi_id);
+  document.getElementById("savedBadge").style.display=hasBankData?"inline-block":"none";
+  var btn=document.getElementById("saveBtn");btn.disabled=false;btn.innerHTML="<span>💾</span> Save Bank Details";
+  document.getElementById("listView").style.display="none";
+  document.getElementById("detailView").style.display="block";
+}
+
+function showList(){
+  document.getElementById("detailView").style.display="none";
+  document.getElementById("listView").style.display="block";
+  _CURRENT=null;
+}
+
+function saveBankDetails(){
+  var uid=document.getElementById("detailUserId").value;
+  if(!uid){toast("User ID missing","error");return;}
+  var holderName=document.getElementById("holderName").value.trim();
+  var accountNumber=document.getElementById("accountNumber").value.trim();
+  var ifscCode=document.getElementById("ifscCode").value.trim().toUpperCase();
+  var bankName=document.getElementById("bankName").value.trim();
+  var upiId=document.getElementById("upiId").value.trim();
+  if(!accountNumber&&!upiId){toast("Please enter an Account Number or UPI ID","error");return;}
+  if(accountNumber&&!ifscCode){toast("IFSC Code is required with Account Number","error");return;}
+  if(ifscCode&&!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)){toast("Invalid IFSC Code format (e.g., HDFC0001234)","error");return;}
+  var btn=document.getElementById("saveBtn");btn.disabled=true;btn.innerHTML="<span>⏳</span> Saving...";
+  fetch("/bitrix/bank-account-save?member_id="+encodeURIComponent(GT_MID),{
+    method:"POST",headers:HJ,
+    body:JSON.stringify({userId:uid,holderName:holderName||null,accountNumber:accountNumber||null,ifscCode:ifscCode||null,bankName:bankName||null,upiId:upiId||null})
+  }).then(r=>r.json()).then(d=>{
+    btn.disabled=false;btn.innerHTML="<span>💾</span> Save Bank Details";
+    if(d.error){toast(d.message||d.error,"error");return;}
+    toast("Bank details saved successfully!","success");
+    document.getElementById("savedBadge").style.display="inline-block";
+    if(_CURRENT){
+      _CURRENT.account_number=accountNumber||null;
+      _CURRENT.upi_id=upiId||null;
+      _CURRENT.holder_name=holderName||null;
+      _CURRENT.ifsc_code=ifscCode||null;
+      _CURRENT.bank_name=bankName||null;
+    }
+    renderList(_USERS);
+  }).catch(e=>{btn.disabled=false;btn.innerHTML="<span>💾</span> Save Bank Details";toast("Error: "+e.message,"error");});
+}
+wNav();loadUsers();
+
+(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
+document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+(function(){var t=sessionStorage.getItem("bitrix_admin_token");if(t){try{var p=JSON.parse(atob(t.split(".")[1]));var em=p.email||p.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}var mid=typeof GT_MID!=="undefined"?GT_MID:"";fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}}).then(r=>r.json()).then(d=>{if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(()=>{});})();
+function doLogout(){if(!confirm("Sign out of GeoTrack admin?"))return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_mid");
+  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  window.location.replace("/bitrix/login"+p);
+}
+</script>
+</body>
+</html>
