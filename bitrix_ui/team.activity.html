@@ -184,8 +184,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="sb-nav-item" id="nBA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
       <div class="sb-nav-item" id="nEC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
     </nav>
-    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
-    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbN">Admin</div><div class="sb-user-email" id="sbCoLabel"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3657525b5f587655595b4657584f1855595b">[email&#160;protected]</a></div></div></div></div>
+    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planBoxClients">—</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v" id="planBoxStorage">—</span></div></div>
+    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbN">Admin</div><div class="sb-user-email" id="sbCoLabel"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="99f8fdf4f0f7d9fefcf6edebf8faf2b7faf6f4">[email&#160;protected]</a></div></div></div></div>
   </aside>
 
   <div class="main">
@@ -213,26 +213,58 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Bootstrap with company_id persistence ──────────────────────────────────────────────
 var _SM = "{{member_id}}", _SD = "{{DOMAIN}}";
 var _P  = new URLSearchParams(location.search);
-var GT_MID = (_SM && _SM !== "{{member_id}}") ? _SM : (_P.get("member_id") || "");
-var GT_DOM = (_SD && _SD !== "{{DOMAIN}}")     ? _SD : (_P.get("DOMAIN")    || "world.bitrix24.com");
-var HG = {"ngrok-skip-browser-warning":"true"};
 
+// Get member_id from multiple sources
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3) 
+  ? window.__GT_MEMBER_ID__
+  : (_SM && _SM !== "{{member_id}}" ? _SM : (_P.get("member_id") || ""));
+
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3) 
+  ? window.__GT_DOMAIN__
+  : (_SD && _SD !== "{{DOMAIN}}" ? _SD : (_P.get("DOMAIN") || "world.bitrix24.com"));
+
+// CRITICAL FIX: Get company_id from URL query parameter or global variable
+var GT_CID = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3) 
+  ? window.__GT_COMPANY_ID__
+  : (_P.get("company_id") || "");
+
+console.log("🔍 Team Activity Load: member_id=", GT_MID, "company_id=", GT_CID);
+
+var HG = {"ngrok-skip-browser-warning":"true"};
 var COLORS = ["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
 function clr(n){var s=0;for(var i=0;i<(n||"").length;i++)s+=n.charCodeAt(i);return COLORS[s%COLORS.length];}
 function ini(n){if(!n)return"?";var p=n.trim().split(/\s+/);return(p.length>=2?(p[0][0]+p[1][0]):n.substring(0,2)).toUpperCase();}
 function fp(n){n=+n;if(!n||isNaN(n))return"₹0";if(n>=10000000)return"₹"+(n/10000000).toFixed(1)+"Cr";if(n>=100000)return"₹"+(n/100000).toFixed(1)+"L";if(n>=1000)return"₹"+(n/1000).toFixed(1)+"K";return"₹"+n.toLocaleString("en-IN");}
 function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
 function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
+function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
 
+// ── Nav with company_id persistence ────────────────────────────────────────────────
 function nav(u){
-  if(window.history && window.history.pushState){ window.history.pushState(null,'',u); }
-  fetch(u,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){ window.location.href=u; });
+  var finalUrl = u;
+  if (GT_CID && u.indexOf('company_id') === -1) {
+    finalUrl = u + (u.indexOf('?') === -1 ? '?' : '&') + 'company_id=' + encodeURIComponent(GT_CID);
+  }
+  if (GT_MID && finalUrl.indexOf('member_id') === -1) {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'member_id=' + encodeURIComponent(GT_MID);
+  }
+  if (GT_DOM && finalUrl.indexOf('DOMAIN') === -1) {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'DOMAIN=' + encodeURIComponent(GT_DOM);
+  }
+  
+  if(window.history && window.history.pushState){ window.history.pushState(null,'',finalUrl); }
+  fetch(finalUrl,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){ window.location.href=finalUrl; });
 }
 
 function wNav(){
   var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
   var m = {
     nD:  "/bitrix/app",
     nM:  "/bitrix/map",
@@ -260,16 +292,27 @@ function subPage(path, idx){
   var unm = (u.full_name || u.email || "User").toString().trim();
   var uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if(!uid || !uuidRe.test(uid)){
-    alert("Cannot load " + path.replace("team-","") + ": user ID is missing or invalid.");
+    toast("Cannot load " + path.replace("team-","") + ": user ID is missing or invalid.", "error");
     return;
   }
   var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID)+"&user_id="+encodeURIComponent(uid)+"&user_name="+encodeURIComponent(unm);
+  // CRITICAL: Add company_id to subpage navigation
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
   nav("/bitrix/"+path+p);
 }
 
 function loadData(){
   setLoader(true);
-  fetch("/bitrix/team-data?member_id="+encodeURIComponent(GT_MID), {headers:HG})
+  var url = "/bitrix/team-data?member_id="+encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  console.log("📡 Loading team data with company_id:", GT_CID);
+  
+  fetch(url, {headers:HG})
     .then(function(r){return r.json();})
     .then(function(d){
       var users = d.users || [];
@@ -290,7 +333,7 @@ function loadData(){
       document.getElementById("sEx").textContent = fp(users.reduce(function(s,u){return s+(+u.total_expenses||0);},0));
       render(users);
       setLoader(false);
-      fetchSidebarInfo();
+      fetchSidebarPlanFromBilling();
     })
     .catch(function(e){
       document.getElementById("grid").innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Error loading data</div><div class="empty-sub">'+esc(e.message)+'</div></div>';
@@ -359,27 +402,56 @@ function ensureMemberId(cb){
   };
   document.head.appendChild(s);
 }
-function fetchSidebarInfo(){
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+
+function fetchSidebarPlanFromBilling(){
+  var PLAN_META_FALLBACK={
+    starter:      {emoji:'🌱',name:'STARTER',      storageGB:5,   clientLimit:100,  userLimit:5},
+    professional: {emoji:'⚡',name:'PROFESSIONAL',  storageGB:25,  clientLimit:500,  userLimit:25},
+    business:     {emoji:'💼',name:'BUSINESS',      storageGB:100, clientLimit:2000, userLimit:100},
+    enterprise:   {emoji:'⭐',name:'ENTERPRISE',    storageGB:500, clientLimit:null, userLimit:null}
+  };
+  var adminEmail='';
+  try{var _tok=sessionStorage.getItem('bitrix_admin_token');if(_tok){var _pl=JSON.parse(atob(_tok.split('.')[1]));adminEmail=_pl.email||_pl.sub||'';}}catch(_){}
+  var p='member_id='+encodeURIComponent(GT_MID||'')+'&DOMAIN='+encodeURIComponent(GT_DOM||'');
+  if(GT_CID&&GT_CID!=='null'&&GT_CID!=='undefined'&&GT_CID!=='')p+='&company_id='+encodeURIComponent(GT_CID);
+  if(adminEmail)p+='&admin_email='+encodeURIComponent(adminEmail);
+  fetch('/bitrix/billing-plans-data?'+p,{headers:HG})
     .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.error)return;
-      var users=d.users||[];
-      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=users.length+"/1000";
-      if(d.me){
-        var n=(d.me.full_name||d.me.email||"");
-        var parts=n.trim().split(/\s+/);
-        var ini=((parts[0]?parts[0][0]:"")+(parts[1]?parts[1][0]:"")).toUpperCase()||((d.me.email||"GT").substring(0,2).toUpperCase());
-        var av=document.getElementById("sbAv");if(av)av.textContent=ini;
-        var nm=document.getElementById("sbN");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
-        var cl=document.getElementById("sbCoLabel");if(cl)cl.textContent=d.me.email||"";
-        var pmn=document.getElementById("pmName");if(pmn)pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
-        var pme=document.getElementById("pmEmail");if(pme)pme.textContent=d.me.email||"";
+    .then(function(data){
+      if(data.error)return;
+      var planKey=(data.current_plan||'enterprise').toLowerCase();
+      var meta=PLAN_META_FALLBACK[planKey]||PLAN_META_FALLBACK.enterprise;
+      var userCount=data.user_count||0;
+      var userLimit=(data.user_limit!=null&&data.user_limit>0)?data.user_limit:(meta.userLimit!=null&&meta.userLimit>0)?meta.userLimit:1000;
+      var clientCount=data.client_count||0;
+      var lic=data.license||{};
+      var liveML=lic.maxLimits||{};
+      var clientLimit=(liveML.clients!=null)?liveML.clients:meta.clientLimit;
+      var storageGB=(liveML.storageGB!=null&&liveML.storageGB>0)?liveML.storageGB:(meta.storageGB||5);
+      var tierEl=document.querySelector('#planBoxBtn .plan-tier');
+      if(tierEl)tierEl.textContent=(meta.emoji||'⭐')+' '+(meta.name||'ENTERPRISE');
+      var usersEl=document.getElementById('planBoxUsers');
+      if(usersEl)usersEl.textContent=userCount+'/'+userLimit;
+      var clientsEl=document.getElementById('planBoxClients');
+      if(clientsEl)clientsEl.textContent=clientLimit===null?clientCount+' / ∞':clientCount+'/'+clientLimit;
+      var storageEl=document.getElementById('planBoxStorage');
+      if(storageEl)storageEl.textContent='0 / '+storageGB+' GB';
+      if(data.me){
+        var nm=data.me.full_name||data.me.email||'Admin';
+        var pts=nm.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:'')+(pts[1]?pts[1][0]:'')).toUpperCase()||'A';
+        var av=document.getElementById('sbAv');if(av)av.textContent=ini;
+        var sn=document.getElementById('sbN');if(sn)sn.textContent=nm;
+        var cl=document.getElementById('sbCoLabel');if(cl)cl.textContent=data.me.email||'';
+        var pmn=document.getElementById('pmName');if(pmn)pmn.textContent=data.me.is_super_admin?'Super Admin':'Admin Account';
+        var pme=document.getElementById('pmEmail');if(pme)pme.textContent=data.me.email||'';
       }
     }).catch(function(){});
 }
+
 ensureMemberId(function(){loadData();});
 
+// ── Profile dropdown ──────────────────────────────────────────────────────────────────
 (function(){
   var btn=document.getElementById("profileBtn");
   if(btn) btn.addEventListener("click",function(e){
@@ -405,7 +477,7 @@ document.addEventListener("mousedown",function(e){
     return;
   }catch(_){}}
   var mid=typeof GT_MID!=="undefined"?GT_MID:"";
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),
+  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid)+"&company_id="+encodeURIComponent(GT_CID),
     {headers:{"ngrok-skip-browser-warning":"true"}})
     .then(function(r){return r.json();})
     .then(function(d){
@@ -414,11 +486,15 @@ document.addEventListener("mousedown",function(e){
       var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";
     }).catch(function(){});
 })();
+
 function doLogout(){
   if(!confirm("Sign out of GeoTrack admin?"))return;
   sessionStorage.removeItem("bitrix_admin_token");
   sessionStorage.removeItem("bitrix_admin_mid");
   var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
   window.location.replace("/bitrix/login"+p);
 }
 </script>

@@ -1,5 +1,3 @@
-
-
 import { Router } from "express";
 import {
   installGet, installPost, uninstall,
@@ -44,6 +42,7 @@ import {
   // ── Bitrix Admin Login ─────────────────────────────────────
   bitrixLoginLauncher,
   bitrixLogout,
+  bitrixLoginResolve,      // ← NEW: resolves company_id for the logged-in admin
 } from "../controllers/bitrix.controller.js";
 
 import { authenticateToken }    from "../middleware/auth.js";
@@ -53,10 +52,7 @@ import { blockTrialUserWrites } from "../middleware/trialUser.js";
 
 const router = Router();
 
-// ── Global middleware: bypass ngrok browser warning on ALL routes ──
-// The ngrok warning page appears when a browser navigates to an ngrok URL
-// without the header. This middleware injects it on every response so
-// Bitrix24 iframe never sees the warning page regardless of which route is hit.
+// ── Global middleware ─────────────────────────────────────────
 router.use((req, res, next) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -70,10 +66,13 @@ router.post("/uninstall", asyncHandler(uninstall));
 router.post("/webhook",   webhookHandler);
 router.get ("/status",    getStatus);
 
-// ── Admin Login (Bitrix-side — isolated from React production app) ──
-// Storage: sessionStorage("bitrix_admin_token") — NEVER touches React's localStorage("token")
-router.all ("/login",  asyncHandler(bitrixLoginLauncher));
-router.all ("/logout", asyncHandler(bitrixLogout));
+// ── Admin Login ───────────────────────────────────────────────
+// /login-resolve is the KEY fix: returns the specific company_id
+// for the admin who just logged in, instead of always picking the
+// "largest company" in the database.
+router.all ("/login",         asyncHandler(bitrixLoginLauncher));
+router.all ("/logout",        asyncHandler(bitrixLogout));
+router.post("/login-resolve", asyncHandler(bitrixLoginResolve));   // ← NEW
 
 // ── Core app pages ────────────────────────────────────────────
 router.all ("/app",  asyncHandler(appLauncher));

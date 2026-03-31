@@ -173,7 +173,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <div class="sb-brand-name">GeoTrack</div>
     </div>
-    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="sbCompany">Loading...</div></div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="companyName">Loading...</div></div>
     <nav class="sb-nav">
       <div class="sb-nav-item" id="navDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
       <div class="sb-nav-item" id="navMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
@@ -185,8 +185,21 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="sb-nav-item" id="navBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
       <div class="sb-nav-item" id="navExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
     </nav>
-    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
-    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="debfbab3b7b09ebdb1b3aebfb0a7f0bdb1b3">[email&#160;protected]</a></div></div></div></div>
+    <div class="plan-box" id="planBoxBtn">
+      <div class="plan-tier" id="planTier">⭐ ENTERPRISE</div>
+      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planClients">—</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">G</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sbName">Admin</div>
+          <div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d5c595054537d5a5852494f5c5e56135e5250">[email&#160;protected]</a></div>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <div class="main">
@@ -273,153 +286,589 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-var GT_MID="{{member_id}}",GT_DOM="{{DOMAIN}}";
-var HG={"ngrok-skip-browser-warning":"true"};
-var HJ={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
-var _USERS=[],_ME=null;
+// ── Bootstrap with company_id persistence ──────────────────────────────────────────────
+var _P = new URLSearchParams(location.search);
+var _INJ_MID = "{{member_id}}";
+var _INJ_DOM = "{{DOMAIN}}";
 
-function navTo(url){fetch(url,{headers:HG}).then(r=>r.text()).then(h=>{document.open();document.write(h);document.close();}).catch(()=>window.location.replace(url));}
-function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||3500);}
-function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
-function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):"";}
-function initials(name,email){if(name&&name.trim()){var p=name.trim().split(/\s+/);return(p[0][0]+(p[1]?p[1][0]:"")).toUpperCase();}return((email||"??").substring(0,2)).toUpperCase();}
-var AVColors=["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
-function avatarColor(s){var h=0;for(var i=0;i<(s||"").length;i++)h=(h*31+s.charCodeAt(i))&0x7fffffff;return AVColors[h%AVColors.length];}
-function fmtDate(s){if(!s)return"";var d=new Date(s);return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});}
+// Get member_id from multiple sources
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3) 
+  ? window.__GT_MEMBER_ID__
+  : (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
+
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3) 
+  ? window.__GT_DOMAIN__
+  : (_INJ_DOM !== "{{DOMAIN}}" ? _INJ_DOM : (_P.get("DOMAIN") || "world.bitrix24.com"));
+
+// CRITICAL FIX: Get company_id from URL query parameter or global variable
+var GT_CID = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3) 
+  ? window.__GT_COMPANY_ID__
+  : (_P.get("company_id") || "");
+
+console.log("🔍 User Management Load: member_id=", GT_MID, "company_id=", GT_CID);
+
+var HG = {"ngrok-skip-browser-warning":"true"};
+var HJ = {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
+var _USERS = [], _ME = null;
+
+function navTo(url){
+  var finalUrl = url;
+  if(GT_CID && url.indexOf('company_id') === -1 && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    finalUrl = url + (url.indexOf('?') === -1 ? '?' : '&') + 'company_id=' + encodeURIComponent(GT_CID);
+  }
+  if(GT_MID && finalUrl.indexOf('member_id') === -1 && GT_MID !== "null" && GT_MID !== "undefined" && GT_MID !== ""){
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'member_id=' + encodeURIComponent(GT_MID);
+  }
+  if(GT_DOM && finalUrl.indexOf('DOMAIN') === -1 && GT_DOM !== "null" && GT_DOM !== "undefined" && GT_DOM !== ""){
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'DOMAIN=' + encodeURIComponent(GT_DOM);
+  }
+  
+  fetch(finalUrl, {headers: HG})
+    .then(function(r){ return r.text(); })
+    .then(function(h){
+      document.open();
+      document.write(h);
+      document.close();
+    })
+    .catch(function(){ window.location.replace(finalUrl); });
+}
+
+function toast(msg,type,ms){
+  var t = document.getElementById("gtToast");
+  t.textContent = msg;
+  t.className = "gt-toast toast-" + (type || "info");
+  t.style.display = "block";
+  clearTimeout(t._x);
+  t._x = setTimeout(function(){ t.style.display = "none"; }, ms || 3500);
+}
+
+function setLoader(v){
+  document.getElementById("pageLoader").classList.toggle("hidden", !v);
+}
+
+function esc(s){
+  return s ? String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") : "";
+}
+
+function initials(name, email){
+  if(name && name.trim()){
+    var p = name.trim().split(/\s+/);
+    return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
+  }
+  return ((email || "??").substring(0,2)).toUpperCase();
+}
+
+var AVColors = ["#4338ca","#6366f1","#8b5cf6","#a855f7","#d946ef","#ec4899","#f43f5e","#f97316","#f59e0b","#eab308"];
+function avatarColor(s){
+  var h = 0;
+  for(var i = 0; i < (s || "").length; i++) h = (h * 31 + s.charCodeAt(i)) & 0x7fffffff;
+  return AVColors[h % AVColors.length];
+}
+
+function fmtDate(s){
+  if(!s) return "";
+  var d = new Date(s);
+  return d.toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+}
+
+function fetchSidebarPlanFromBilling(){
+  var PLAN_META_FALLBACK={
+    starter:      {emoji:'🌱',name:'STARTER',      storageGB:5,   clientLimit:100,  userLimit:5},
+    professional: {emoji:'⚡',name:'PROFESSIONAL',  storageGB:25,  clientLimit:500,  userLimit:25},
+    business:     {emoji:'💼',name:'BUSINESS',      storageGB:100, clientLimit:2000, userLimit:100},
+    enterprise:   {emoji:'⭐',name:'ENTERPRISE',    storageGB:500, clientLimit:null, userLimit:null}
+  };
+  var adminEmail='';
+  try{var _tok=sessionStorage.getItem('bitrix_admin_token');if(_tok){var _pl=JSON.parse(atob(_tok.split('.')[1]));adminEmail=_pl.email||_pl.sub||'';}}catch(_){}
+  var p='member_id='+encodeURIComponent(GT_MID||'')+'&DOMAIN='+encodeURIComponent(GT_DOM||'');
+  if(GT_CID&&GT_CID!=='null'&&GT_CID!=='undefined'&&GT_CID!=='')p+='&company_id='+encodeURIComponent(GT_CID);
+  if(adminEmail)p+='&admin_email='+encodeURIComponent(adminEmail);
+  fetch('/bitrix/billing-plans-data?'+p,{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error)return;
+      var planKey=(data.current_plan||'enterprise').toLowerCase();
+      var meta=PLAN_META_FALLBACK[planKey]||PLAN_META_FALLBACK.enterprise;
+      var userCount=data.user_count||0;
+      var userLimit=(data.user_limit!=null&&data.user_limit>0)?data.user_limit:(meta.userLimit!=null&&meta.userLimit>0)?meta.userLimit:1000;
+      var clientCount=data.client_count||0;
+      var lic=data.license||{};
+      var liveML=lic.maxLimits||{};
+      var clientLimit=(liveML.clients!=null)?liveML.clients:meta.clientLimit;
+      var storageGB=(liveML.storageGB!=null&&liveML.storageGB>0)?liveML.storageGB:(meta.storageGB||5);
+      var tierEl=document.getElementById('planTier');
+      if(tierEl)tierEl.textContent=(meta.emoji||'⭐')+' '+(meta.name||'ENTERPRISE');
+      var usersEl=document.getElementById('planUsers');
+      if(usersEl)usersEl.textContent=userCount+'/'+userLimit;
+      var clientsEl=document.getElementById('planClients');
+      if(clientsEl)clientsEl.textContent=clientLimit===null?clientCount+' / ∞':clientCount+'/'+clientLimit;
+      if(data.me){
+        var nm=data.me.full_name||data.me.email||'Admin';
+        var pts=nm.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:'')+(pts[1]?pts[1][0]:'')).toUpperCase()||'A';
+        var av=document.getElementById('sbAvatar');if(av)av.textContent=ini;
+        var sn=document.getElementById('sbName');if(sn)sn.textContent=nm;
+        var em=document.getElementById('sbEmail');if(em)em.textContent=data.me.email||'';
+        var pmn=document.getElementById('pmName');if(pmn)pmn.textContent=data.me.is_super_admin?'Super Admin':'Admin Account';
+        var pme=document.getElementById('pmEmail');if(pme)pme.textContent=data.me.email||'';
+        if(data.company){var cn=document.getElementById('companyName');if(cn)cn.textContent=data.company;}
+      }
+    }).catch(function(){});
+}
 
 function wNav(){
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  var routes={navDash:"/bitrix/app",navMap:"/bitrix/map",navJourney:"/bitrix/journey",navClients:"/bitrix/clients",navServices:"/bitrix/client-services",navTeam:"/bitrix/team-activity",navBank:"/bitrix/bank-account",navExpand:"/bitrix/expand-capacity"};
-  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
-  document.getElementById("planBoxBtn").onclick=function(){navTo("/bitrix/billing-plans"+p);};
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  var routes = {
+    navDash: "/bitrix/app",
+    navMap: "/bitrix/map",
+    navJourney: "/bitrix/journey",
+    navClients: "/bitrix/clients",
+    navServices: "/bitrix/client-services",
+    navTeam: "/bitrix/team-activity",
+    navBank: "/bitrix/bank-account",
+    navExpand: "/bitrix/expand-capacity"
+  };
+  
+  Object.keys(routes).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onclick = function(){ navTo(routes[id] + p); };
+  });
+  
+  var pb = document.getElementById("planBoxBtn");
+  if(pb) pb.onclick = function(){ navTo("/bitrix/billing-plans" + p); };
 }
 
 function loadUsers(){
   setLoader(true);
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
-    .then(r=>r.json()).then(d=>{
+  
+  var url = "/bitrix/user-management-data?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  console.log("📡 Loading users with company_id:", GT_CID);
+  
+  fetch(url, {headers: HG})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
       setLoader(false);
-      if(d.error){toast("Error: "+d.error,"error");return;}
-      _USERS=d.users||[];_ME=d.me||null;
-      document.getElementById("sbCompany").textContent=d.company||"Default Company";
-      // Dynamic sidebar plan label
-      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
-      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
-      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
-      if(_ME){
-        document.getElementById("sbName").textContent=_ME.full_name||_ME.email||"Admin";
-        document.getElementById("sbEmail").textContent=_ME.email||"";
-        document.getElementById("sbAv").textContent=initials(_ME.full_name,_ME.email);
+      if(d.error){
+        toast("Error: " + d.error, "error");
+        return;
       }
-      document.getElementById("planUsers").textContent=_USERS.length+"/1000";
-      updateStats();render(_USERS);
-    }).catch(e=>{setLoader(false);toast("Load error: "+e.message,"error");});
+      _USERS = d.users || [];
+      _ME = d.me || null;
+      
+      // Update company name
+      if(d.company){
+        document.getElementById("companyName").textContent = d.company;
+      }
+      
+      // Update plan
+      if(d.current_plan){
+        var planMeta = {
+          starter: {emoji: '🌱', label: 'STARTER'},
+          professional: {emoji: '⚡', label: 'PROFESSIONAL'},
+          business: {emoji: '💼', label: 'BUSINESS'},
+          enterprise: {emoji: '⭐', label: 'ENTERPRISE'}
+        };
+        var pm = planMeta[d.current_plan] || planMeta.enterprise;
+        var planTier = document.getElementById("planTier");
+        if(planTier) planTier.textContent = pm.emoji + ' ' + pm.label;
+      }
+      
+      // Update user count
+      if(d.users){
+        var userCount = d.users.length;
+        var userLimit = d.user_limit || 1000;
+        document.getElementById("planUsers").textContent = userCount + "/" + userLimit;
+      }
+      
+      // Update sidebar user info if available
+      if(d.me){
+        var userName = d.me.full_name || d.me.email || "Admin";
+        var userEmail = d.me.email || "";
+        var initialsVal = (userName.charAt(0) + (userName.split(" ")[1] ? userName.split(" ")[1].charAt(0) : "")).toUpperCase();
+        if(initialsVal.length === 0) initialsVal = "A";
+        
+        document.getElementById("sbName").textContent = userName;
+        document.getElementById("sbEmail").textContent = userEmail;
+        document.getElementById("sbAvatar").textContent = initialsVal;
+        document.getElementById("pmName").textContent = d.me.is_super_admin ? "Super Admin Account" : "Admin Account";
+        document.getElementById("pmEmail").textContent = userEmail;
+      }
+      
+      updateStats();
+      render(_USERS);
+    })
+    .catch(function(e){
+      toast("Load error: " + e.message, "error");
+      setLoader(false);
+    });
 }
 
 function updateStats(){
-  var total=_USERS.length,admins=_USERS.filter(u=>u.is_admin||u.is_super_admin).length;
-  document.getElementById("statTotal").textContent=total;
-  document.getElementById("statAdmins").textContent=admins;
-  document.getElementById("statRegular").textContent=total-admins;
+  var total = _USERS.length;
+  var admins = _USERS.filter(function(u){ return u.is_admin || u.is_super_admin; }).length;
+  document.getElementById("statTotal").textContent = total;
+  document.getElementById("statAdmins").textContent = admins;
+  document.getElementById("statRegular").textContent = total - admins;
 }
 
 function filterUsers(){
-  var q=document.getElementById("searchInput").value.toLowerCase().trim();
-  if(!q){render(_USERS);return;}
-  render(_USERS.filter(u=>(u.email||"").toLowerCase().includes(q)||(u.full_name||"").toLowerCase().includes(q)||(u.department||"").toLowerCase().includes(q)));
+  var q = document.getElementById("searchInput").value.toLowerCase().trim();
+  if(!q){
+    render(_USERS);
+    return;
+  }
+  var filtered = _USERS.filter(function(u){
+    return (u.email || "").toLowerCase().includes(q) || 
+           (u.full_name || "").toLowerCase().includes(q) || 
+           (u.department || "").toLowerCase().includes(q);
+  });
+  render(filtered);
 }
 
 function render(users){
-  var g=document.getElementById("userGrid");
-  if(!users.length){g.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div><div class="empty-sub">Try a different search or add a new user</div></div>';return;}
-  g.innerHTML=users.map((u,i)=>{
-    var uid=String(u.id||u.user_id||""),email=u.email||"",name=u.full_name||"",dept=u.department||"",joined=fmtDate(u.created_at);
-    var isAdmin=!!(u.is_admin||u.is_super_admin),isMe=_ME&&String(_ME.id||_ME.user_id)===uid;
-    var avClr=avatarColor(email),ini=initials(name,email),dn=name||email;
-    var ts=(u.work_hours_start&&u.work_hours_end)?u.work_hours_start+" – "+u.work_hours_end:"";
-    return '<div class="user-card" style="animation-delay:'+(i*0.03).toFixed(2)+'s">'+
-      '<div class="card-header"><div class="user-avatar" style="background:'+avClr+'">'+ini+(isAdmin?'<div class="admin-crown">👑</div>':'')+'</div>'+
-      '<div class="user-info"><div class="user-name">'+esc(dn)+'</div><div class="user-badges">'+(isMe?'<span class="badge badge-you">You</span>':'')+(isAdmin?'<span class="badge badge-admin">Administrator</span>':'')+'</div></div></div>'+
-      '<div class="card-body">'+
-        '<div class="info-row"><span class="info-icon">📧</span><span class="info-text">'+esc(email)+'</span></div>'+
-        (dept?'<div class="info-row"><span class="info-icon">🏢</span><span class="info-text">'+esc(dept)+'</span></div>':'')+
-        (ts?'<div class="info-row"><span class="info-icon">⏰</span><span class="info-text">'+esc(ts)+'</span></div>':'')+
-        (joined?'<div class="info-row"><span class="info-icon">📅</span><span class="info-text">Joined: '+esc(joined)+'</span></div>':'')+
-        '<div class="divider"></div>'+
-        '<div class="action-buttons">'+
-          '<button class="action-btn edit" onclick="openEditModal(\''+esc(uid)+'\')">✏️ Edit</button>'+
-          '<button class="action-btn reset" onclick="openResetModal(\''+esc(uid)+'\',\''+esc(email)+'\')">🔑 Reset</button>'+
-          '<button class="action-btn delete"'+(isMe?' disabled title="Cannot delete yourself"':' onclick="openDeleteModal(\''+esc(uid)+'\',\''+esc(dn)+'\')"')+'>🗑️ Delete</button>'+
-        '</div>'+
-      '</div>'+
+  var g = document.getElementById("userGrid");
+  if(!users.length){
+    g.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No users found</div><div class="empty-sub">Try a different search or add a new user</div></div>';
+    return;
+  }
+  
+  g.innerHTML = users.map(function(u, i){
+    var uid = String(u.id || u.user_id || "");
+    var email = u.email || "";
+    var name = u.full_name || "";
+    var dept = u.department || "";
+    var joined = fmtDate(u.created_at);
+    var isAdmin = !!(u.is_admin || u.is_super_admin);
+    var isMe = _ME && String(_ME.id || _ME.user_id) === uid;
+    var avClr = avatarColor(email);
+    var ini = initials(name, email);
+    var displayName = name || email;
+    var ts = (u.work_hours_start && u.work_hours_end) ? u.work_hours_start + " – " + u.work_hours_end : "";
+    
+    return '<div class="user-card" style="animation-delay:' + (i * 0.03).toFixed(2) + 's">' +
+      '<div class="card-header">' +
+        '<div class="user-avatar" style="background:' + avClr + '">' + ini + (isAdmin ? '<div class="admin-crown">👑</div>' : '') + '</div>' +
+        '<div class="user-info">' +
+          '<div class="user-name">' + esc(displayName) + '</div>' +
+          '<div class="user-badges">' + (isMe ? '<span class="badge badge-you">You</span>' : '') + (isAdmin ? '<span class="badge badge-admin">Administrator</span>' : '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="info-row"><span class="info-icon">📧</span><span class="info-text">' + esc(email) + '</span></div>' +
+        (dept ? '<div class="info-row"><span class="info-icon">🏢</span><span class="info-text">' + esc(dept) + '</span></div>' : '') +
+        (ts ? '<div class="info-row"><span class="info-icon">⏰</span><span class="info-text">' + esc(ts) + '</span></div>' : '') +
+        (joined ? '<div class="info-row"><span class="info-icon">📅</span><span class="info-text">Joined: ' + esc(joined) + '</span></div>' : '') +
+        '<div class="divider"></div>' +
+        '<div class="action-buttons">' +
+          '<button class="action-btn edit" onclick="openEditModal(\'' + esc(uid) + '\')">✏️ Edit</button>' +
+          '<button class="action-btn reset" onclick="openResetModal(\'' + esc(uid) + '\',\'' + esc(email) + '\')">🔑 Reset</button>' +
+          '<button class="action-btn delete"' + (isMe ? ' disabled title="Cannot delete yourself"' : ' onclick="openDeleteModal(\'' + esc(uid) + '\',\'' + esc(displayName) + '\')"') + '>🗑️ Delete</button>' +
+        '</div>' +
+      '</div>' +
     '</div>';
   }).join("");
 }
 
-function openModal(id){var m=document.getElementById(id);if(m)m.style.display="flex";}
-function closeModal(id){var m=document.getElementById(id);if(m)m.style.display="none";}
-document.querySelectorAll(".modal-overlay").forEach(function(el){el.addEventListener("click",function(e){if(e.target===el)el.style.display="none";});});
-document.addEventListener("keydown",function(e){if(e.key==="Escape")document.querySelectorAll(".modal-overlay").forEach(function(el){if(el.style.display==="flex")el.style.display="none";});});
-
-function openAddModal(){["addEmail","addPassword","addName","addDept","addStart","addEnd"].forEach(id=>document.getElementById(id).value="");document.getElementById("addIsAdmin").checked=false;openModal("addModal");setTimeout(()=>document.getElementById("addEmail").focus(),200);}
-function createUser(){
-  var email=document.getElementById("addEmail").value.trim(),pass=document.getElementById("addPassword").value,name=document.getElementById("addName").value.trim(),dept=document.getElementById("addDept").value.trim(),start=document.getElementById("addStart").value,end=document.getElementById("addEnd").value,isAdmin=document.getElementById("addIsAdmin").checked;
-  if(!email){toast("Email is required","error");return;}
-  if(!pass||pass.length<6){toast("Password must be at least 6 characters","error");return;}
-  var btn=document.getElementById("addBtn");btn.disabled=true;btn.textContent="Creating...";
-  fetch("/bitrix/user-management-create?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({email:email,password:pass,fullName:name||null,department:dept||null,workHoursStart:start||null,workHoursEnd:end||null,isAdmin:isAdmin})})
-    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Create User";if(d.error){toast(d.message||d.error,"error");return;}toast("User created successfully!","success");closeModal("addModal");loadUsers();})
-    .catch(e=>{btn.disabled=false;btn.textContent="Create User";toast("Error: "+e.message,"error");});
+function openModal(id){
+  var m = document.getElementById(id);
+  if(m) m.style.display = "flex";
 }
+
+function closeModal(id){
+  var m = document.getElementById(id);
+  if(m) m.style.display = "none";
+}
+
+document.querySelectorAll(".modal-overlay").forEach(function(el){
+  el.addEventListener("click", function(e){
+    if(e.target === el) el.style.display = "none";
+  });
+});
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    document.querySelectorAll(".modal-overlay").forEach(function(el){
+      if(el.style.display === "flex") el.style.display = "none";
+    });
+  }
+});
+
+function openAddModal(){
+  document.getElementById("addEmail").value = "";
+  document.getElementById("addPassword").value = "";
+  document.getElementById("addName").value = "";
+  document.getElementById("addDept").value = "";
+  document.getElementById("addStart").value = "";
+  document.getElementById("addEnd").value = "";
+  document.getElementById("addIsAdmin").checked = false;
+  openModal("addModal");
+  setTimeout(function(){ document.getElementById("addEmail").focus(); }, 200);
+}
+
+function createUser(){
+  var email = document.getElementById("addEmail").value.trim();
+  var pass = document.getElementById("addPassword").value;
+  var name = document.getElementById("addName").value.trim();
+  var dept = document.getElementById("addDept").value.trim();
+  var start = document.getElementById("addStart").value;
+  var end = document.getElementById("addEnd").value;
+  var isAdmin = document.getElementById("addIsAdmin").checked;
+  
+  if(!email){
+    toast("Email is required", "error");
+    return;
+  }
+  if(!pass || pass.length < 6){
+    toast("Password must be at least 6 characters", "error");
+    return;
+  }
+  
+  var btn = document.getElementById("addBtn");
+  btn.disabled = true;
+  btn.textContent = "Creating...";
+  
+  var url = "/bitrix/user-management-create?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  fetch(url, {
+    method: "POST",
+    headers: HJ,
+    body: JSON.stringify({
+      email: email,
+      password: pass,
+      fullName: name || null,
+      department: dept || null,
+      workHoursStart: start || null,
+      workHoursEnd: end || null,
+      isAdmin: isAdmin
+    })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = "Create User";
+      if(d.error){
+        toast(d.message || d.error, "error");
+        return;
+      }
+      toast("User created successfully!", "success");
+      closeModal("addModal");
+      loadUsers();
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.textContent = "Create User";
+      toast("Error: " + e.message, "error");
+    });
+}
+
 function openEditModal(uid){
-  var u=_USERS.find(x=>String(x.id||x.user_id)===uid);if(!u){toast("User not found","error");return;}
-  document.getElementById("editUserId").value=uid;document.getElementById("editTitle").innerHTML="✏️ Edit User – "+esc(u.email||"");
-  document.getElementById("editEmail").value=u.email||"";document.getElementById("editName").value=u.full_name||"";
-  document.getElementById("editDept").value=u.department||"";document.getElementById("editStart").value=u.work_hours_start||"";
-  document.getElementById("editEnd").value=u.work_hours_end||"";document.getElementById("editIsAdmin").checked=!!(u.is_admin||u.is_super_admin);
+  var u = _USERS.find(function(x){ return String(x.id || x.user_id) === uid; });
+  if(!u){
+    toast("User not found", "error");
+    return;
+  }
+  document.getElementById("editUserId").value = uid;
+  document.getElementById("editTitle").innerHTML = "✏️ Edit User – " + esc(u.email || "");
+  document.getElementById("editEmail").value = u.email || "";
+  document.getElementById("editName").value = u.full_name || "";
+  document.getElementById("editDept").value = u.department || "";
+  document.getElementById("editStart").value = u.work_hours_start || "";
+  document.getElementById("editEnd").value = u.work_hours_end || "";
+  document.getElementById("editIsAdmin").checked = !!(u.is_admin || u.is_super_admin);
   openModal("editModal");
 }
+
 function updateUser(){
-  var uid=document.getElementById("editUserId").value,email=document.getElementById("editEmail").value.trim(),name=document.getElementById("editName").value.trim(),dept=document.getElementById("editDept").value.trim(),start=document.getElementById("editStart").value,end=document.getElementById("editEnd").value,isAdmin=document.getElementById("editIsAdmin").checked;
-  if(!uid)return;
-  var btn=document.getElementById("editBtn");btn.disabled=true;btn.textContent="Updating...";
-  fetch("/bitrix/user-management-update?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid,email:email||undefined,fullName:name||undefined,department:dept||undefined,workHoursStart:start||undefined,workHoursEnd:end||undefined,isAdmin:isAdmin})})
-    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Update User";if(d.error){toast(d.message||d.error,"error");return;}toast("User updated!","success");closeModal("editModal");loadUsers();})
-    .catch(e=>{btn.disabled=false;btn.textContent="Update User";toast("Error: "+e.message,"error");});
+  var uid = document.getElementById("editUserId").value;
+  var email = document.getElementById("editEmail").value.trim();
+  var name = document.getElementById("editName").value.trim();
+  var dept = document.getElementById("editDept").value.trim();
+  var start = document.getElementById("editStart").value;
+  var end = document.getElementById("editEnd").value;
+  var isAdmin = document.getElementById("editIsAdmin").checked;
+  
+  if(!uid) return;
+  
+  var btn = document.getElementById("editBtn");
+  btn.disabled = true;
+  btn.textContent = "Updating...";
+  
+  var url = "/bitrix/user-management-update?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  fetch(url, {
+    method: "POST",
+    headers: HJ,
+    body: JSON.stringify({
+      userId: uid,
+      email: email || undefined,
+      fullName: name || undefined,
+      department: dept || undefined,
+      workHoursStart: start || undefined,
+      workHoursEnd: end || undefined,
+      isAdmin: isAdmin
+    })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = "Update User";
+      if(d.error){
+        toast(d.message || d.error, "error");
+        return;
+      }
+      toast("User updated!", "success");
+      closeModal("editModal");
+      loadUsers();
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.textContent = "Update User";
+      toast("Error: " + e.message, "error");
+    });
 }
-function openResetModal(uid,email){
-  document.getElementById("resetUserId").value=uid;document.getElementById("resetUserEmail").innerHTML=esc(email);
-  document.getElementById("resetPassword").value="";document.getElementById("resetConfirm").value="";
+
+function openResetModal(uid, email){
+  document.getElementById("resetUserId").value = uid;
+  document.getElementById("resetUserEmail").innerHTML = esc(email);
+  document.getElementById("resetPassword").value = "";
+  document.getElementById("resetConfirm").value = "";
   openModal("resetModal");
 }
+
 function submitReset(){
-  var uid=document.getElementById("resetUserId").value,pwd=document.getElementById("resetPassword").value,conf=document.getElementById("resetConfirm").value;
-  if(!pwd||pwd.length<6){toast("Password must be at least 6 characters","error");return;}
-  if(pwd!==conf){toast("Passwords do not match","error");return;}
-  var btn=document.getElementById("resetBtn");btn.disabled=true;btn.textContent="Resetting...";
-  fetch("/bitrix/user-management-reset-password?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid,newPassword:pwd})})
-    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent="Reset Password";if(d.error){toast(d.message||d.error,"error");return;}toast("Password reset!","success");closeModal("resetModal");})
-    .catch(e=>{btn.disabled=false;btn.textContent="Reset Password";toast("Error: "+e.message,"error");});
+  var uid = document.getElementById("resetUserId").value;
+  var pwd = document.getElementById("resetPassword").value;
+  var conf = document.getElementById("resetConfirm").value;
+  
+  if(!pwd || pwd.length < 6){
+    toast("Password must be at least 6 characters", "error");
+    return;
+  }
+  if(pwd !== conf){
+    toast("Passwords do not match", "error");
+    return;
+  }
+  
+  var btn = document.getElementById("resetBtn");
+  btn.disabled = true;
+  btn.textContent = "Resetting...";
+  
+  var url = "/bitrix/user-management-reset-password?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  fetch(url, {
+    method: "POST",
+    headers: HJ,
+    body: JSON.stringify({ userId: uid, newPassword: pwd })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = "Reset Password";
+      if(d.error){
+        toast(d.message || d.error, "error");
+        return;
+      }
+      toast("Password reset!", "success");
+      closeModal("resetModal");
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.textContent = "Reset Password";
+      toast("Error: " + e.message, "error");
+    });
 }
-function openDeleteModal(uid,dn){
-  document.getElementById("deleteUserId").value=uid;document.getElementById("deleteUserName").innerHTML=esc(dn);
+
+function openDeleteModal(uid, dn){
+  document.getElementById("deleteUserId").value = uid;
+  document.getElementById("deleteUserName").innerHTML = esc(dn);
   openModal("deleteModal");
 }
-function submitDelete(){
-  var uid=document.getElementById("deleteUserId").value;if(!uid)return;
-  var btn=document.getElementById("deleteBtn");btn.disabled=true;btn.textContent="Deleting...";
-  fetch("/bitrix/user-management-delete?member_id="+encodeURIComponent(GT_MID),{method:"POST",headers:HJ,body:JSON.stringify({userId:uid})})
-    .then(r=>r.json()).then(d=>{btn.disabled=false;btn.innerHTML="Delete User";if(d.error){toast(d.message||d.error,"error");return;}toast("User deleted!","success");closeModal("deleteModal");loadUsers();})
-    .catch(e=>{btn.disabled=false;btn.innerHTML="Delete User";toast("Error: "+e.message,"error");});
-}
-wNav();loadUsers();
 
-(function(){var btn=document.getElementById("profileBtn");if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});})();
-document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
-(function(){var t=sessionStorage.getItem("bitrix_admin_token");if(t){try{var p=JSON.parse(atob(t.split(".")[1]));var em=p.email||p.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}var mid=typeof GT_MID!=="undefined"?GT_MID:"";fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}}).then(r=>r.json()).then(d=>{if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(()=>{});})();
-function doLogout(){if(!confirm("Sign out of GeoTrack admin?"))return;sessionStorage.removeItem("bitrix_admin_token");sessionStorage.removeItem("bitrix_admin_mid");
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  window.location.replace("/bitrix/login"+p);
+function submitDelete(){
+  var uid = document.getElementById("deleteUserId").value;
+  if(!uid) return;
+  
+  var btn = document.getElementById("deleteBtn");
+  btn.disabled = true;
+  btn.textContent = "Deleting...";
+  
+  var url = "/bitrix/user-management-delete?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  fetch(url, {
+    method: "POST",
+    headers: HJ,
+    body: JSON.stringify({ userId: uid })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.innerHTML = "Delete User";
+      if(d.error){
+        toast(d.message || d.error, "error");
+        return;
+      }
+      toast("User deleted!", "success");
+      closeModal("deleteModal");
+      loadUsers();
+    })
+    .catch(function(e){
+      btn.disabled = false;
+      btn.innerHTML = "Delete User";
+      toast("Error: " + e.message, "error");
+    });
+}
+
+// Initialize
+fetchSidebarPlanFromBilling();
+wNav();
+loadUsers();
+
+// Profile dropdown
+(function(){
+  var btn = document.getElementById("profileBtn");
+  if(btn) btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    document.getElementById("profileMenu").classList.toggle("open");
+  });
+})();
+
+document.addEventListener("mousedown", function(e){
+  var w = document.getElementById("profileDropdown");
+  if(w && !w.contains(e.target)){
+    var m = document.getElementById("profileMenu");
+    if(m) m.classList.remove("open");
+  }
+});
+
+function doLogout(){
+  if(!confirm("Sign out of GeoTrack admin?")) return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_mid");
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== ""){
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  window.location.replace("/bitrix/login" + p);
 }
 </script>
 </body>

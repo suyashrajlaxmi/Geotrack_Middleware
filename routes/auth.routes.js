@@ -47,4 +47,6 @@ router.get("/trial-stats", authenticateToken, requireAdmin, asyncHandler(authCon
 router.post("/block-device", authenticateToken, requireAdmin, asyncHandler(authController.blockDevice));
 router.post("/unblock-device", authenticateToken, requireAdmin, asyncHandler(authController.unblockDevice));
 
+
+
 export default router;

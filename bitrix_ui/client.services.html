@@ -44,7 +44,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .sb-nav-item.active svg{opacity:1}
 .plan-box{margin:3px 9px 5px;padding:9px 11px;background:linear-gradient(135deg,#eef0fd,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r-sm);cursor:pointer;transition:border-color .13s}
 .plan-box:hover{border-color:var(--indigo)}
-.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:flex;align-items:center;gap:3px}
+.plan-tier svg{width:8px;height:8px}
 .plan-row{display:flex;justify-content:space-between;margin-top:2.5px}
 .plan-k{font-size:9px;color:var(--text2);font-weight:500}
 .plan-v{font-size:9px;font-weight:700;color:var(--indigo)}
@@ -97,7 +98,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .sc-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sc-icon svg{width:14px;height:14px}
 .sc-value{font-family:var(--font-hd);font-size:22px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.5px}
-.sc-label{font-size:10px;font-weight:700;color:var(--text2);margin-bottom:2px}
+.sc-label{font-size:10px;font-weight:700;color:var(--text2);margin-bottom:1px}
 .sc-sub{font-size:8.5px;color:var(--text3)}
 .ic-indigo{background:var(--indigo-lt);color:var(--indigo)}
 .ic-emerald{background:var(--emerald-lt);color:var(--emerald)}
@@ -118,6 +119,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .ctrl-btn{padding:5.5px 12px;border-radius:var(--r-sm);font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--white);color:var(--text2);transition:all .13s;display:inline-flex;align-items:center;gap:5px;font-family:var(--font)}
 .ctrl-btn svg{width:11px;height:11px}
 .ctrl-btn:hover{background:var(--surface);color:var(--text);border-color:var(--indigo)}
+.ctrl-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;border-color:transparent;box-shadow:0 2px 7px var(--indigo-glow)}
+.ctrl-btn.primary svg{opacity:1}
 
 /* ── TABLE ── */
 .table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
@@ -210,10 +213,7 @@ tbody tr:hover{background:#f5f6fd}
 .sb-cancelled{background:var(--slate-lt);color:var(--slate)}
 .svc-card-desc{font-size:10.5px;color:var(--text2);margin-top:3px}
 
-/* ──────────────────────────────────────
-   SMALL EDIT / DELETE ICON BUTTONS
-   28×28px, icon-only, tight & clean
-────────────────────────────────────── */
+/* Small EDIT / DELETE ICON BUTTONS */
 .svc-card-actions{display:flex;gap:5px;flex-shrink:0;margin-left:10px}
 .svc-action-btn{
   width:26px;height:26px;
@@ -417,15 +417,15 @@ tbody tr:hover{background:#f5f6fd}
     <div class="plan-box" id="planBoxBtn">
       <div class="plan-tier">⭐ ENTERPRISE</div>
       <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div>
-      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
-      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planBoxClients">—</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v" id="planBoxStorage">—</span></div>
     </div>
     <div class="sb-footer">
       <div class="sb-user">
         <div class="sb-avatar" id="sbAvatar">G</div>
         <div class="sb-user-info">
           <div class="sb-user-name" id="sbName">Admin</div>
-          <div class="sb-user-email" id="sbEmail">admin@geotrack.com</div>
+          <div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a4c5c0c9cdcae4c3c1cbd0d6c5c7cf8ac7cbc9">[email&#160;protected]</a></div>
         </div>
       </div>
     </div>
@@ -585,7 +585,7 @@ tbody tr:hover{background:#f5f6fd}
               </tr>
             </thead>
             <tbody id="svcBody">
-              <tr class="empty-row"><td colspan="7">Loading services...</td></tr>
+              <tr class="empty-row"><td colspan="7">Loading services…</td></tr>
             </tbody>
           </table>
         </div>
@@ -595,18 +595,31 @@ tbody tr:hover{background:#f5f6fd}
   </div><!-- /main -->
 </div><!-- /shell -->
 
-<script>
-// ── Bootstrap ──────────────────────────────────────────────────
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Bootstrap with company_id persistence ──────────────────────────────────────────────
 var _P = new URLSearchParams(location.search);
-var _INJ_MID  = "{{member_id}}";
-var _INJ_DOM  = "{{DOMAIN}}";
-var GT_MID = (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
-var GT_DOM = (_INJ_DOM !== "{{DOMAIN}}"    ? _INJ_DOM : (_P.get("DOMAIN")    || "world.bitrix24.com"));
-if (!GT_MID && window.__GT_MEMBER_ID__) GT_MID = window.__GT_MEMBER_ID__;
-if (!GT_DOM && window.__GT_DOMAIN__)    GT_DOM = window.__GT_DOMAIN__;
+var _INJ_MID = "{{member_id}}";
+var _INJ_DOM = "{{DOMAIN}}";
 
-var HG = { "ngrok-skip-browser-warning": "true" };
-var HJ = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" };
+// Get member_id from multiple sources
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3) 
+  ? window.__GT_MEMBER_ID__
+  : (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
+
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3) 
+  ? window.__GT_DOMAIN__
+  : (_INJ_DOM !== "{{DOMAIN}}" ? _INJ_DOM : (_P.get("DOMAIN") || "world.bitrix24.com"));
+
+// CRITICAL FIX: Get company_id from URL query parameter or global variable
+// This ensures we pass the correct company_id for the logged-in admin
+var GT_CID = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3) 
+  ? window.__GT_COMPANY_ID__
+  : (_P.get("company_id") || "");
+
+console.log("🔍 Client Services Load: member_id=", GT_MID, "company_id=", GT_CID);
+
+var HG = {"ngrok-skip-browser-warning":"true"};
+var HJ = {"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
 
 var ALL_SERVICES  = [];
 var ALL_CLIENTS   = [];
@@ -649,12 +662,56 @@ function daysUntil(ds) {
   return Math.round((d-n)/86400000);
 }
 function todayStr() { return new Date().toISOString().slice(0,10); }
-function navTo(url) {
-  fetch(url, { headers: HG })
+
+// ── Nav with company_id persistence ────────────────────────────────────────────────
+function navTo(url){
+  // Always include company_id in navigation to maintain context
+  var finalUrl = url;
+  if (GT_CID && url.indexOf('company_id') === -1) {
+    finalUrl = url + (url.indexOf('?') === -1 ? '?' : '&') + 'company_id=' + encodeURIComponent(GT_CID);
+  }
+  if (GT_MID && finalUrl.indexOf('member_id') === -1) {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'member_id=' + encodeURIComponent(GT_MID);
+  }
+  if (GT_DOM && finalUrl.indexOf('DOMAIN') === -1) {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'DOMAIN=' + encodeURIComponent(GT_DOM);
+  }
+  
+  fetch(finalUrl, {headers: HG})
     .then(function(r){ return r.text(); })
-    .then(function(h){ document.open(); document.write(h); document.close(); })
-    .catch(function(){ window.location.replace(url); });
+    .then(function(h){
+      document.open();
+      document.write(h);
+      document.close();
+    })
+    .catch(function(){ window.location.replace(finalUrl); });
 }
+
+// ── Sidebar navigation with company_id persistence ───────────────────────────────────
+(function() {
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  // Add company_id to all navigation links
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  var routes = {
+    navDash: "/bitrix/app",
+    navMap: "/bitrix/map",
+    navJourney: "/bitrix/journey",
+    navClients: "/bitrix/clients",
+    navTeam: "/bitrix/team-activity",
+    navUser: "/bitrix/user-management",
+    navBank: "/bitrix/bank-account",
+    navExpand: "/bitrix/expand-capacity"
+  };
+  Object.keys(routes).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.onclick = function() { navTo(routes[id] + p); };
+  });
+  var pb = document.getElementById("planBoxBtn");
+  if (pb) pb.onclick = function() { navTo("/bitrix/billing-plans" + p); };
+})();
 
 // ── Confirm dialog ─────────────────────────────────────────────
 function openConfirm(title, msg, cb) {
@@ -669,31 +726,19 @@ function closeConfirm() {
   _confirmCallback = null;
 }
 
-// ── Sidebar navigation ─────────────────────────────────────────
-(function() {
-  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
-  var routes = {
-    navDash:    "/bitrix/app",
-    navMap:     "/bitrix/map",
-    navJourney: "/bitrix/journey",
-    navClients: "/bitrix/clients",
-    navTeam:    "/bitrix/team-activity",
-    navUser:    "/bitrix/user-management",
-    navBank:    "/bitrix/bank-account",
-    navExpand:  "/bitrix/expand-capacity"
-  };
-  Object.keys(routes).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.onclick = function() { navTo(routes[id] + p); };
-  });
-  var pb = document.getElementById("planBoxBtn");
-  if (pb) pb.onclick = function() { navTo("/bitrix/billing-plans" + p); };
-})();
-
-// ── Load services ──────────────────────────────────────────────
+// ── Load services with company_id ──────────────────────────────────────────────
 function loadServices() {
   setLoader(true);
-  fetch("/bitrix/services-data?member_id=" + encodeURIComponent(GT_MID), { headers: HG })
+  
+  // Build URL with company_id
+  var url = "/bitrix/services-data?member_id=" + encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  console.log("📡 Loading services with company_id:", GT_CID);
+  
+  fetch(url, { headers: HG })
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.error) { toast("Error: " + d.error, "error"); setLoader(false); return; }
@@ -702,7 +747,7 @@ function loadServices() {
       document.getElementById("companyName").textContent = d.company || "Company";
       renderStats();
       applyFilters();
-      fetchSidebarInfo();
+      fetchSidebarPlanFromBilling();
       setLoader(false);
     })
     .catch(function(e){ toast("Load error: " + e.message, "error"); setLoader(false); });
@@ -943,7 +988,8 @@ function saveService() {
   var btn=document.getElementById("sfSaveBtn");
   btn.disabled=true; btn.textContent="Saving…";
   var payload={
-    member_id:GT_MID,client_id:MODAL_CLIENT_ID,
+    member_id:GT_MID,
+    client_id:MODAL_CLIENT_ID,
     service_name:name,
     description:document.getElementById("sfDesc").value.trim(),
     status:document.getElementById("sfStatus").value,
@@ -967,7 +1013,11 @@ function saveService() {
 // ── Reload keeping modal open ──────────────────────────────────
 function loadServicesAndRefreshModal() {
   var cid=MODAL_CLIENT_ID, cname=MODAL_CLIENT_NAME;
-  fetch("/bitrix/services-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
+  var url = "/bitrix/services-data?member_id=" + encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  fetch(url, {headers: HG})
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.error) return;
@@ -987,29 +1037,48 @@ function showModalAlert(msg,type) {
 }
 
 // ── Sidebar info ───────────────────────────────────────────────
-function fetchSidebarInfo() {
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.error) return;
-      var pb=document.getElementById("planBoxUsers");
-      if (pb) pb.textContent=(d.users||[]).length+"/1000";
-      var PLAN_META={
-        starter:{emoji:"🌱",label:"STARTER"},professional:{emoji:"⚡",label:"PROFESSIONAL"},
-        business:{emoji:"💼",label:"BUSINESS"},enterprise:{emoji:"⭐",label:"ENTERPRISE"}
-      };
-      var pm=PLAN_META[(d.current_plan||"enterprise")]||PLAN_META.enterprise;
-      var pt=document.querySelector("#planBoxBtn .plan-tier");
-      if (pt) pt.textContent=pm.emoji+" "+pm.label;
-      if (d.me) {
-        var n=d.me.full_name||d.me.email||"";
-        var pts=n.trim().split(/\s+/);
-        var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";
-        var av=document.getElementById("sbAvatar"); if(av) av.textContent=ini;
-        var nm=document.getElementById("sbName"); if(nm) nm.textContent=d.me.full_name||d.me.email||"Admin";
-        var em=document.getElementById("sbEmail"); if(em) em.textContent=d.me.email||"";
-        var pmn=document.getElementById("pmName"); if(pmn) pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
-        var pme=document.getElementById("pmEmail"); if(pme) pme.textContent=d.me.email||"";
+function fetchSidebarPlanFromBilling(){
+  var PLAN_META_FALLBACK={
+    starter:      {emoji:'🌱',name:'STARTER',      storageGB:5,   clientLimit:100,  userLimit:5},
+    professional: {emoji:'⚡',name:'PROFESSIONAL',  storageGB:25,  clientLimit:500,  userLimit:25},
+    business:     {emoji:'💼',name:'BUSINESS',      storageGB:100, clientLimit:2000, userLimit:100},
+    enterprise:   {emoji:'⭐',name:'ENTERPRISE',    storageGB:500, clientLimit:null, userLimit:null}
+  };
+  var adminEmail='';
+  try{var _tok=sessionStorage.getItem('bitrix_admin_token');if(_tok){var _pl=JSON.parse(atob(_tok.split('.')[1]));adminEmail=_pl.email||_pl.sub||'';}}catch(_){}
+  var p='member_id='+encodeURIComponent(GT_MID||'')+'&DOMAIN='+encodeURIComponent(GT_DOM||'');
+  if(GT_CID&&GT_CID!=='null'&&GT_CID!=='undefined'&&GT_CID!=='')p+='&company_id='+encodeURIComponent(GT_CID);
+  if(adminEmail)p+='&admin_email='+encodeURIComponent(adminEmail);
+  fetch('/bitrix/billing-plans-data?'+p,{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error)return;
+      var planKey=(data.current_plan||'enterprise').toLowerCase();
+      var meta=PLAN_META_FALLBACK[planKey]||PLAN_META_FALLBACK.enterprise;
+      var userCount=data.user_count||0;
+      var userLimit=(data.user_limit!=null&&data.user_limit>0)?data.user_limit:(meta.userLimit!=null&&meta.userLimit>0)?meta.userLimit:1000;
+      var clientCount=data.client_count||0;
+      var lic=data.license||{};
+      var liveML=lic.maxLimits||{};
+      var clientLimit=(liveML.clients!=null)?liveML.clients:meta.clientLimit;
+      var storageGB=(liveML.storageGB!=null&&liveML.storageGB>0)?liveML.storageGB:(meta.storageGB||5);
+      var tierEl=document.querySelector('#planBoxBtn .plan-tier');
+      if(tierEl)tierEl.textContent=(meta.emoji||'⭐')+' '+(meta.name||'ENTERPRISE');
+      var usersEl=document.getElementById('planBoxUsers');
+      if(usersEl)usersEl.textContent=userCount+'/'+userLimit;
+      var clientsEl=document.getElementById('planBoxClients');
+      if(clientsEl)clientsEl.textContent=clientLimit===null?clientCount+' / ∞':clientCount+'/'+clientLimit;
+      var storageEl=document.getElementById('planBoxStorage');
+      if(storageEl)storageEl.textContent='0 / '+storageGB+' GB';
+      if(data.me){
+        var nm=data.me.full_name||data.me.email||'Admin';
+        var pts=nm.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:'')+(pts[1]?pts[1][0]:'')).toUpperCase()||'A';
+        var av=document.getElementById('sbAvatar');if(av)av.textContent=ini;
+        var sn=document.getElementById('sbName');if(sn)sn.textContent=nm;
+        var em=document.getElementById('sbEmail');if(em)em.textContent=data.me.email||'';
+        var pmn=document.getElementById('pmName');if(pmn)pmn.textContent=data.me.is_super_admin?'Super Admin':'Admin Account';
+        var pme=document.getElementById('pmEmail');if(pme)pme.textContent=data.me.email||'';
       }
     }).catch(function(){});
 }
@@ -1020,7 +1089,10 @@ function doLogout() {
   sessionStorage.removeItem("bitrix_admin_token");
   sessionStorage.removeItem("bitrix_admin_user");
   var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  navTo("/bitrix/logout"+p);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  window.location.replace("/bitrix/login"+p);
 }
 
 // ── Profile dropdown ───────────────────────────────────────────

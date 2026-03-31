@@ -44,18 +44,20 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .sb-nav-item:hover{background:var(--surface);color:var(--text)}
 .sb-nav-item.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 2px 7px var(--indigo-glow);font-weight:600}
 .sb-nav-item.active svg{opacity:1}
-.plan-box{margin:3px 9px 5px;padding:9px 11px;background:linear-gradient(135deg,#eef0fd,#f5f3ff);border:1px solid #c7d2fe;border-radius:var(--r-sm);cursor:pointer;transition:border-color .13s}
-.plan-box:hover{border-color:var(--indigo)}
-.plan-tier{font-size:8px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;display:flex;align-items:center;gap:3px}
-.plan-tier svg{width:8px;height:8px}
-.plan-row{display:flex;justify-content:space-between;margin-top:2.5px}
-.plan-k{font-size:9px;color:var(--text2);font-weight:500}
-.plan-v{font-size:9px;font-weight:700;color:var(--indigo)}
-.sb-footer{padding:7px 9px 11px;border-top:1px solid var(--border)}
-.sb-user{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:var(--r-sm);background:var(--surface)}
-.sb-avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:#fff}
-.sb-user-name{font-size:10.5px;font-weight:700;color:var(--text);line-height:1.2}
-.sb-user-email{font-size:8.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:108px}
+/* ── plan box — exact same IDs as billing_plans.html ── */
+.plan-box{margin:8px 12px 4px;padding:12px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c7d2fe;border-radius:12px;cursor:pointer;transition:all .2s}
+.plan-box:hover{border-color:var(--indigo);background:linear-gradient(135deg,#ede9fe,#e0e7ff)}
+.plan-tier{font-size:9px;font-weight:800;color:var(--amber);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.plan-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.plan-k{font-size:10px;font-weight:600;color:var(--text2)}
+.plan-v{font-size:10px;font-weight:700;color:var(--indigo)}
+.sb-footer{padding:8px 12px 12px;border-top:1px solid var(--border);margin-top:auto}
+.sb-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface);cursor:pointer;transition:background .2s}
+.sb-user:hover{background:var(--indigo-lt)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--indigo),var(--indigo2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sb-user-info{flex:1;min-width:0}
+.sb-user-name{font-size:11px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user-email{font-size:9px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
 
 /* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -85,8 +87,6 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* ── CONTENT ── */
 .content{flex:1;overflow-y:auto;padding:14px 18px 28px}
-
-/* Section heads */
 .sec-head{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 .sec-head-label{font-size:8.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap}
 .sec-head-line{flex:1;height:1px;background:var(--border)}
@@ -99,7 +99,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .f-ctrl:focus{border-color:var(--indigo);background:var(--white);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
 select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c94b8' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;background-color:var(--surface)}
 
-/* ── STATS MINI GRID — 5 cards, same as dashboard ── */
+/* ── STATS ── */
 .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px}
 .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
 .stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
@@ -109,13 +109,11 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 .sc-value{font-family:var(--font-hd);font-size:19px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.4px}
 .sc-label{font-size:9.5px;font-weight:700;color:var(--text2);margin-bottom:1px}
 .sc-sub{font-size:8.5px;color:var(--text3)}
-.ic-indigo {background:var(--indigo-lt)} .ic-indigo svg{color:var(--indigo)}
-.ic-emerald{background:var(--emerald-lt)} .ic-emerald svg{color:var(--emerald)}
-.ic-sky    {background:var(--sky-lt)}    .ic-sky svg{color:var(--sky)}
-.ic-amber  {background:var(--amber-lt)}  .ic-amber svg{color:var(--amber)}
-.ic-violet {background:var(--violet-lt)} .ic-violet svg{color:var(--violet)}
-.ic-rose   {background:var(--rose-lt)}   .ic-rose svg{color:var(--rose)}
-.ic-slate  {background:var(--slate-lt)}  .ic-slate svg{color:var(--slate)}
+.ic-indigo{background:var(--indigo-lt)}.ic-indigo svg{color:var(--indigo)}
+.ic-emerald{background:var(--emerald-lt)}.ic-emerald svg{color:var(--emerald)}
+.ic-sky{background:var(--sky-lt)}.ic-sky svg{color:var(--sky)}
+.ic-amber{background:var(--amber-lt)}.ic-amber svg{color:var(--amber)}
+.ic-violet{background:var(--violet-lt)}.ic-violet svg{color:var(--violet)}
 
 /* ── SECTION CARD ── */
 .section-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;box-shadow:var(--sh)}
@@ -124,14 +122,12 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 .section-icon svg{width:12px;height:12px}
 .section-title{font-size:11.5px;font-weight:700;color:var(--text)}
 .section-sub{font-size:9px;color:var(--text3);margin-left:auto}
-
-/* ── 2-col grid ── */
 .cg2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
 
 /* ── JOURNEY OVERVIEW ── */
 .loc-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r-sm);margin-bottom:8px}
 .loc-start{background:var(--emerald-lt);border:1px solid #a7f3d0}
-.loc-end  {background:var(--rose-lt);border:1px solid #fecdd3}
+.loc-end{background:var(--rose-lt);border:1px solid #fecdd3}
 .loc-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .loc-dot svg{width:12px;height:12px;color:#fff}
 .loc-dot-s{background:var(--emerald2)}
@@ -158,7 +154,7 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 .prog-bar{height:5px;background:var(--border);border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--indigo),var(--indigo2));transition:width .7s ease}
 
-/* ── DETAILED VISIT CARDS ── */
+/* ── VISIT CARDS ── */
 .vcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;box-shadow:var(--sh);transition:box-shadow .18s}
 .vcard:hover{box-shadow:var(--sh-md)}
 .vcard-head{padding:10px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
@@ -168,7 +164,7 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 .bdg-done{background:var(--emerald-lt);color:var(--emerald)}
 .bdg-prog{background:var(--amber-lt);color:var(--amber)}
 .bdg-miss{background:var(--rose-lt);color:var(--rose)}
-.bdg-loc {background:var(--sky-lt);color:var(--sky)}
+.bdg-loc{background:var(--sky-lt);color:var(--sky)}
 .vcard-body{display:grid;grid-template-columns:1fr 1fr}
 .vcol{padding:9px 13px}
 .vcol:first-child{border-right:1px solid var(--border)}
@@ -200,11 +196,10 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 
 /* ── TOAST ── */
 .gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
-.toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
+.toast-info{background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
 .toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
-.toast-error  {background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.toast-error{background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
 
-/* Fade-in */
 .fi{opacity:0;transform:translateY(8px);animation:fup .3s ease forwards}
 .fi:nth-child(1){animation-delay:.03s}.fi:nth-child(2){animation-delay:.06s}
 .fi:nth-child(3){animation-delay:.09s}.fi:nth-child(4){animation-delay:.12s}
@@ -222,37 +217,39 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 <div id="gtToast" class="gt-toast"></div>
 
 <div class="shell">
-  <!-- ── SIDEBAR ── -->
+  <!-- ── SIDEBAR — identical structure + IDs to billing_plans.html ── -->
   <aside class="sidebar">
     <div class="sb-accent"></div>
     <div class="sb-brand">
       <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <div class="sb-brand-name">GeoTrack</div>
     </div>
-    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="companyName">Loading…</div></div>
+    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="sbCompany">Loading…</div></div>
     <nav class="sb-nav">
-      <div class="sb-nav-item" id="snDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
-      <div class="sb-nav-item" id="snMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
-      <div class="sb-nav-item active" id="snJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
-      <div class="sb-nav-item" id="snClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
-      <div class="sb-nav-item" id="snServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
-      <div class="sb-nav-item" id="snTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
-      <div class="sb-nav-item" id="snUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
-      <div class="sb-nav-item" id="snBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
-      <div class="sb-nav-item" id="snExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+      <div class="sb-nav-item" id="navDash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+      <div class="sb-nav-item" id="navMap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
+      <div class="sb-nav-item active" id="navJourney"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Journey Reports</div>
+      <div class="sb-nav-item" id="navClients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</div>
+      <div class="sb-nav-item" id="navServices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Client Services</div>
+      <div class="sb-nav-item" id="navTeam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team Activity</div>
+      <div class="sb-nav-item" id="navUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
+      <div class="sb-nav-item" id="navBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
+      <div class="sb-nav-item" id="navExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+      <div class="sb-nav-item" id="navBilling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>Billing Plans</div>
     </nav>
+    <!-- plan-box: same IDs as billing_plans.html (sbPlanTier, planUsers, planClients, sbPlanStorage) -->
     <div class="plan-box" id="planBoxBtn">
-      <div class="plan-tier"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Enterprise</div>
-      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div>
-      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
-      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div>
+      <div class="plan-tier" id="sbPlanTier">📊 PLAN</div>
+      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planClients">—</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v" id="sbPlanStorage">—</span></div>
     </div>
     <div class="sb-footer">
       <div class="sb-user">
-        <div class="sb-avatar" id="sbAvatar">G</div>
-        <div style="min-width:0">
+        <div class="sb-avatar" id="sbAv">G</div>
+        <div class="sb-user-info">
           <div class="sb-user-name" id="sbName">Admin</div>
-          <div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a9c8cdc4c0c7e9cac6c4d9c8c7d087cac6c4">[email&#160;protected]</a></div>
+          <div class="sb-user-email" id="sbEmail">—</div>
         </div>
       </div>
     </div>
@@ -274,7 +271,7 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
           </button>
           <div class="profile-menu" id="profileMenu">
             <p class="profile-menu-name" id="pmName">Admin Account</p>
-            <p class="profile-menu-email" id="pmEmail">Loading…</p>
+            <p class="profile-menu-email" id="pmEmail">—</p>
             <hr class="pm-divider">
             <button class="profile-logout-btn" onclick="doLogout()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out
@@ -285,8 +282,6 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
     </div>
 
     <div class="content">
-
-      <!-- Filter section -->
       <div class="sec-head"><span class="sec-head-label">Filter</span><div class="sec-head-line"></div></div>
       <div class="filter-bar fi">
         <div class="filter-grid">
@@ -315,7 +310,6 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
         </div>
       </div>
 
-      <!-- Results -->
       <div id="results">
         <div class="empty-state">
           <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
@@ -323,340 +317,584 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
           <div class="empty-sub">Choose an agent from the dropdown above to view their journey data</div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-var _P=new URLSearchParams(location.search);
-var _INJ_MID="{{member_id}}",_INJ_DOM="{{DOMAIN}}";
-var GT_MID=(_INJ_MID!=="{{member_id}}"?_INJ_MID:(_P.get("member_id")||""));
-var GT_DOM=(_INJ_DOM!=="{{DOMAIN}}"?_INJ_DOM:(_P.get("DOMAIN")||"world.bitrix24.com"));
-var HG={"ngrok-skip-browser-warning":"true"};
-var HJ={"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
-var DATA=null,MAP=null,_ME_CACHE=null;
+<script>
+// ─────────────────────────────────────────────────────────────────
+// BOOTSTRAP — identical priority order to billing_plans.html
+// sessionStorage company_id takes priority over injected/URL values
+// ─────────────────────────────────────────────────────────────────
+var _P       = new URLSearchParams(location.search);
+var _INJ_MID = "{{member_id}}";
+var _INJ_DOM = "{{DOMAIN}}";
 
-// ── Utils ──────────────────────────────────────────────
-function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
-function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
-function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+(type||"info");t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
-function navTo(url){fetch(url,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){window.location.replace(url);});}
-function today(){return new Date().toISOString().slice(0,10);}
-function daysAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);}
-function fmtDT(s){if(!s)return"N/A";var d=new Date(s);return d.toLocaleDateString("en-IN",{day:"2-digit",month:"numeric",year:"numeric"})+", "+d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
-function fmtTime(s){if(!s)return"—";return new Date(s).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});}
-function durStr(mins){if(!mins&&mins!==0)return"—";var h=Math.floor(mins/60),m=Math.round(mins%60);return h>0?h+"h "+m+"m":m+"m";}
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3)
+  ? window.__GT_MEMBER_ID__
+  : (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
 
-// ── Nav ────────────────────────────────────────────────
-(function(){
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  var routes={snDash:"/bitrix/app",snMap:"/bitrix/map",snJourney:"/bitrix/journey",snClients:"/bitrix/clients",snServices:"/bitrix/client-services",snTeam:"/bitrix/team-activity",snUser:"/bitrix/user-management",snBank:"/bitrix/bank-account",snExpand:"/bitrix/expand-capacity"};
-  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
-  var pb=document.getElementById("planBoxBtn");if(pb)pb.onclick=function(){navTo("/bitrix/billing-plans"+p);};
-})();
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3)
+  ? window.__GT_DOMAIN__
+  : (_INJ_DOM !== "{{DOMAIN}}" ? _INJ_DOM : (_P.get("DOMAIN") || "world.bitrix24.com"));
 
-// ── Init dates ──────────────────────────────────────────
-document.getElementById("startDate").value=daysAgo(30);
-document.getElementById("endDate").value=today();
+// sessionStorage FIRST — same fix as billing_plans.html
+var _ssCompanyId  = sessionStorage.getItem("bitrix_admin_company_id") || "";
+var _injCompanyId = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3)
+                    ? window.__GT_COMPANY_ID__ : "";
+var GT_CID = _ssCompanyId || _injCompanyId || _P.get("company_id") || "";
 
-// ── Boot ───────────────────────────────────────────────
+// Extract admin email from JWT for correct billing-plans-data lookup
+var GT_ADMIN_EMAIL = "";
+try {
+  var _tok = sessionStorage.getItem("bitrix_admin_token");
+  if(_tok){
+    var _pl = JSON.parse(atob(_tok.split(".")[1]));
+    GT_ADMIN_EMAIL = _pl.email || _pl.sub || "";
+  }
+} catch(_){}
+
+console.log("🗺️ Journey bootstrap — member_id:", GT_MID, "company_id:", GT_CID, "admin_email:", GT_ADMIN_EMAIL);
+
+var HG = {"ngrok-skip-browser-warning":"true"};
+var HJ = {"ngrok-skip-browser-warning":"true","Content-Type":"application/json"};
+var DATA = null, MAP = null;
+
+// ─────────────────────────────────────────────────────────────────
+// PLAN META FALLBACK — same as billing_plans.html
+// ─────────────────────────────────────────────────────────────────
+var PLAN_META_FALLBACK = {
+  starter:      { name:"Starter",      emoji:"🌱", storageGB:5,   clientLimit:100,  userLimit:5 },
+  professional: { name:"Professional", emoji:"⚡", storageGB:25,  clientLimit:500,  userLimit:25 },
+  business:     { name:"Business",     emoji:"💼", storageGB:100, clientLimit:2000, userLimit:100 },
+  enterprise:   { name:"Enterprise",   emoji:"🏢", storageGB:500, clientLimit:null, userLimit:null }
+};
+
+// ─────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────
+function esc(s){ return s ? String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") : ""; }
+function setLoader(v){ document.getElementById("pageLoader").classList.toggle("hidden",!v); }
+function toast(msg,type,ms){
+  var t = document.getElementById("gtToast");
+  t.textContent   = msg;
+  t.className     = "gt-toast toast-" + (type||"info");
+  t.style.display = "block";
+  clearTimeout(t._x);
+  t._x = setTimeout(function(){ t.style.display = "none"; }, ms||4000);
+}
+function today(){ return new Date().toISOString().slice(0,10); }
+function daysAgo(n){ var d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+function fmtDT(s){ if(!s)return"N/A"; var d=new Date(s); return d.toLocaleDateString("en-IN",{day:"2-digit",month:"numeric",year:"numeric"})+", "+d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function fmtTime(s){ if(!s)return"—"; return new Date(s).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function durStr(mins){ if(!mins&&mins!==0)return"—"; var h=Math.floor(mins/60),m=Math.round(mins%60); return h>0?h+"h "+m+"m":m+"m"; }
+
+// ─────────────────────────────────────────────────────────────────
+// NAVIGATION — same as billing_plans.html navTo()
+// ─────────────────────────────────────────────────────────────────
+function navTo(url){
+  var finalUrl = url;
+  if(GT_CID && finalUrl.indexOf("company_id") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "company_id=" + encodeURIComponent(GT_CID);
+  if(GT_MID && finalUrl.indexOf("member_id") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "member_id=" + encodeURIComponent(GT_MID);
+  if(GT_DOM && finalUrl.indexOf("DOMAIN") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "DOMAIN=" + encodeURIComponent(GT_DOM);
+  fetch(finalUrl, {headers: HG})
+    .then(function(r){ return r.text(); })
+    .then(function(h){ document.open(); document.write(h); document.close(); })
+    .catch(function(){ window.location.replace(finalUrl); });
+}
+
+function setupNavigation(){
+  var routes = {
+    navDash:    "/bitrix/app",
+    navMap:     "/bitrix/map",
+    navJourney: "/bitrix/journey",
+    navClients: "/bitrix/clients",
+    navServices:"/bitrix/client-services",
+    navTeam:    "/bitrix/team-activity",
+    navUser:    "/bitrix/user-management",
+    navBank:    "/bitrix/bank-account",
+    navExpand:  "/bitrix/expand-capacity",
+    navBilling: "/bitrix/billing-plans"
+  };
+  Object.keys(routes).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onclick = function(){ navTo(routes[id]); };
+  });
+  var pb = document.getElementById("planBoxBtn");
+  if(pb) pb.onclick = function(){ navTo("/bitrix/billing-plans"); };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FETCH SIDEBAR FROM BILLING — identical to billing_plans.html
+// Uses /bitrix/billing-plans-data with admin_email from JWT.
+// Populates: sbPlanTier, planUsers, planClients, sbPlanStorage,
+//            sbCompany, sbAv, sbName, sbEmail, pmName, pmEmail
+// ─────────────────────────────────────────────────────────────────
+function fetchSidebarPlanFromBilling(){
+  var url = "/bitrix/billing-plans-data?member_id=" + encodeURIComponent(GT_MID)
+          + "&DOMAIN=" + encodeURIComponent(GT_DOM);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  if(GT_ADMIN_EMAIL)
+    url += "&admin_email=" + encodeURIComponent(GT_ADMIN_EMAIL);
+
+  console.log("📡 fetchSidebarPlanFromBilling:", url);
+
+  fetch(url, {headers: HG})
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.error){ console.warn("Sidebar billing data error:", data.error); return; }
+      console.log("✅ Sidebar billing data:", data);
+
+      // ── Resolve plan key + meta ──────────────────────────────
+      var planKey = (data.current_plan || "enterprise").toLowerCase();
+      var fb      = PLAN_META_FALLBACK[planKey] || PLAN_META_FALLBACK.enterprise;
+
+      // Live plan name/emoji from plans list (same logic as billing_plans.html resolvePlanMeta)
+      var livePlans = data.plans || [];
+      var lp = livePlans.find(function(p){
+        return p.licenseType && p.licenseType.name &&
+               p.licenseType.name.toLowerCase() === planKey;
+      });
+      var planName  = (lp && lp.licenseType && lp.licenseType.name) || fb.name;
+      var planEmoji = fb.emoji; // emoji from fallback (style constants)
+
+      // ── User count + limit ───────────────────────────────────
+      var userCount = data.user_count || 0;
+      var userLimit = (data.user_limit != null && data.user_limit > 0)
+        ? data.user_limit
+        : (fb.userLimit != null && fb.userLimit > 0) ? fb.userLimit : 1000;
+
+      // ── Client count + limit ─────────────────────────────────
+      var clientCount = data.client_count || 0;
+      var lic         = data.license || {};
+      var liveML      = lic.maxLimits || {};
+      // maxLimits from live license takes priority, then plan's maxLimits, then fallback
+      var clientLimit = (liveML.clients != null)
+        ? liveML.clients
+        : (lp && lp.maxLimits && lp.maxLimits.clients != null)
+          ? lp.maxLimits.clients
+          : fb.clientLimit;
+
+      // ── Storage ──────────────────────────────────────────────
+      var storageGB = (liveML.storageGB != null && liveML.storageGB > 0)
+        ? liveML.storageGB
+        : (lp && lp.maxLimits && lp.maxLimits.storageGB > 0)
+          ? lp.maxLimits.storageGB
+          : (fb.storageGB || 5);
+
+      // ── Company name ─────────────────────────────────────────
+      var companyName = (typeof data.company === "object" && data.company !== null)
+        ? (data.company.name || "GeoTrack")
+        : (data.company || "GeoTrack");
+
+      // ── Me block ─────────────────────────────────────────────
+      var me        = data.me || null;
+      var userName  = me ? (me.full_name || me.email || "Admin") : "Admin";
+      var userEmail = me ? (me.email || "") : "";
+      var pts       = userName.trim().split(/\s+/);
+      var initials  = ((pts[0] ? pts[0][0] : "") + (pts[1] ? pts[1][0] : "")).toUpperCase() || "A";
+
+      // ── Write to DOM ─────────────────────────────────────────
+      var el;
+
+      el = document.getElementById("sbCompany");
+      if(el) el.textContent = companyName;
+
+      el = document.getElementById("sbPlanTier");
+      if(el) el.textContent = planEmoji + " " + planName.toUpperCase();
+
+      el = document.getElementById("planUsers");
+      if(el) el.textContent = userCount + "/" + userLimit;
+
+      el = document.getElementById("planClients");
+      if(el) el.textContent = clientLimit === null
+        ? clientCount + " / ∞"
+        : clientCount + "/" + clientLimit;
+
+      el = document.getElementById("sbPlanStorage");
+      if(el) el.textContent = "0 / " + storageGB + " GB";
+
+      el = document.getElementById("sbAv");
+      if(el) el.textContent = initials;
+
+      el = document.getElementById("sbName");
+      if(el) el.textContent = userName;
+
+      el = document.getElementById("sbEmail");
+      if(el) el.textContent = userEmail;
+
+      el = document.getElementById("pmName");
+      if(el) el.textContent = (me && (me.is_super_admin || me.isAdmin)) ? "Admin Account" : "Admin";
+
+      el = document.getElementById("pmEmail");
+      if(el) el.textContent = userEmail;
+
+      // Also update company label if journey-agents populated it differently
+      el = document.getElementById("companyName");
+      if(el && el.textContent === "Loading…") el.textContent = companyName;
+    })
+    .catch(function(e){ console.warn("fetchSidebarPlanFromBilling failed:", e.message); });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INIT LOAD — loads agents list + triggers sidebar fetch
+// ─────────────────────────────────────────────────────────────────
+document.getElementById("startDate").value = daysAgo(30);
+document.getElementById("endDate").value   = today();
+
 function initLoad(){
   setLoader(true);
-  fetch("/bitrix/journey-agents?member_id="+encodeURIComponent(GT_MID),{headers:HG})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.error){toast(d.error,"error");setLoader(false);return;}
-      document.getElementById("companyName").textContent=d.company||"Company";
-      // Dynamic sidebar plan label
-      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
-      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
-      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
-      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=(d.user_count||"—")+"/1000";
-      var sel=document.getElementById("agentSel");var prev=sel.value;
-      sel.innerHTML='<option value="">Choose an agent…</option>';
-      (d.agents||[]).forEach(function(a){var o=document.createElement("option");o.value=a.user_id;o.textContent=a.full_name||(a.name||("Agent "+a.user_id));if(String(a.user_id)===String(prev))o.selected=true;sel.appendChild(o);});
-      setLoader(false);fetchSidebarInfo();
-      if(sel.value)loadReport();
-    })
-    .catch(function(e){toast("Error: "+e.message,"error");setLoader(false);});
-}
+  var url = "/bitrix/journey-agents?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    url += "&company_id=" + encodeURIComponent(GT_CID);
 
-function onAgentChange(){if(!document.getElementById("agentSel").value){showEmpty();return;}loadReport();}
-function onFilterChange(){if(document.getElementById("agentSel").value)loadReport();}
-function onViewChange(){if(DATA)render(DATA);}
-
-function loadReport(){
-  var uid=document.getElementById("agentSel").value;
-  var start=document.getElementById("startDate").value;
-  var end=document.getElementById("endDate").value;
-  if(!uid)return;
-  setLoader(true);
-  var url="/bitrix/journey-data?member_id="+encodeURIComponent(GT_MID)+"&user_id="+encodeURIComponent(uid)+"&start="+encodeURIComponent(start)+"&end="+encodeURIComponent(end);
-  fetch(url,{headers:HG})
-    .then(function(r){return r.json();})
+  fetch(url, {headers: HG})
+    .then(function(r){ return r.json(); })
     .then(function(d){
       setLoader(false);
-      if(d.error){toast(d.error,"error");return;}
-      DATA=d;render(d);
-      // show export button in topbar
-      var tba=document.getElementById("tbActions");
-      if(tba){
-        tba.innerHTML=
-          '<button class="tb-btn success" onclick="exportCSV()">'+
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV'+
-          '</button>'+
-          '<button class="tb-btn primary" onclick="loadReport()">'+
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Refresh'+
-          '</button>'+
-          profileBtnHtml();
-      }
-      wireProfile();
-      applyProfileInfo();
+      if(d.error){ toast(d.error, "error"); return; }
+
+      // Company name from journey-agents (quick display before billing data arrives)
+      var el = document.getElementById("sbCompany");
+      if(el) el.textContent = d.company || "Company";
+
+      // Populate agent dropdown
+      var sel  = document.getElementById("agentSel");
+      var prev = sel.value;
+      sel.innerHTML = '<option value="">Choose an agent…</option>';
+      (d.agents || []).forEach(function(a){
+        var o = document.createElement("option");
+        o.value       = a.user_id;
+        o.textContent = a.full_name || a.name || ("Agent " + a.user_id);
+        if(String(a.user_id) === String(prev)) o.selected = true;
+        sel.appendChild(o);
+      });
+
+      // Load sidebar plan data from billing endpoint (same as billing_plans.html)
+      fetchSidebarPlanFromBilling();
+
+      if(sel.value) loadReport();
     })
-    .catch(function(e){setLoader(false);toast("Error: "+e.message,"error");});
+    .catch(function(e){ toast("Error: " + e.message, "error"); setLoader(false); });
 }
 
-function profileBtnHtml(){
-  return '<div class="profile-dropdown" id="profileDropdown">'+
-    '<button class="profile-btn" id="profileBtn" title="Account">'+
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'+
-    '</button>'+
-    '<div class="profile-menu" id="profileMenu">'+
-      '<p class="profile-menu-name" id="pmName">Admin Account</p>'+
-      '<p class="profile-menu-email" id="pmEmail">—</p>'+
-      '<hr class="pm-divider">'+
-      '<button class="profile-logout-btn" onclick="doLogout()">'+
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out'+
-      '</button>'+
-    '</div>'+
-  '</div>';
+function onAgentChange(){ if(!document.getElementById("agentSel").value){ showEmpty(); return; } loadReport(); }
+function onFilterChange(){ if(document.getElementById("agentSel").value) loadReport(); }
+function onViewChange(){ if(DATA) render(DATA); }
+
+// ─────────────────────────────────────────────────────────────────
+// LOAD REPORT
+// ─────────────────────────────────────────────────────────────────
+function loadReport(){
+  var uid   = document.getElementById("agentSel").value;
+  var start = document.getElementById("startDate").value;
+  var end   = document.getElementById("endDate").value;
+  if(!uid) return;
+  setLoader(true);
+
+  var url = "/bitrix/journey-data?member_id=" + encodeURIComponent(GT_MID)
+          + "&user_id=" + encodeURIComponent(uid)
+          + "&start="   + encodeURIComponent(start)
+          + "&end="     + encodeURIComponent(end);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+
+  fetch(url, {headers: HG})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      setLoader(false);
+      if(d.error){ toast(d.error, "error"); return; }
+      DATA = d;
+      render(d);
+
+      // Rebuild topbar with export + refresh buttons
+      var tba = document.getElementById("tbActions");
+      if(tba){
+        tba.innerHTML =
+          '<button class="tb-btn success" onclick="exportCSV()">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV' +
+          '</button>' +
+          '<button class="tb-btn primary" onclick="loadReport()">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Refresh' +
+          '</button>' +
+          '<div class="profile-dropdown" id="profileDropdown">' +
+            '<button class="profile-btn" id="profileBtn" title="Account">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' +
+            '</button>' +
+            '<div class="profile-menu" id="profileMenu">' +
+              '<p class="profile-menu-name" id="pmName">Admin Account</p>' +
+              '<p class="profile-menu-email" id="pmEmail">—</p>' +
+              '<hr class="pm-divider">' +
+              '<button class="profile-logout-btn" onclick="doLogout()">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        wireProfile();
+        // Re-apply profile info after DOM rebuild
+        var pmn = document.getElementById("pmName");
+        var pme = document.getElementById("pmEmail");
+        var curName  = document.getElementById("sbName")  && document.getElementById("sbName").textContent;
+        var curEmail = document.getElementById("sbEmail") && document.getElementById("sbEmail").textContent;
+        if(pmn && curName  && curName  !== "Admin") pmn.textContent = curName;
+        if(pme && curEmail && curEmail !== "—")     pme.textContent = curEmail;
+      }
+    })
+    .catch(function(e){ setLoader(false); toast("Error: " + e.message, "error"); });
 }
 
-// ── Render dispatcher ──────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────
 function render(d){
-  var mode=document.getElementById("viewMode").value;
-  var html=statsHtml(d);
-  if(mode==="summary")  html+=summaryHtml(d);
-  if(mode==="detailed") html+=detailedHtml(d);
-  if(mode==="map")      html+='<div class="section-card"><div id="jMap"></div></div>';
-  document.getElementById("results").innerHTML=html;
-  if(mode==="map")setTimeout(function(){buildMap(d);},80);
+  var mode = document.getElementById("viewMode").value;
+  var html = statsHtml(d);
+  if(mode === "summary")  html += summaryHtml(d);
+  if(mode === "detailed") html += detailedHtml(d);
+  if(mode === "map")      html += '<div class="section-card"><div id="jMap"></div></div>';
+  document.getElementById("results").innerHTML = html;
+  if(mode === "map") setTimeout(function(){ buildMap(d); }, 80);
 }
 
-// ── Stats ──────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// STATS
+// ─────────────────────────────────────────────────────────────────
 function statsHtml(d){
-  var dist=(d.totalDistanceKm||0)+" km";
-  var dur=durStr(d.totalDurationMins||0);
-  var visited=d.clientsVisited||0;
-  var planned=d.meetingsCount||0;
-  var rate=planned>0?((visited/planned)*100).toFixed(1)+"%":"0.0%";
-  var logs=d.logsCount||0;
-  var distI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
-  var durI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-  var visI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
-  var rateI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
-  var logI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-  return '<div class="sec-head"><span class="sec-head-label">Overview</span><div class="sec-head-line"></div></div>'+
-    '<div class="stats-grid">'+
-      sc(dist,"Total Distance","Traveled today",distI,"ic-indigo")+
-      sc(dur,"Duration","Active time",durI,"ic-emerald")+
-      sc(visited,"Clients Visited","of "+planned+" planned",visI,"ic-sky")+
-      sc(rate,"Visit Rate","Completion",rateI,"ic-amber")+
-      sc(logs,"GPS Logs","Location points",logI,"ic-violet")+
+  var dist    = (d.totalDistanceKm || 0) + " km";
+  var dur     = durStr(d.totalDurationMins || 0);
+  var visited = d.clientsVisited  || 0;
+  var planned = d.meetingsCount   || 0;
+  var rate    = planned > 0 ? ((visited / planned) * 100).toFixed(1) + "%" : "0.0%";
+  var logs    = d.logsCount || 0;
+  var distI  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
+  var durI   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  var visI   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+  var rateI  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  var logI   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  return '<div class="sec-head"><span class="sec-head-label">Overview</span><div class="sec-head-line"></div></div>' +
+    '<div class="stats-grid">' +
+      sc(dist,    "Total Distance", "Traveled today",          distI, "ic-indigo")  +
+      sc(dur,     "Duration",       "Active time",             durI,  "ic-emerald") +
+      sc(visited, "Clients Visited","of "+planned+" planned",  visI,  "ic-sky")     +
+      sc(rate,    "Visit Rate",     "Completion",              rateI, "ic-amber")   +
+      sc(logs,    "GPS Logs",       "Location points",         logI,  "ic-violet")  +
     '</div>';
 }
 function sc(val,lbl,sub,icon,ic){
-  return '<div class="stat-card fi">'+
-    '<div class="sc-row"><div class="sc-icon '+ic+'">'+icon+'</div><div class="sc-value">'+val+'</div></div>'+
-    '<div class="sc-label">'+lbl+'</div><div class="sc-sub">'+sub+'</div>'+
+  return '<div class="stat-card fi">' +
+    '<div class="sc-row"><div class="sc-icon ' + ic + '">' + icon + '</div><div class="sc-value">' + val + '</div></div>' +
+    '<div class="sc-label">' + lbl + '</div><div class="sc-sub">' + sub + '</div>' +
   '</div>';
 }
 
-// ── Summary ────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// SUMMARY
+// ─────────────────────────────────────────────────────────────────
 function summaryHtml(d){
-  var logs=d.locationLogs||[];var mtgs=d.meetings||[];
-  var first=logs[0]||null,last=logs[logs.length-1]||null;
-  var pinI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-  var arrowUpI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
-  var stopI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+  var logs = d.locationLogs || [];
+  var mtgs = d.meetings     || [];
+  var first = logs[0] || null, last = logs[logs.length-1] || null;
+  var pinI    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var arrowUpI= '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
+  var stopI   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>';
+  var checkI  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
 
-  var ov='<div class="section-card">';
-  ov+='<div class="section-header"><div class="section-icon ic-indigo">'+pinI+'</div><span class="section-title">Journey Overview</span></div>';
+  var ov = '<div class="section-card">';
+  ov += '<div class="section-header"><div class="section-icon ic-indigo">' + pinI + '</div><span class="section-title">Journey Overview</span></div>';
   if(first){
-    ov+='<div class="loc-row loc-start"><div class="loc-dot loc-dot-s">'+arrowUpI+'</div>'+
-      '<div><div class="loc-tag loc-tag-s">Start Location</div>'+
-      '<div class="loc-time">'+fmtTime(first.timestamp||first.created_at)+'</div>'+
-      '<div class="loc-coords">'+(+first.latitude).toFixed(4)+', '+(+first.longitude).toFixed(4)+'</div>'+
-      (first.pincode?'<div class="loc-pin">'+pinI+' Pincode: '+esc(first.pincode)+'</div>':'')+
+    ov += '<div class="loc-row loc-start"><div class="loc-dot loc-dot-s">' + arrowUpI + '</div>' +
+      '<div><div class="loc-tag loc-tag-s">Start Location</div>' +
+      '<div class="loc-time">' + fmtTime(first.timestamp||first.created_at) + '</div>' +
+      '<div class="loc-coords">' + (+first.latitude).toFixed(4) + ', ' + (+first.longitude).toFixed(4) + '</div>' +
+      (first.pincode ? '<div class="loc-pin">' + pinI + ' Pincode: ' + esc(first.pincode) + '</div>' : '') +
       '</div></div>';
   }
-  if(last&&last!==first){
-    ov+='<div class="loc-row loc-end"><div class="loc-dot loc-dot-e">'+stopI+'</div>'+
-      '<div><div class="loc-tag loc-tag-e">End Location</div>'+
-      '<div class="loc-time">'+fmtTime(last.timestamp||last.created_at)+'</div>'+
-      '<div class="loc-coords">'+(+last.latitude).toFixed(4)+', '+(+last.longitude).toFixed(4)+'</div>'+
-      (last.pincode?'<div class="loc-pin">'+pinI+' Pincode: '+esc(last.pincode)+'</div>':'')+
+  if(last && last !== first){
+    ov += '<div class="loc-row loc-end"><div class="loc-dot loc-dot-e">' + stopI + '</div>' +
+      '<div><div class="loc-tag loc-tag-e">End Location</div>' +
+      '<div class="loc-time">' + fmtTime(last.timestamp||last.created_at) + '</div>' +
+      '<div class="loc-coords">' + (+last.latitude).toFixed(4) + ', ' + (+last.longitude).toFixed(4) + '</div>' +
+      (last.pincode ? '<div class="loc-pin">' + pinI + ' Pincode: ' + esc(last.pincode) + '</div>' : '') +
       '</div></div>';
   }
-  if(!first)ov+='<div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">No GPS logs for this period</div>';
-  ov+='</div>';
+  if(!first) ov += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">No GPS logs for this period</div>';
+  ov += '</div>';
 
-  var done=mtgs.filter(function(m){return m.status==="COMPLETED";}).length;
-  var prog=mtgs.filter(function(m){return m.status==="IN_PROGRESS"||m.status==="in-progress"||m.status==="SCHEDULED";}).length;
-  var miss=mtgs.filter(function(m){return m.status==="NOT_VISITED";}).length;
-  var verif=mtgs.filter(function(m){return m.location_verified;}).length;
-  var tot=mtgs.length;var vPct=tot>0?Math.round(verif/tot*100):0;
-  var checkI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
-  var vs='<div class="section-card">';
-  vs+='<div class="section-header"><div class="section-icon ic-emerald">'+checkI+'</div><span class="section-title">Visit Summary</span><span class="section-sub">'+tot+' total visits</span></div>';
-  vs+='<div class="vs-grid">'+
-    '<div class="vs-box vs-done"><div class="vs-ico">✓</div><div class="vs-num">'+done+'</div><div class="vs-lbl">Completed</div></div>'+
-    '<div class="vs-box vs-prog"><div class="vs-ico">⏳</div><div class="vs-num">'+prog+'</div><div class="vs-lbl">In Progress</div></div>'+
-    '<div class="vs-box vs-miss"><div class="vs-ico">✕</div><div class="vs-num">'+miss+'</div><div class="vs-lbl">Not Visited</div></div>'+
-  '</div>'+
-  '<div class="prog-wrap">'+
-    '<div class="prog-hd"><span>Location Verified</span><span>'+verif+' of '+tot+'</span></div>'+
-    '<div class="prog-bar"><div class="prog-fill" style="width:'+vPct+'%"></div></div>'+
+  var done  = mtgs.filter(function(m){ return m.status==="COMPLETED"; }).length;
+  var prog  = mtgs.filter(function(m){ return m.status==="IN_PROGRESS"||m.status==="in-progress"||m.status==="SCHEDULED"; }).length;
+  var miss  = mtgs.filter(function(m){ return m.status==="NOT_VISITED"; }).length;
+  var verif = mtgs.filter(function(m){ return m.location_verified; }).length;
+  var tot   = mtgs.length;
+  var vPct  = tot > 0 ? Math.round(verif / tot * 100) : 0;
+
+  var vs = '<div class="section-card">';
+  vs += '<div class="section-header"><div class="section-icon ic-emerald">' + checkI + '</div><span class="section-title">Visit Summary</span><span class="section-sub">' + tot + ' total visits</span></div>';
+  vs += '<div class="vs-grid">' +
+    '<div class="vs-box vs-done"><div class="vs-ico">✓</div><div class="vs-num">' + done + '</div><div class="vs-lbl">Completed</div></div>' +
+    '<div class="vs-box vs-prog"><div class="vs-ico">⏳</div><div class="vs-num">' + prog + '</div><div class="vs-lbl">In Progress</div></div>' +
+    '<div class="vs-box vs-miss"><div class="vs-ico">✕</div><div class="vs-num">' + miss + '</div><div class="vs-lbl">Not Visited</div></div>' +
+  '</div>' +
+  '<div class="prog-wrap">' +
+    '<div class="prog-hd"><span>Location Verified</span><span>' + verif + ' of ' + tot + '</span></div>' +
+    '<div class="prog-bar"><div class="prog-fill" style="width:' + vPct + '%"></div></div>' +
   '</div></div>';
 
-  return '<div class="sec-head"><span class="sec-head-label">Summary</span><div class="sec-head-line"></div></div><div class="cg2">'+ov+vs+'</div>';
+  return '<div class="sec-head"><span class="sec-head-label">Summary</span><div class="sec-head-line"></div></div><div class="cg2">' + ov + vs + '</div>';
 }
 
-// ── Detailed ───────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// DETAILED
+// ─────────────────────────────────────────────────────────────────
 function detailedHtml(d){
-  var mtgs=d.meetings||[];
-  if(!mtgs.length)return'<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="empty-title">No visits found</div><div class="empty-sub">No meetings in this date range</div></div>';
-  var pinI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-  var noteI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
-  var html='<div class="sec-head"><span class="sec-head-label">Detailed Visits</span><div class="sec-head-line"></div></div>';
+  var mtgs = d.meetings || [];
+  if(!mtgs.length) return '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="empty-title">No visits found</div><div class="empty-sub">No meetings in this date range</div></div>';
+  var pinI  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  var noteI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  var html  = '<div class="sec-head"><span class="sec-head-label">Detailed Visits</span><div class="sec-head-line"></div></div>';
   mtgs.forEach(function(m){
-    var isDone=m.status==="COMPLETED",isProg=m.status==="IN_PROGRESS"||m.status==="in-progress",isSch=m.status==="SCHEDULED";
-    var sCls=isDone?"bdg-done":isProg?"bdg-prog":"bdg-miss";
-    var sLbl=isDone?"Completed":isProg?"In Progress":isSch?"Scheduled":"Not Visited";
-    html+='<div class="vcard">'+
-      '<div class="vcard-head">'+
-        '<div class="vcard-name">'+esc(m.client_name||m.name||"Client")+'</div>'+
-        '<div class="badges">'+
-          '<span class="bdg '+sCls+'">'+sLbl+'</span>'+
-          (m.location_verified?'<span class="bdg bdg-loc">'+pinI+' Location Verified</span>':'')+
-        '</div>'+
-      '</div>'+
-      '<div class="vcard-body">'+
-        '<div class="vcol"><div class="vc-lbl">Check-In</div><div class="vc-val '+(m.start_time?'':'vc-na')+'">'+fmtDT(m.start_time)+'</div></div>'+
-        '<div class="vcol"><div class="vc-lbl">Check-Out</div><div class="vc-val '+(m.end_time?'':'vc-na')+'">'+fmtDT(m.end_time)+'</div></div>'+
-      '</div>'+
-      ((m.distance_to_client!=null||m.comments)?
-        '<div class="vcard-foot">'+
-          (m.distance_to_client!=null?'<div class="vcard-dist">'+pinI+' Distance to client: '+m.distance_to_client+'m</div>':'')+
-          (m.comments?'<div class="vcard-note">'+noteI+esc(m.comments)+'</div>':'')+
-        '</div>':'')+
+    var isDone = m.status === "COMPLETED";
+    var isProg = m.status === "IN_PROGRESS" || m.status === "in-progress";
+    var isSch  = m.status === "SCHEDULED";
+    var sCls   = isDone ? "bdg-done" : isProg ? "bdg-prog" : "bdg-miss";
+    var sLbl   = isDone ? "Completed" : isProg ? "In Progress" : isSch ? "Scheduled" : "Not Visited";
+    html += '<div class="vcard">' +
+      '<div class="vcard-head">' +
+        '<div class="vcard-name">' + esc(m.client_name||m.name||"Client") + '</div>' +
+        '<div class="badges">' +
+          '<span class="bdg ' + sCls + '">' + sLbl + '</span>' +
+          (m.location_verified ? '<span class="bdg bdg-loc">' + pinI + ' Location Verified</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="vcard-body">' +
+        '<div class="vcol"><div class="vc-lbl">Check-In</div><div class="vc-val ' + (m.start_time?'':'vc-na') + '">' + fmtDT(m.start_time) + '</div></div>' +
+        '<div class="vcol"><div class="vc-lbl">Check-Out</div><div class="vc-val ' + (m.end_time?'':'vc-na') + '">' + fmtDT(m.end_time) + '</div></div>' +
+      '</div>' +
+      ((m.distance_to_client != null || m.comments) ?
+        '<div class="vcard-foot">' +
+          (m.distance_to_client != null ? '<div class="vcard-dist">' + pinI + ' Distance to client: ' + m.distance_to_client + 'm</div>' : '') +
+          (m.comments ? '<div class="vcard-note">' + noteI + esc(m.comments) + '</div>' : '') +
+        '</div>' : '') +
     '</div>';
   });
   return html;
 }
 
-// ── Map ────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// MAP
+// ─────────────────────────────────────────────────────────────────
 function buildMap(d){
-  if(MAP){MAP.remove();MAP=null;}
-  MAP=L.map("jMap").setView([19.076,72.877],10);
+  if(MAP){ MAP.remove(); MAP = null; }
+  MAP = L.map("jMap").setView([19.076, 72.877], 10);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(MAP);
-  var logs=d.locationLogs||[];var mtgs=d.meetings||[];var bounds=[];
-  if(logs.length>1){
-    var pts=logs.map(function(l){return[+l.latitude,+l.longitude];}).filter(function(p){return!isNaN(p[0])&&p[0]!==0;});
-    if(pts.length>1){
+  var logs   = d.locationLogs || [];
+  var mtgs   = d.meetings     || [];
+  var bounds = [];
+  if(logs.length > 1){
+    var pts = logs.map(function(l){ return [+l.latitude, +l.longitude]; }).filter(function(p){ return !isNaN(p[0]) && p[0] !== 0; });
+    if(pts.length > 1){
       L.polyline(pts,{color:"#4338ca",weight:2.5,opacity:.7,dashArray:"7,5"}).addTo(MAP);
-      bounds=bounds.concat(pts);
+      bounds = bounds.concat(pts);
       L.circleMarker(pts[0],{radius:8,fillColor:"#10b981",fillOpacity:1,color:"#fff",weight:2}).bindPopup("<b>▲ Start</b><br>"+fmtTime(logs[0].timestamp||logs[0].created_at)).addTo(MAP);
       L.circleMarker(pts[pts.length-1],{radius:8,fillColor:"#f43f5e",fillOpacity:1,color:"#fff",weight:2}).bindPopup("<b>■ End</b><br>"+fmtTime(logs[logs.length-1].timestamp||logs[logs.length-1].created_at)).addTo(MAP);
     }
   }
   mtgs.forEach(function(m){
-    if(!m.start_latitude||!m.start_longitude)return;
-    var lat=+m.start_latitude,lng=+m.start_longitude;
-    if(isNaN(lat)||lat===0)return;
-    var isDone=m.status==="COMPLETED",isProg=m.status==="IN_PROGRESS"||m.status==="in-progress";
-    var col=isDone?"#10b981":isProg?"#f59e0b":"#f43f5e";
-    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 28 38"><path fill="'+col+'" stroke="#fff" stroke-width="1.5" d="M14 1C8.2 1 3.5 5.7 3.5 11.5c0 8.5 10.5 24.5 10.5 24.5s10.5-16 10.5-24.5C24.5 5.7 19.8 1 14 1z"/><circle fill="#fff" cx="14" cy="11.5" r="5"/></svg>';
-    L.marker([lat,lng],{icon:L.divIcon({html:svg,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-34],className:""})}).bindPopup("<div style='font-family:DM Sans,sans-serif;font-size:12px'><b>"+esc(m.client_name||"Client")+"</b><br>"+fmtDT(m.start_time)+"<br><span style='font-size:10px;font-weight:700;color:"+col+"'>"+m.status+"</span></div>").addTo(MAP);
-    bounds.push([lat,lng]);
+    if(!m.start_latitude || !m.start_longitude) return;
+    var lat = +m.start_latitude, lng = +m.start_longitude;
+    if(isNaN(lat) || lat === 0) return;
+    var isDone = m.status === "COMPLETED", isProg = m.status === "IN_PROGRESS" || m.status === "in-progress";
+    var col = isDone ? "#10b981" : isProg ? "#f59e0b" : "#f43f5e";
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 28 38"><path fill="'+col+'" stroke="#fff" stroke-width="1.5" d="M14 1C8.2 1 3.5 5.7 3.5 11.5c0 8.5 10.5 24.5 10.5 24.5s10.5-16 10.5-24.5C24.5 5.7 19.8 1 14 1z"/><circle fill="#fff" cx="14" cy="11.5" r="5"/></svg>';
+    L.marker([lat,lng],{icon:L.divIcon({html:svg,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-34],className:""})})
+      .bindPopup("<div style='font-family:DM Sans,sans-serif;font-size:12px'><b>"+esc(m.client_name||"Client")+"</b><br>"+fmtDT(m.start_time)+"<br><span style='font-size:10px;font-weight:700;color:"+col+"'>"+m.status+"</span></div>")
+      .addTo(MAP);
+    bounds.push([lat, lng]);
   });
-  if(bounds.length)MAP.fitBounds(bounds,{padding:[32,32],maxZoom:14});
+  if(bounds.length) MAP.fitBounds(bounds,{padding:[32,32],maxZoom:14});
 }
 
-// ── Export CSV ─────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// EXPORT CSV
+// ─────────────────────────────────────────────────────────────────
 function exportCSV(){
-  if(!DATA)return;
-  var agSel=document.getElementById("agentSel");
-  var agName=agSel.options[agSel.selectedIndex]&&agSel.options[agSel.selectedIndex].text||"Agent";
-  var s=document.getElementById("startDate").value,e=document.getElementById("endDate").value;
-  var rows=[
+  if(!DATA) return;
+  var agSel  = document.getElementById("agentSel");
+  var agName = agSel.options[agSel.selectedIndex] && agSel.options[agSel.selectedIndex].text || "Agent";
+  var s = document.getElementById("startDate").value;
+  var e = document.getElementById("endDate").value;
+  var rows = [
     ["Agent","Date Range","Total Distance","Duration","Clients Visited","Visit Rate","GPS Logs"],
-    [agName,s+" to "+e,(DATA.totalDistanceKm||0)+" km",durStr(DATA.totalDurationMins||0),DATA.clientsVisited||0,DATA.meetingsCount>0?((DATA.clientsVisited/DATA.meetingsCount)*100).toFixed(1)+"%":"0%",DATA.logsCount||0],
-    [],["#","Client","Check-In","Check-Out","Status","Location Verified","Distance to Client","Notes"]
+    [agName, s+" to "+e, (DATA.totalDistanceKm||0)+" km", durStr(DATA.totalDurationMins||0), DATA.clientsVisited||0,
+     DATA.meetingsCount>0 ? ((DATA.clientsVisited/DATA.meetingsCount)*100).toFixed(1)+"%" : "0%", DATA.logsCount||0],
+    [],
+    ["#","Client","Check-In","Check-Out","Status","Location Verified","Distance to Client","Notes"]
   ];
-  (DATA.meetings||[]).forEach(function(m,i){rows.push([i+1,m.client_name||"",fmtDT(m.start_time),fmtDT(m.end_time),m.status||"",m.location_verified?"Yes":"No",(m.distance_to_client||"")+"m",m.comments||""]);});
-  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\n");
-  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="journey-"+agName.replace(/\s+/g,"-")+"-"+s+".csv";a.click();
-  toast("Report exported!","success");
+  (DATA.meetings||[]).forEach(function(m,i){
+    rows.push([i+1, m.client_name||"", fmtDT(m.start_time), fmtDT(m.end_time),
+               m.status||"", m.location_verified?"Yes":"No", (m.distance_to_client||"")+"m", m.comments||""]);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(","); }).join("\n");
+  var a = document.createElement("a");
+  a.href     = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = "journey-" + agName.replace(/\s+/g,"-") + "-" + s + ".csv";
+  a.click();
+  toast("Report exported!", "success");
 }
 
-// ── Empty ──────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// EMPTY STATE
+// ─────────────────────────────────────────────────────────────────
 function showEmpty(){
-  DATA=null;
-  document.getElementById("results").innerHTML=
-    '<div class="empty-state">'+
-    '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>'+
-    '<div class="empty-title">Select an Agent</div>'+
+  DATA = null;
+  document.getElementById("results").innerHTML =
+    '<div class="empty-state">' +
+    '<div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>' +
+    '<div class="empty-title">Select an Agent</div>' +
     '<div class="empty-sub">Choose an agent from the dropdown above to view their journey data</div></div>';
 }
 
-// ── Sidebar Info ───────────────────────────────────────
-function fetchSidebarInfo(){
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.error)return;
-      var users=d.users||[];
-      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=users.length+"/1000";
-      if(d.me){
-        _ME_CACHE=d.me;
-        var n=d.me.full_name||d.me.email||"";var pts=n.trim().split(/\s+/);
-        var ini=((pts[0]?pts[0][0]:"")+(pts[1]?pts[1][0]:"")).toUpperCase()||"A";
-        var av=document.getElementById("sbAvatar");if(av)av.textContent=ini;
-        var nm=document.getElementById("sbName");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
-        var em=document.getElementById("sbEmail");if(em)em.textContent=d.me.email||"";
-        applyProfileInfo(d.me);
-      }
-    }).catch(function(){});
-}
-
-// Re-inject admin name/email into profile menu (called after tbActions rebuild)
-function applyProfileInfo(me){
-  if(!me)me=_ME_CACHE;if(!me)return;
-  var pmn=document.getElementById("pmName");
-  if(pmn)pmn.textContent=me.is_super_admin?"Super Admin":"Admin Account";
-  var pme=document.getElementById("pmEmail");
-  if(pme)pme.textContent=me.email||"";
-}
-
-// ── Profile dropdown ───────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// PROFILE DROPDOWN
+// ─────────────────────────────────────────────────────────────────
 function wireProfile(){
-  var btn=document.getElementById("profileBtn");
-  if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});
+  var btn = document.getElementById("profileBtn");
+  if(btn) btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    document.getElementById("profileMenu").classList.toggle("open");
+  });
 }
 wireProfile();
-document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
+document.addEventListener("mousedown", function(e){
+  var w = document.getElementById("profileDropdown");
+  if(w && !w.contains(e.target)){
+    var m = document.getElementById("profileMenu");
+    if(m) m.classList.remove("open");
+  }
+});
 
-// ── Logout ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// LOGOUT
+// ─────────────────────────────────────────────────────────────────
 function doLogout(){
-  if(!confirm("Sign out of GeoTrack admin?"))return;
+  if(!confirm("Sign out of GeoTrack admin?")) return;
   sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_company_id");
   sessionStorage.removeItem("bitrix_admin_mid");
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  window.location.replace("/bitrix/login"+p);
+  localStorage.removeItem("token");
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  window.location.replace("/bitrix/login" + p);
 }
 
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+setupNavigation();
 initLoad();
 </script>
 </body>

@@ -108,7 +108,9 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .progress-mini{height:3px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px;transition:width .4s ease}
 .fill-indigo{background:linear-gradient(90deg,var(--indigo),var(--indigo2))}
+.fill-emerald{background:linear-gradient(90deg,var(--emerald),var(--emerald2))}
 .fill-amber{background:linear-gradient(90deg,var(--amber),var(--amber2))}
+.fill-rose{background:linear-gradient(90deg,var(--rose),var(--rose2))}
 .activity-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
 .activity-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
 .activity-icon{font-size:14px;margin-bottom:4px}
@@ -152,6 +154,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .plan-features{list-style:none;margin-bottom:12px}
 .plan-features li{font-size:9px;color:var(--text2);padding:3px 0;display:flex;align-items:flex-start;gap:4px}
 .plan-features li::before{content:"✓";color:var(--emerald);font-size:10px;flex-shrink:0}
+.plan-limits{background:var(--surface);border-radius:8px;padding:7px 9px;margin-bottom:10px;font-size:9px;color:var(--text2)}
+.plan-limits div{padding:1px 0}
 .plan-btn{width:100%;padding:8px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;border:none;font-family:var(--font);transition:all .12s}
 .plan-btn.upgrade{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff}
 .plan-btn.upgrade:hover{transform:translateY(-1px);filter:brightness(1.05)}
@@ -201,10 +205,8 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 </style>
 </head>
 <body>
-
 <div id="pageLoader" class="page-loader"><div class="spinner"></div><div class="loader-text">Loading billing plans...</div></div>
 <div id="gtToast" class="gt-toast"></div>
-
 <div class="shell">
   <aside class="sidebar">
     <div class="sb-accent"></div>
@@ -223,40 +225,65 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="sb-nav-item" id="navUser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>User Management</div>
       <div class="sb-nav-item" id="navBank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
       <div class="sb-nav-item" id="navExpand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
+      <div class="sb-nav-item active" id="navBilling"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>Billing Plans</div>
     </nav>
     <div class="plan-box" id="planBoxBtn">
-      <div class="plan-tier" id="sbPlanTier">— PLAN</div>
+      <div class="plan-tier" id="sbPlanTier">📊 PLAN</div>
       <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div>
-      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planClients">—</span></div>
       <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v" id="sbPlanStorage">—</span></div>
     </div>
-    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbName">Admin</div><div class="sb-user-email" id="sbEmail">admin@company.com</div></div></div></div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAv">G</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sbName">Admin</div>
+          <div class="sb-user-email" id="sbEmail">—</div>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <div class="main">
     <div class="topbar">
-      <div class="tb-left"><div class="tb-title">Billing Plans</div><div class="tb-live"><div class="live-dot"></div> Live</div></div>
+      <div class="tb-left">
+        <div class="tb-title">Billing Plans</div>
+        <div class="tb-live"><div class="live-dot"></div> Live</div>
+      </div>
       <div class="tb-actions">
-        <button class="tb-icon-btn primary" onclick="loadData()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
-        <div class="profile-dropdown" id="profileDropdown"><button class="profile-btn" id="profileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><div class="profile-menu" id="profileMenu"><p class="profile-menu-name" id="pmName">Admin Account</p><p class="profile-menu-email" id="pmEmail">—</p><hr class="pm-divider"><button class="profile-logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button></div></div>
+        <button class="tb-icon-btn primary" onclick="loadData()" title="Refresh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <button class="profile-btn" id="profileBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </button>
+          <div class="profile-menu" id="profileMenu">
+            <p class="profile-menu-name" id="pmName">Admin Account</p>
+            <p class="profile-menu-email" id="pmEmail">—</p>
+            <hr class="pm-divider">
+            <button class="profile-logout-btn" onclick="doLogout()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign out
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="content">
-
-      <!-- ── CURRENT PLAN BANNER (fully dynamic) ── -->
       <div class="sec-head"><span class="sec-head-label">Current Plan</span><div class="sec-head-line"></div></div>
       <div class="current-banner fi">
         <div class="banner-left">
           <div class="banner-icon" id="bannerIcon" style="background:linear-gradient(135deg,var(--amber),var(--amber2))">⭐</div>
           <div>
-            <div class="banner-title" id="bannerTitle">Loading… <span class="banner-badge">Current Plan</span></div>
-            <div class="banner-sub" id="bannerSub">Loading plan details…</div>
+            <div class="banner-title" id="bannerTitle">Loading <span class="banner-badge">Current Plan</span></div>
+            <div class="banner-sub" id="bannerSub">Loading plan details...</div>
           </div>
         </div>
         <div class="banner-price">
           <div class="banner-price-val" id="bannerPrice">—</div>
-          <div class="banner-price-sub">Billed monthly</div>
+          <div class="banner-price-sub" id="bannerCycle">Billed monthly</div>
         </div>
         <div class="banner-actions">
           <button class="btn-upgrade" id="bannerUpgradeBtn">Upgrade Plan</button>
@@ -264,15 +291,40 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         </div>
       </div>
 
-      <!-- ── RESOURCE USAGE ── -->
       <div class="sec-head"><span class="sec-head-label">Resource Usage</span><div class="sec-head-line"></div></div>
       <div class="resource-grid">
-        <div class="resource-card fi"><div class="resource-header"><span class="resource-icon">👥</span><span class="resource-label">Team Members</span></div><div class="resource-values"><span class="resource-current" id="rcUsers">—</span><span class="resource-sep">/</span><span class="resource-limit" id="rcUserLimit">—</span></div><div class="resource-remain" id="rcUserRemain">Loading…</div><div class="progress-mini"><div class="progress-fill fill-indigo" id="rcUserBar" style="width:0%"></div></div></div>
-        <div class="resource-card fi"><div class="resource-header"><span class="resource-icon">📋</span><span class="resource-label">Clients</span></div><div class="resource-values"><span class="resource-current" id="rcClients">—</span></div><div><span class="resource-unlimited">Unlimited</span></div></div>
-        <div class="resource-card fi"><div class="resource-header"><span class="resource-icon">💾</span><span class="resource-label">Storage (plan limit)</span></div><div class="resource-values"><span class="resource-current" id="rcStorageUsed">0</span><span class="resource-sep">/</span><span class="resource-limit" id="rcStorageLimit">—</span></div><div class="resource-remain" id="rcStorageRemain">Based on plan</div><div class="progress-mini"><div class="progress-fill fill-amber" id="rcStorageBar" style="width:0%"></div></div></div>
+        <div class="resource-card fi">
+          <div class="resource-header"><span class="resource-icon">👥</span><span class="resource-label">Team Members</span></div>
+          <div class="resource-values">
+            <span class="resource-current" id="rcUsers">—</span>
+            <span class="resource-sep">/</span>
+            <span class="resource-limit" id="rcUserLimit">—</span>
+          </div>
+          <div class="resource-remain" id="rcUserRemain">Loading...</div>
+          <div class="progress-mini"><div class="progress-fill fill-indigo" id="rcUserBar" style="width:0%"></div></div>
+        </div>
+        <div class="resource-card fi">
+          <div class="resource-header"><span class="resource-icon">📋</span><span class="resource-label">Clients</span></div>
+          <div class="resource-values">
+            <span class="resource-current" id="rcClients">—</span>
+            <span class="resource-sep">/</span>
+            <span class="resource-limit" id="rcClientLimit">—</span>
+          </div>
+          <div class="resource-remain" id="rcClientRemain">Loading...</div>
+          <div class="progress-mini"><div class="progress-fill fill-emerald" id="rcClientBar" style="width:0%"></div></div>
+        </div>
+        <div class="resource-card fi">
+          <div class="resource-header"><span class="resource-icon">💾</span><span class="resource-label">Storage (plan limit)</span></div>
+          <div class="resource-values">
+            <span class="resource-current" id="rcStorageUsed">0</span>
+            <span class="resource-sep">/</span>
+            <span class="resource-limit" id="rcStorageLimit">—</span>
+          </div>
+          <div class="resource-remain" id="rcStorageRemain">Based on plan</div>
+          <div class="progress-mini"><div class="progress-fill fill-amber" id="rcStorageBar" style="width:0%"></div></div>
+        </div>
       </div>
 
-      <!-- ── ACTIVITY SUMMARY ── -->
       <div class="sec-head"><span class="sec-head-label">Activity Summary</span><div class="sec-head-line"></div></div>
       <div class="activity-grid">
         <div class="activity-card card-purple fi"><div class="activity-icon">📦</div><div class="activity-label">Total Services</div><div class="activity-value" id="actServices">—</div></div>
@@ -281,42 +333,51 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
         <div class="activity-card card-sky fi"><div class="activity-icon">📍</div><div class="activity-label">Location Logs</div><div class="activity-value" id="actLogs">—</div></div>
       </div>
 
-      <!-- ── FEATURES (dynamic per current plan) ── -->
       <div class="sec-head"><span class="sec-head-label">Features Included</span><div class="sec-head-line"></div></div>
-      <div class="features-grid" id="featuresGrid"><!-- filled by JS --></div>
+      <div class="features-grid" id="featuresGrid"></div>
 
-      <!-- ── COMPANY INFO ── -->
       <div class="company-card fi">
         <div class="company-header">
-          <div class="company-name-el" id="ccCompanyName">Default Company</div>
+          <div class="company-name-el" id="ccCompanyName">—</div>
           <div class="plan-tag" id="ccPlanTag">—</div>
         </div>
         <div class="company-badges">
-          <span class="badge-tag badge-purple">📍 license: active</span>
-          <span class="badge-tag badge-emerald">👥 admin</span>
+          <span class="badge-tag badge-purple">✓ license: active</span>
+          <span class="badge-tag badge-emerald">✓ admin</span>
           <span class="badge-tag badge-sky" id="ccEmail">—</span>
-          <span class="badge-tag badge-amber" id="ccFeatureBadge">📊 —</span>
+          <span class="badge-tag badge-amber" id="ccFeatureBadge">—</span>
         </div>
         <div class="company-usage">
           <div class="usage-row"><span class="usage-label">Current Plan:</span><span class="usage-value" id="ccPlanName">—</span></div>
-          <div class="usage-row"><span class="usage-label">Users:</span><span class="usage-value" id="ccUsageText">—</span></div>
-          <div class="usage-row"><span class="usage-label">Storage per user:</span><span class="usage-value" id="ccStoragePerUser">—</span></div>
+          <div class="usage-row"><span class="usage-label">Team Members:</span><span class="usage-value" id="ccUsageText">—</span></div>
+          <div class="usage-row"><span class="usage-label">Clients:</span><span class="usage-value" id="ccClientsText">—</span></div>
+          <div class="usage-row"><span class="usage-label">Completed Meetings:</span><span class="usage-value" id="ccMeetingsDone">—</span></div>
         </div>
       </div>
 
-      <!-- ── COMPARE PLANS (dynamic current/upgrade/downgrade) ── -->
       <div class="sec-head"><span class="sec-head-label">Compare Plans</span><div class="sec-head-line"></div></div>
-      <div class="plans-grid" id="plansGrid"><!-- filled by JS --></div>
+      <div class="plans-grid" id="plansGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Loading plans...</div>
+      </div>
 
-      <div class="need-more fi"><div><div class="need-title">➕ Need More Capacity?</div><div class="need-sub">Add more users or clients to your current plan without upgrading</div></div><button class="need-btn" onclick="navTo('/bitrix/expand-capacity?DOMAIN='+encodeURIComponent(GT_DOM)+'&member_id='+encodeURIComponent(GT_MID))">Expand Slots</button></div>
+      <div class="need-more fi">
+        <div>
+          <div class="need-title">➕ Need More Capacity?</div>
+          <div class="need-sub">Add more users or clients to your current plan without upgrading</div>
+        </div>
+        <button class="need-btn" onclick="navTo('/bitrix/expand-capacity')">Expand Slots</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── PLAN CHANGE MODAL ── -->
+<!-- PLAN CHANGE MODAL -->
 <div class="modal-overlay" id="upgradeModal">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title" id="modalTitle">Change Plan</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Change Plan</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div id="modalStep1">
       <div class="modal-sub" id="modalSub">You are about to change your plan</div>
       <div class="plan-summary">
@@ -328,12 +389,12 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
       <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="upgradeName" type="text" placeholder="John Doe"></div>
       <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="upgradeEmail" type="email" placeholder="john@company.com"></div>
       <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" id="upgradePhone" type="tel" placeholder="+91 98765 43210"></div>
-      <div class="demo-note">💡 This is a demo upgrade flow. In production, connect with a payment gateway for real billing.</div>
+      <div class="demo-note">⚠️ This is a demo upgrade flow. In production, connect with a payment gateway for real billing.</div>
       <button class="confirm-btn" id="confirmUpgradeBtn" onclick="confirmUpgrade()">Confirm Plan Change</button>
     </div>
     <div id="modalStep2" style="display:none">
       <div class="success-center">
-        <div class="success-icon">🎉</div>
+        <div class="success-icon">✅</div>
         <div class="success-title">Plan Updated!</div>
         <div class="success-sub" id="upgradeSuccessMsg">Your plan has been updated successfully.</div>
         <button class="success-close" onclick="closeModal();loadData()">Done</button>
@@ -343,316 +404,616 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 </div>
 
 <script>
-var GT_MID="{{member_id}}",GT_DOM="{{DOMAIN}}";
-var HG={"ngrok-skip-browser-warning":"true"};
-var HJ={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
-var _selectedPlan=null;
-var _currentPlan="enterprise";
+// ─────────────────────────────────────────────────────────────────
+// BOOTSTRAP
+// ─────────────────────────────────────────────────────────────────
+var _P       = new URLSearchParams(location.search);
+var _INJ_MID = "{{member_id}}";
+var _INJ_DOM = "{{DOMAIN}}";
 
-// ─────────────────────────────────────────────
-// PLAN METADATA — single source of truth
-// ─────────────────────────────────────────────
-var PLAN_ORDER=["starter","professional","business","enterprise"];
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3)
+  ? window.__GT_MEMBER_ID__
+  : (_INJ_MID !== "{{member_id}}" ? _INJ_MID : (_P.get("member_id") || ""));
 
-var PLANS={
-  starter:{
-    key:"starter",name:"Starter",emoji:"🆓",
-    price:"₹0",priceNum:0,priceLabel:"Free",
-    desc:"Free forever, great for solo users",
-    cycle:"Free forever",
-    userLimit:1,storagePerUser:"5 MB",storageTotal:"5 MB",
-    bannerDesc:"Free starter plan — perfect for solo use",
-    bannerBg:"linear-gradient(135deg,#64748b,#94a3b8)",
-    includedFeatures:["Basic GPS tracking","Client creation","Client status tracking","Field CRM","Expense logging","Activity notifications"],
-    lockedFeatures:["Priority Logging","Meeting Reporting","Advanced CRM","Interactive Maps","Advanced Analytics","Custom Reports","Data Export","White Label"]
-  },
-  professional:{
-    key:"professional",name:"Professional",emoji:"🚀",
-    price:"₹299",priceNum:299,priceLabel:"₹299 /user/month",
-    desc:"For growing teams",
-    cycle:"per user / month",
-    userLimit:10,storagePerUser:"5 MB",storageTotal:"50 MB",
-    bannerDesc:"Ideal for growing teams with collaboration needs",
-    bannerBg:"linear-gradient(135deg,var(--sky),var(--sky2))",
-    includedFeatures:["Priority logging","Basic GPS tracking","Meeting reporting","Expense logging","Advanced CRM","Interactive maps","Basic analytics"],
-    lockedFeatures:["Real-time GPS","Custom Reports","Data Export","White Label"]
-  },
-  business:{
-    key:"business",name:"Business",emoji:"💼",
-    price:"₹599",priceNum:599,priceLabel:"₹599 /user/month",
-    desc:"Popular choice for scaling businesses",
-    cycle:"per user / month",
-    userLimit:5,storagePerUser:"500 MB",storageTotal:"2.5 GB",
-    bannerDesc:"Popular plan for scaling businesses with full CRM",
-    bannerBg:"linear-gradient(135deg,var(--violet),#7c3aed)",
-    includedFeatures:["Real-time GPS tracking","Client creation","Advanced CRM","Expense logging","Receipt attachments","Advanced search","Interactive maps","Advanced analytics"],
-    lockedFeatures:["Custom Reports","White Label"]
-  },
-  enterprise:{
-    key:"enterprise",name:"Enterprise",emoji:"⭐",
-    price:"₹899",priceNum:899,priceLabel:"₹899 /user/month",
-    desc:"Best for large organisations",
-    cycle:"per user / month",
-    userLimit:20,storagePerUser:"500 MB",storageTotal:"100 GB",
-    bannerDesc:"Best for large organisations with advanced needs",
-    bannerBg:"linear-gradient(135deg,var(--amber),var(--amber2))",
-    includedFeatures:["Client Tracking","City Integration","API Access","Advanced Analytics","Custom Reports","Interactive Map","Field Operations","White Label"],
-    lockedFeatures:[]
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3)
+  ? window.__GT_DOMAIN__
+  : (_INJ_DOM !== "{{DOMAIN}}" ? _INJ_DOM : (_P.get("DOMAIN") || "world.bitrix24.com"));
+
+var _ssCompanyId  = sessionStorage.getItem("bitrix_admin_company_id") || "";
+var _injCompanyId = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3)
+                    ? window.__GT_COMPANY_ID__ : "";
+var GT_CID = _ssCompanyId || _injCompanyId || _P.get("company_id") || "";
+
+var GT_ADMIN_EMAIL = "";
+try {
+  var _tok = sessionStorage.getItem("bitrix_admin_token");
+  if (_tok) {
+    var _pl = JSON.parse(atob(_tok.split(".")[1]));
+    GT_ADMIN_EMAIL = _pl.email || _pl.sub || "";
   }
+} catch(_) {}
+
+console.log("📊 Billing Plans bootstrap — member_id:", GT_MID, "company_id:", GT_CID, "admin_email:", GT_ADMIN_EMAIL);
+
+var HG = {"ngrok-skip-browser-warning":"true"};
+var HJ = {"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
+
+// ─────────────────────────────────────────────────────────────────
+// GLOBAL STATE
+// ─────────────────────────────────────────────────────────────────
+var _selectedPlan      = null;
+var _selectedLicenseId = null;
+var _currentPlan       = null;
+
+// ─────────────────────────────────────────────────────────────────
+// PLAN META FALLBACK
+// ─────────────────────────────────────────────────────────────────
+var PLAN_META_FALLBACK = {
+  starter:      { name:"Starter",      emoji:"🌱", color:"linear-gradient(135deg,#6b7280,#9ca3af)",      price:0,    cycle:"monthly", description:"Perfect for small teams getting started",     storageGB:5,   clientLimit:100,  userLimit:5,   features:["Location tracking","Basic journey reports","Up to 5 users","Email support"] },
+  professional: { name:"Professional", emoji:"⚡", color:"linear-gradient(135deg,var(--sky),var(--sky2))",price:499,  cycle:"monthly", description:"For growing teams that need more power",       storageGB:25,  clientLimit:500,  userLimit:25,  features:["Everything in Starter","Client management","Advanced analytics","Priority support","API access"] },
+  business:     { name:"Business",     emoji:"💼", color:"linear-gradient(135deg,var(--indigo),var(--indigo2))",price:999, cycle:"monthly", description:"For scaling businesses with complex needs", storageGB:100, clientLimit:2000, userLimit:100, features:["Everything in Professional","Unlimited clients","Tally integration","Custom reports","Bulk operations","White label"] },
+  enterprise:   { name:"Enterprise",   emoji:"🏢", color:"linear-gradient(135deg,var(--amber),var(--amber2))",price:1999,cycle:"monthly", description:"Full-featured for large enterprises",        storageGB:500, clientLimit:null, userLimit:null,features:["Everything in Business","Unlimited users","Dedicated support","SLA guarantee","Custom integrations","Advanced security"] }
 };
 
-// ─────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────
-function navTo(url){fetch(url,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){window.location.replace(url);});}
-function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||3500);}
-function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
-function fmtN(n){n=+n;if(n>=1e6)return(n/1e6).toFixed(1)+"M";if(n>=1e3)return(n/1e3).toFixed(1)+"K";return String(n);}
-function planRank(k){return PLAN_ORDER.indexOf(k);}
-function safe(k){return PLANS[k]?k:"enterprise";}
+var PLAN_STYLE = {
+  starter:      { emoji:"🌱", color:"linear-gradient(135deg,#6b7280,#9ca3af)" },
+  professional: { emoji:"⚡", color:"linear-gradient(135deg,var(--sky),var(--sky2))" },
+  business:     { emoji:"💼", color:"linear-gradient(135deg,var(--indigo),var(--indigo2))" },
+  enterprise:   { emoji:"🏢", color:"linear-gradient(135deg,var(--amber),var(--amber2))" }
+};
 
-// ─────────────────────────────────────────────
-// RENDER — all billing UI from one data object
-// ─────────────────────────────────────────────
-function renderBillingUI(data){
-  var key=safe((data.current_plan||"enterprise").toLowerCase());
-  _currentPlan=key;
-  var p=PLANS[key];
+var _livePlans   = [];
+var _liveLicense = null;
 
-  // ── Banner
-  var icon=document.getElementById("bannerIcon");
-  icon.textContent=p.emoji;
-  icon.style.background=p.bannerBg;
-  document.getElementById("bannerTitle").innerHTML=p.name+' <span class="banner-badge">Current Plan</span>';
-  document.getElementById("bannerSub").textContent=p.bannerDesc;
-  document.getElementById("bannerPrice").innerHTML=
-    p.priceNum===0
-      ? '<span style="font-size:22px">Free</span>'
-      : p.price+' <span style="font-size:10px">/user/month</span>';
+// ─────────────────────────────────────────────────────────────────
+// RESOLVE PLAN META
+// ─────────────────────────────────────────────────────────────────
+function resolvePlanMeta(planKey, livePlansArr, liveLicenseObj) {
+  var key     = (planKey || "enterprise").toLowerCase();
+  var fb      = PLAN_META_FALLBACK[key] || PLAN_META_FALLBACK.enterprise;
+  var style   = PLAN_STYLE[key] || PLAN_STYLE.enterprise;
+  var lp      = (livePlansArr || []).find(function(p){
+    return p.licenseType && p.licenseType.name && p.licenseType.name.toLowerCase() === key;
+  });
 
-  var upgradeBtn=document.getElementById("bannerUpgradeBtn");
-  if(key==="enterprise"){
-    upgradeBtn.textContent="Manage Plan";
-    upgradeBtn.onclick=function(){toast("You are on the top plan. Contact support to customise.","info");};
-  } else {
-    upgradeBtn.textContent="Upgrade Plan";
-    upgradeBtn.onclick=function(){openPlanModal("enterprise");};
+  if (!lp) {
+    return {
+      key:         key,
+      name:        fb.name,
+      emoji:       style.emoji,
+      color:       style.color,
+      price:       fb.price,
+      cycle:       fb.cycle,
+      description: fb.description,
+      storageGB:   fb.storageGB,
+      clientLimit: fb.clientLimit,
+      userLimit:   fb.userLimit,
+      features:    fb.features,
+      licenseId:   null,
+      isLive:      false
+    };
   }
 
-  // ── Sidebar plan box
-  document.getElementById("sbPlanTier").textContent=p.emoji+" "+p.name.toUpperCase();
-  document.getElementById("sbPlanStorage").textContent="0 / "+p.storageTotal;
+  var lt         = lp.licenseType || {};
+  var ml         = lp.maxLimits   || {};
+  var rawFeats   = lt.features    || [];
+  var features   = rawFeats.map(function(f){ return typeof f === "string" ? f : (f.uiLabel || f.name || ""); }).filter(Boolean);
+  if (!features.length) features = fb.features;
 
-  // ── Resource: users
-  var uCount=data.user_count||0;
-  var uLimit=data.user_limit||p.userLimit;
-  document.getElementById("planUsers").textContent=uCount+"/"+uLimit;
-  document.getElementById("rcUsers").textContent=uCount;
-  document.getElementById("rcUserLimit").textContent=uLimit;
-  var rem=uLimit-uCount;
-  document.getElementById("rcUserRemain").textContent=rem+" slot"+(rem!==1?"s":"")+" remaining";
-  var pct=uLimit>0?Math.min(100,(uCount/uLimit*100)):0;
-  document.getElementById("rcUserBar").style.width=pct+"%";
+  var licMaxLimits = (liveLicenseObj && liveLicenseObj.plan === key) ? (liveLicenseObj.maxLimits || {}) : {};
 
-  // ── Resource: clients
-  document.getElementById("rcClients").textContent=data.client_count||0;
-
-  // ── Resource: storage label from plan
-  document.getElementById("rcStorageLimit").textContent=p.storageTotal;
-
-  // ── Activity
-  document.getElementById("actServices").textContent=fmtN(data.total_services||0);
-  document.getElementById("actMeetings").textContent=fmtN(data.total_meetings||0);
-  document.getElementById("actExpenses").textContent=fmtN(data.total_expenses||0);
-  document.getElementById("actLogs").textContent=fmtN(data.location_logs||0);
-
-  // ── Features grid
-  var fg=document.getElementById("featuresGrid");
-  fg.innerHTML="";
-  p.includedFeatures.forEach(function(f){
-    fg.innerHTML+='<div class="feature-item fi"><div class="feature-check">✓</div>'+f+'</div>';
-  });
-  (p.lockedFeatures||[]).forEach(function(f){
-    fg.innerHTML+='<div class="feature-item locked fi"><div class="feature-lock">🔒</div>'+f+'</div>';
-  });
-
-  // ── Company card
-  var cname=data.company||"Default Company";
-  document.getElementById("ccCompanyName").textContent=cname;
-  document.getElementById("ccPlanTag").textContent=p.name;
-  document.getElementById("ccPlanName").textContent=p.name;
-  document.getElementById("ccUsageText").textContent=uCount+" / "+uLimit+" users";
-  document.getElementById("ccStoragePerUser").textContent=p.storagePerUser+" per user";
-  document.getElementById("ccFeatureBadge").textContent="📊 "+p.includedFeatures.slice(0,3).map(function(f){return f.toLowerCase();}).join(", ");
-
-  // ── Plans grid
-  renderPlansGrid(key);
+  return {
+    key:         key,
+    name:        lt.name        || fb.name,
+    emoji:       style.emoji,
+    color:       style.color,
+    price:       (lt.price && lt.price.amount)        || fb.price,
+    cycle:       (lt.price && lt.price.billingPeriod) || fb.cycle,
+    description: lt.description          || fb.description,
+    storageGB:   ml.storageGB    || licMaxLimits.storageGB    || fb.storageGB,
+    clientLimit: ml.clients      || licMaxLimits.clients      || fb.clientLimit,
+    userLimit:   ml.users        || licMaxLimits.users        || fb.userLimit,
+    features:    features,
+    licenseId:   lp._id         || null,
+    isLive:      true
+  };
 }
 
-function renderPlansGrid(currentKey){
-  var grid=document.getElementById("plansGrid");
-  grid.innerHTML="";
-  PLAN_ORDER.forEach(function(key){
-    var p=PLANS[key];
-    var isCurrent=(key===currentKey);
-    var rank=planRank(key);
-    var currentRank=planRank(currentKey);
-    var isUpgrade=rank>currentRank;
-
-    // Badge
-    var badge="";
-    if(isCurrent){
-      badge='<div class="active-badge">✓ Active Plan</div>';
-    } else if(key==="enterprise"&&!isCurrent){
-      badge='<div class="popular-badge">⭐ Recommended</div>';
-    }
-
-    // Button
-    var btn="";
-    if(isCurrent){
-      btn='<button class="plan-btn current-plan">✓ Current Plan</button>';
-    } else if(isUpgrade){
-      btn='<button class="plan-btn upgrade" onclick="openPlanModal(\''+key+'\')">Upgrade ↑</button>';
-    } else {
-      btn='<button class="plan-btn downgrade" onclick="openPlanModal(\''+key+'\')">Switch ↓</button>';
-    }
-
-    var priceHtml=p.priceNum===0?"₹0":p.price+' <span>/user</span>';
-    var feats=p.includedFeatures.map(function(f){return "<li>"+f+"</li>";}).join("");
-    var cardClass="plan-card fi"+(isCurrent?" current":"")+(key==="enterprise"&&!isCurrent?" popular":"");
-
-    grid.innerHTML+=[
-      '<div class="'+cardClass+'">',
-        badge,
-        '<div class="plan-name">'+p.name+'</div>',
-        '<div class="plan-desc">'+p.desc+'</div>',
-        '<div class="plan-price">'+priceHtml+'</div>',
-        '<div class="plan-cycle">'+p.cycle+'</div>',
-        '<ul class="plan-features">'+feats+'</ul>',
-        btn,
-      '</div>'
-    ].join("");
-  });
+// ─────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────
+function navTo(url){
+  var finalUrl = url;
+  if(GT_CID && finalUrl.indexOf("company_id") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "company_id=" + encodeURIComponent(GT_CID);
+  if(GT_MID && finalUrl.indexOf("member_id") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "member_id=" + encodeURIComponent(GT_MID);
+  if(GT_DOM && finalUrl.indexOf("DOMAIN") === -1)
+    finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "DOMAIN=" + encodeURIComponent(GT_DOM);
+  fetch(finalUrl, {headers: HG})
+    .then(function(r){ return r.text(); })
+    .then(function(h){ document.open(); document.write(h); document.close(); })
+    .catch(function(){ window.location.replace(finalUrl); });
 }
 
-// ─────────────────────────────────────────────
-// DATA LOAD
-// ─────────────────────────────────────────────
+function toast(msg, type, ms){
+  var t = document.getElementById("gtToast");
+  t.textContent   = msg;
+  t.className     = "gt-toast toast-" + type;
+  t.style.display = "block";
+  clearTimeout(t._x);
+  t._x = setTimeout(function(){ t.style.display = "none"; }, ms || 3500);
+}
+
+function setLoader(v){
+  document.getElementById("pageLoader").classList.toggle("hidden", !v);
+}
+
+function fmtN(n){
+  n = +n;
+  if(isNaN(n)) return "0";
+  if(n >= 1e6) return (n/1e6).toFixed(1) + "M";
+  if(n >= 1e3) return (n/1e3).toFixed(1) + "K";
+  return String(n);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// DATA FETCH
+// ─────────────────────────────────────────────────────────────────
+function fetchBillingData(){
+  var url = "/bitrix/billing-plans-data?member_id=" + encodeURIComponent(GT_MID)
+          + "&DOMAIN=" + encodeURIComponent(GT_DOM);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  if(GT_ADMIN_EMAIL)
+    url += "&admin_email=" + encodeURIComponent(GT_ADMIN_EMAIL);
+
+  console.log("📡 fetchBillingData:", url);
+  return fetch(url, {headers: HG}).then(function(r){ return r.json(); });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MAIN LOAD
+// ─────────────────────────────────────────────────────────────────
 function loadData(){
   setLoader(true);
-  fetch("/bitrix/billing-plans-data?member_id="+encodeURIComponent(GT_MID)+"&DOMAIN="+encodeURIComponent(GT_DOM),{headers:HG})
-    .then(function(r){return r.json();})
-    .then(function(d){
+  fetchBillingData()
+    .then(function(data){
       setLoader(false);
-      if(d.error){toast("Error: "+d.error,"error");return;}
-      // Identity
-      document.getElementById("sbCompany").textContent=d.company||"Default Company";
-      if(d.me){
-        document.getElementById("sbName").textContent=d.me.full_name||d.me.email||"Admin";
-        document.getElementById("sbEmail").textContent=d.me.email||"";
-        document.getElementById("sbAv").textContent=(d.me.full_name||d.me.email||"A").substring(0,2).toUpperCase();
-        document.getElementById("ccEmail").textContent=d.me.email||"—";
-        document.getElementById("pmEmail").textContent=d.me.email||"—";
+      if(data.error){
+        toast("Error: " + data.error, "error");
+        console.error("Billing data error:", data);
+        return;
       }
-      // Render entire billing section from API data
-      renderBillingUI(d);
+      console.log("✅ Billing data received:", data);
+
+      _livePlans   = data.plans   || [];
+      _liveLicense = data.license || null;
+
+      renderBillingUI(data);
     })
-    .catch(function(e){setLoader(false);toast("Load error: "+e.message,"error");});
+    .catch(function(e){
+      setLoader(false);
+      toast("Load error: " + e.message, "error");
+      console.error(e);
+    });
 }
 
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
+// RENDER UI
+// ─────────────────────────────────────────────────────────────────
+function renderBillingUI(data){
+
+  var currentPlanKey = (data.current_plan || "enterprise").toLowerCase();
+  _currentPlan       = currentPlanKey;
+
+  var meta = resolvePlanMeta(currentPlanKey, _livePlans, _liveLicense);
+
+  var companyName = (typeof data.company === "object" && data.company !== null)
+    ? (data.company.name || "GeoTrack")
+    : (data.company || "GeoTrack");
+
+  var lic        = data.license || {};
+  var licKey     = lic.licenseKey  || null;
+  var licExpiry  = lic.expiresAt   || null;
+  var licExpired = lic.isExpired   || false;
+  var licActive  = lic.isActive    !== false;
+
+  var userCount         = data.user_count         || 0;
+  var clientCount       = data.client_count       || 0;
+  // FIX: data.user_limit could be a small number like 5 (Starter plan).
+  // The old "|| 1000" fallback treated any falsy value as "use 1000",
+  // meaning a real limit of 0 or a missing value both silently showed 1000.
+  // Use explicit null/undefined check so real small limits are honoured.
+  var userLimit = (data.user_limit != null && data.user_limit > 0)
+    ? data.user_limit
+    : (meta.userLimit != null && meta.userLimit > 0)
+      ? meta.userLimit
+      : 1000;
+  var totalMeetings     = data.total_meetings     || 0;
+  var completedMeetings = data.completed_meetings || 0;
+  var totalServices     = data.total_services     || 0;
+  var totalExpenses     = data.total_expenses     || 0;
+  var locationLogs      = data.location_logs      || 0;
+
+  var liveML      = lic.maxLimits || {};
+  // FIX: Also check availablePlans for the current plan's maxLimits as a fallback source.
+  // The live license API sometimes returns maxLimits=null when the session token is absent,
+  // but the plans-by-product list always has them. The controller now syncs these into
+  // liveLicense.maxLimits — so liveML will be populated correctly.
+  var clientLimit = (liveML.clients   != null) ? liveML.clients   : meta.clientLimit;
+  var storageGB   = (liveML.storageGB != null && liveML.storageGB > 0) ? liveML.storageGB : (meta.storageGB || 5);
+
+  var me        = data.me || null;
+  var userName  = me ? (me.full_name || me.email || "Admin") : "Admin";
+  var userEmail = me ? (me.email || "") : "";
+  var initials  = (userName.charAt(0) + (userName.split(" ")[1] ? userName.split(" ")[1].charAt(0) : "")).toUpperCase() || "A";
+
+  // Sidebar
+  document.getElementById("sbCompany").textContent = companyName;
+  document.getElementById("sbName").textContent    = userName;
+  document.getElementById("sbEmail").textContent   = userEmail;
+  document.getElementById("sbAv").textContent      = initials;
+  document.getElementById("pmName").textContent    = userName;
+  document.getElementById("pmEmail").textContent   = userEmail;
+
+  document.getElementById("sbPlanTier").textContent    = meta.emoji + " " + meta.name.toUpperCase();
+  document.getElementById("planUsers").textContent     = userCount + "/" + userLimit;
+  document.getElementById("planClients").textContent   = clientLimit === null ? (clientCount + " / ∞") : (clientCount + "/" + clientLimit);
+  document.getElementById("sbPlanStorage").textContent = "0 / " + storageGB + " GB";
+
+  // Banner
+  var bannerIcon = document.getElementById("bannerIcon");
+  bannerIcon.textContent = meta.emoji;
+  bannerIcon.style.background = meta.color;
+
+  var statusLabel = licExpired
+    ? "⚠️ Expired · " + new Date(licExpiry).toLocaleDateString()
+    : licExpiry
+      ? "Renews " + new Date(licExpiry).toLocaleDateString() + " · Active"
+      : meta.description + " · Active";
+
+  document.getElementById("bannerTitle").innerHTML =
+    meta.name + ' <span class="banner-badge">' + (licActive ? "Current Plan" : "⚠️ Expired") + '</span>';
+  document.getElementById("bannerSub").textContent = statusLabel;
+
+  document.getElementById("bannerPrice").innerHTML = meta.price === 0
+    ? '<span style="font-size:22px">Free</span>'
+    : "₹" + meta.price + ' <span style="font-size:10px">/user/' + meta.cycle + '</span>';
+  document.getElementById("bannerCycle").textContent = "Billed " + meta.cycle;
+
+  if(licKey){
+    var existingKeyBadge = document.getElementById("licKeyBadge");
+    if(!existingKeyBadge){
+      var keyEl = document.createElement("div");
+      keyEl.id = "licKeyBadge";
+      keyEl.style.cssText = "font-size:9px;color:var(--text3);margin-top:3px";
+      keyEl.textContent   = "Key: " + licKey;
+      document.getElementById("bannerSub").after(keyEl);
+    } else {
+      existingKeyBadge.textContent = "Key: " + licKey;
+    }
+  }
+
+  var upgradeBtn = document.getElementById("bannerUpgradeBtn");
+  if(currentPlanKey === "enterprise"){
+    upgradeBtn.textContent = "Manage Plan";
+    upgradeBtn.onclick = function(){ toast("You are on the top plan. Contact support to customise.", "info"); };
+  } else {
+    upgradeBtn.textContent = "Upgrade to Enterprise";
+    upgradeBtn.onclick = function(){ openPlanModal("enterprise"); };
+  }
+
+  // Resource: Users
+  document.getElementById("rcUsers").textContent     = userCount;
+  document.getElementById("rcUserLimit").textContent = userLimit;
+  var userRem = userLimit - userCount;
+  document.getElementById("rcUserRemain").textContent =
+    userRem > 0 ? userRem + " slot" + (userRem !== 1 ? "s" : "") + " remaining" : "⚠️ Limit reached";
+  var userPct = userLimit > 0 ? Math.min(100, (userCount / userLimit) * 100) : 0;
+  document.getElementById("rcUserBar").style.width = userPct + "%";
+  document.getElementById("rcUserBar").className   =
+    "progress-fill " + (userPct >= 100 ? "fill-rose" : userPct >= 80 ? "fill-amber" : "fill-indigo");
+
+  // Resource: Clients
+  document.getElementById("rcClients").textContent = clientCount;
+  if(clientLimit === null || clientLimit === 0){
+    document.getElementById("rcClientLimit").textContent = "∞";
+    document.getElementById("rcClientRemain").innerHTML  = '<span class="resource-unlimited">Unlimited</span>';
+    document.getElementById("rcClientBar").style.width   = "30%";
+    document.getElementById("rcClientBar").className     = "progress-fill fill-emerald";
+  } else {
+    document.getElementById("rcClientLimit").textContent = clientLimit;
+    var clientRem = clientLimit - clientCount;
+    document.getElementById("rcClientRemain").textContent =
+      clientRem > 0 ? clientRem + " client" + (clientRem !== 1 ? "s" : "") + " remaining" : "⚠️ Limit reached";
+    var clientPct = clientLimit > 0 ? Math.min(100, (clientCount / clientLimit) * 100) : 0;
+    document.getElementById("rcClientBar").style.width = clientPct + "%";
+    document.getElementById("rcClientBar").className   =
+      "progress-fill " + (clientPct >= 100 ? "fill-rose" : clientPct >= 80 ? "fill-amber" : "fill-emerald");
+  }
+
+  // Resource: Storage
+  document.getElementById("rcStorageLimit").textContent  = storageGB + " GB";
+  document.getElementById("rcStorageUsed").textContent   = "0";
+  document.getElementById("rcStorageBar").style.width    = "0%";
+  document.getElementById("rcStorageRemain").textContent = storageGB + " GB available";
+
+  // Activity
+  document.getElementById("actServices").textContent = fmtN(totalServices);
+  document.getElementById("actMeetings").textContent = fmtN(totalMeetings);
+  document.getElementById("actExpenses").textContent = fmtN(totalExpenses);
+  document.getElementById("actLogs").textContent     = fmtN(locationLogs);
+
+  // Features
+  var fg = document.getElementById("featuresGrid");
+  fg.innerHTML = "";
+  (meta.features || []).forEach(function(f){
+    fg.innerHTML += '<div class="feature-item fi"><div class="feature-check">✓</div>' + f + '</div>';
+  });
+  if(!fg.innerHTML){
+    fg.innerHTML = '<div class="fi" style="grid-column:1/-1;color:var(--text3);font-size:11px">No feature info available.</div>';
+  }
+
+  // Company card
+  document.getElementById("ccCompanyName").textContent = companyName;
+  document.getElementById("ccPlanTag").textContent     = meta.name;
+  document.getElementById("ccPlanName").textContent    = meta.name;
+  document.getElementById("ccEmail").textContent       = userEmail || "—";
+  document.getElementById("ccUsageText").textContent   = userCount + " / " + userLimit + " team members";
+  document.getElementById("ccClientsText").textContent =
+    clientLimit === null ? clientCount + " / ∞ (unlimited)" : clientCount + " / " + clientLimit;
+  document.getElementById("ccMeetingsDone").textContent =
+    completedMeetings + " / " + totalMeetings + " completed";
+  document.getElementById("ccFeatureBadge").textContent =
+    "✓ " + (meta.features[0] || "core features").toLowerCase();
+
+  if(meta.isLive){
+    console.log("✅ Plan data: loaded from live license API");
+  } else {
+    console.warn("⚠️ Plan data: using fallback — license API was unreachable");
+    toast("Plan details loaded from cache. Refresh to get latest.", "info", 5000);
+  }
+
+  renderPlansGrid(currentPlanKey);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PLANS GRID — FIX: use data-attribute + addEventListener instead
+//              of inline onclick with string concatenation to avoid
+//              JS string escaping bugs.
+// ─────────────────────────────────────────────────────────────────
+function renderPlansGrid(currentPlanKey){
+  var grid = document.getElementById("plansGrid");
+  grid.innerHTML = "";
+
+  var ORDER    = ["starter","professional","business","enterprise"];
+  var useLive  = _livePlans && _livePlans.length > 0;
+
+  ORDER.forEach(function(key){
+    var meta      = resolvePlanMeta(key, _livePlans, _liveLicense);
+    var isCurrent = (key === currentPlanKey);
+    var isTop     = (key === "enterprise");
+
+    var badge = isCurrent
+      ? '<div class="active-badge">✓ Active Plan</div>'
+      : (isTop && !isCurrent ? '<div class="popular-badge">★ Recommended</div>' : "");
+
+    var priceHtml = meta.price === 0
+      ? "₹0"
+      : "₹" + meta.price + ' <span>/user</span>';
+
+    var userLimitLabel   = meta.userLimit   === null ? "Unlimited" : ("Up to " + meta.userLimit);
+    var clientLimitLabel = meta.clientLimit === null ? "Unlimited" : meta.clientLimit;
+
+    var limitsHtml =
+      '<div class="plan-limits">' +
+        '<div>👥 Users: '   + userLimitLabel   + '</div>' +
+        '<div>📋 Clients: ' + clientLimitLabel + '</div>' +
+        '<div>💾 Storage: ' + meta.storageGB   + ' GB</div>' +
+      '</div>';
+
+    var featsHtml = (meta.features || []).map(function(f){ return "<li>" + f + "</li>"; }).join("");
+
+    // ── FIX: use data-plan attribute; wire click via JS below ──
+    var btn = isCurrent
+      ? '<button class="plan-btn current-plan">✓ Current Plan</button>'
+      : '<button class="plan-btn upgrade" data-plan="' + key + '">Upgrade ↑</button>';
+
+    var cardClass = "plan-card fi"
+      + (isCurrent ? " current" : "")
+      + (isTop && !isCurrent ? " popular" : "");
+
+    var sourceNote = (!useLive)
+      ? '<div style="font-size:8px;color:var(--text3);margin-top:4px">⚠️ Cached data</div>'
+      : "";
+
+    var card = document.createElement("div");
+    card.className = cardClass;
+    card.style.marginTop = badge ? "14px" : "0";
+    card.innerHTML =
+      badge +
+      '<div class="plan-name">'  + meta.emoji + " " + meta.name + '</div>' +
+      '<div class="plan-desc">'  + meta.description + '</div>' +
+      '<div class="plan-price">' + priceHtml + '</div>' +
+      '<div class="plan-cycle">per user / ' + meta.cycle + '</div>' +
+      limitsHtml +
+      '<ul class="plan-features">' + featsHtml + '</ul>' +
+      sourceNote +
+      btn;
+
+    // Attach click handler safely — no inline string escaping needed
+    var upgradeBtn = card.querySelector(".plan-btn.upgrade");
+    if(upgradeBtn){
+      upgradeBtn.addEventListener("click", function(){
+        openPlanModal(this.getAttribute("data-plan"));
+      });
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
 // MODAL
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────
 function openPlanModal(planKey){
-  _selectedPlan=planKey;
-  var p=PLANS[planKey]||PLANS.enterprise;
-  var currentRank=planRank(_currentPlan);
-  var targetRank=planRank(planKey);
-  var isUpgrade=targetRank>currentRank;
-  var isDowngrade=targetRank<currentRank;
-  document.getElementById("modalTitle").textContent=isUpgrade?"Upgrade Plan":isDowngrade?"Switch to Lower Plan":"Manage Plan";
-  document.getElementById("modalSub").textContent=isUpgrade?"You're about to upgrade to a higher plan":isDowngrade?"You're about to switch to a lower plan":"Confirm your plan selection";
-  document.getElementById("modalPlanName").textContent=p.name;
-  document.getElementById("modalPlanPrice").textContent=p.priceLabel;
-  document.getElementById("modalPlanCycle").textContent=p.cycle;
-  document.getElementById("modalPlanFeatures").innerHTML=p.includedFeatures.slice(0,6).map(function(f){return "✓ "+f;}).join("<br>");
-  document.getElementById("upgradeName").value="";
-  document.getElementById("upgradeEmail").value="";
-  document.getElementById("upgradePhone").value="";
-  var btn=document.getElementById("confirmUpgradeBtn");
-  btn.disabled=false;
-  btn.textContent=isUpgrade?"Confirm Upgrade":"Confirm Plan Change";
-  document.getElementById("modalStep1").style.display="block";
-  document.getElementById("modalStep2").style.display="none";
+  _selectedPlan = planKey;
+
+  var meta = resolvePlanMeta(planKey, _livePlans, _liveLicense);
+  if(!meta) return;
+
+  _selectedLicenseId = meta.licenseId || planKey;
+
+  var isCurrent = (_currentPlan && _currentPlan.toLowerCase() === planKey);
+  var fromMeta  = resolvePlanMeta(_currentPlan, _livePlans, _liveLicense);
+
+  document.getElementById("modalTitle").textContent  = isCurrent ? "Renew Plan" : "Upgrade to " + meta.name;
+  document.getElementById("modalSub").textContent    = isCurrent
+    ? "You are about to renew your current " + meta.name + " plan"
+    : "Switching from " + fromMeta.name + " → " + meta.name;
+  document.getElementById("modalPlanName").textContent  = meta.emoji + " " + meta.name;
+  document.getElementById("modalPlanPrice").textContent = meta.price === 0
+    ? "Free"
+    : "₹" + meta.price + " /user /" + meta.cycle;
+  document.getElementById("modalPlanCycle").textContent = "Billed " + meta.cycle;
+  document.getElementById("modalPlanFeatures").innerHTML =
+    (meta.features || []).slice(0, 6).map(function(f){ return "✓ " + f; }).join("<br>");
+
+  document.getElementById("upgradeName").value  = "";
+  document.getElementById("upgradeEmail").value = "";
+  document.getElementById("upgradePhone").value = "";
+
+  var btn = document.getElementById("confirmUpgradeBtn");
+  btn.disabled    = false;
+  btn.textContent = isCurrent ? "Confirm Renewal" : "Confirm Upgrade";
+
+  document.getElementById("modalStep1").style.display = "block";
+  document.getElementById("modalStep2").style.display = "none";
   document.getElementById("upgradeModal").classList.add("open");
 }
 
-function closeModal(){document.getElementById("upgradeModal").classList.remove("open");}
-document.getElementById("upgradeModal").addEventListener("click",function(e){if(e.target===this)closeModal();});
+function closeModal(){
+  document.getElementById("upgradeModal").classList.remove("open");
+}
 
+document.getElementById("upgradeModal").addEventListener("click", function(e){
+  if(e.target === this) closeModal();
+});
+
+// ─────────────────────────────────────────────────────────────────
+// CONFIRM UPGRADE
+// ─────────────────────────────────────────────────────────────────
 function confirmUpgrade(){
-  var name=document.getElementById("upgradeName").value.trim();
-  var email=document.getElementById("upgradeEmail").value.trim();
-  var phone=document.getElementById("upgradePhone").value.trim();
-  if(!name){toast("Please enter your full name","error");return;}
-  if(!email||!email.includes("@")){toast("Please enter a valid email","error");return;}
-  if(!phone){toast("Please enter your phone number","error");return;}
-  var btn=document.getElementById("confirmUpgradeBtn");
-  btn.disabled=true;btn.textContent="Processing…";
-  fetch("/bitrix/billing-plans-upgrade?member_id="+encodeURIComponent(GT_MID),{
-    method:"POST",headers:HJ,
-    body:JSON.stringify({plan:_selectedPlan,payerName:name,payerEmail:email,payerPhone:phone})
+  var name  = document.getElementById("upgradeName").value.trim();
+  var email = document.getElementById("upgradeEmail").value.trim();
+  var phone = document.getElementById("upgradePhone").value.trim();
+
+  if(!name)                          { toast("Please enter your full name","error"); return; }
+  if(!email || !email.includes("@")) { toast("Please enter a valid email","error"); return; }
+  if(!phone)                         { toast("Please enter your phone number","error"); return; }
+
+  var btn = document.getElementById("confirmUpgradeBtn");
+  btn.disabled    = true;
+  btn.textContent = "Processing...";
+
+  var url = "/bitrix/billing-plans-upgrade?member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+
+  fetch(url, {
+    method: "POST",
+    headers: HJ,
+    body: JSON.stringify({
+      plan:        _selectedPlan,
+      licenseId:   _selectedLicenseId,
+      payerName:   name,
+      payerEmail:  email,
+      payerPhone:  phone,
+      company_id:  GT_CID
+    })
   })
-  .then(function(r){return r.json();})
+  .then(function(r){ return r.json(); })
   .then(function(d){
-    btn.disabled=false;btn.textContent="Confirm Plan Change";
-    if(d.error){toast(d.message||d.error,"error");return;}
-    var p=PLANS[_selectedPlan]||PLANS.enterprise;
-    document.getElementById("upgradeSuccessMsg").innerHTML=
-      "You have successfully switched to the <strong>"+p.name+"</strong> plan! Your features are now active.";
-    document.getElementById("modalStep1").style.display="none";
-    document.getElementById("modalStep2").style.display="block";
-    _currentPlan=_selectedPlan;
+    btn.disabled    = false;
+    btn.textContent = "Confirm Plan Change";
+    if(d.error){ toast(d.message || d.error, "error"); return; }
+    var meta = resolvePlanMeta(_selectedPlan, _livePlans, _liveLicense);
+    document.getElementById("upgradeSuccessMsg").innerHTML =
+      "Successfully switched to <strong>" + meta.name + "</strong>. Your new features are now active.";
+    document.getElementById("modalStep1").style.display = "none";
+    document.getElementById("modalStep2").style.display = "block";
+    _currentPlan = _selectedPlan;
   })
   .catch(function(e){
-    btn.disabled=false;btn.textContent="Confirm Plan Change";
-    toast("Network error: "+e.message,"error");
+    btn.disabled    = false;
+    btn.textContent = "Confirm Plan Change";
+    toast("Network error: " + e.message, "error");
   });
 }
 
-// ─────────────────────────────────────────────
-// NAV
-// ─────────────────────────────────────────────
-function wNav(){
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  var routes={navDash:"/bitrix/app",navMap:"/bitrix/map",navJourney:"/bitrix/journey",navClients:"/bitrix/clients",navServices:"/bitrix/client-services",navTeam:"/bitrix/team-activity",navUser:"/bitrix/user-management",navBank:"/bitrix/bank-account",navExpand:"/bitrix/expand-capacity"};
-  Object.keys(routes).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){navTo(routes[id]+p);};});
-  document.getElementById("planBoxBtn").onclick=function(){navTo("/bitrix/billing-plans"+p);};
-}
+// ─────────────────────────────────────────────────────────────────
+// LOGOUT
+// ─────────────────────────────────────────────────────────────────
 function doLogout(){
-  if(!confirm("Sign out of GeoTrack admin?"))return;
-  sessionStorage.removeItem("bitrix_admin_token");sessionStorage.removeItem("bitrix_admin_mid");
-  var d=typeof GT_DOM!=="undefined"?GT_DOM:"world.bitrix24.com";
-  var m=typeof GT_MID!=="undefined"?GT_MID:"";
-  window.location.replace("/bitrix/login?DOMAIN="+encodeURIComponent(d)+"&member_id="+encodeURIComponent(m));
+  if(!confirm("Sign out of GeoTrack admin?")) return;
+  sessionStorage.removeItem("bitrix_admin_token");
+  sessionStorage.removeItem("bitrix_admin_company_id");
+  sessionStorage.removeItem("bitrix_admin_mid");
+  localStorage.removeItem("token");
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  window.location.replace("/bitrix/login" + p);
 }
+
+// ─────────────────────────────────────────────────────────────────
+// PROFILE DROPDOWN
+// ─────────────────────────────────────────────────────────────────
 (function(){
-  var btn=document.getElementById("profileBtn");
-  if(btn)btn.addEventListener("click",function(e){e.stopPropagation();document.getElementById("profileMenu").classList.toggle("open");});
-})();
-document.addEventListener("mousedown",function(e){
-  var w=document.getElementById("profileDropdown");
-  if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}
-});
-(function(){
-  var t=sessionStorage.getItem("bitrix_admin_token");
-  if(t){try{var pp=JSON.parse(atob(t.split(".")[1]));var em=pp.email||pp.sub||"";var nm=document.getElementById("pmName");if(nm)nm.textContent=(pp.isSuperAdmin||pp.is_super_admin)?"Super Admin Account":"Admin Account";var el=document.getElementById("pmEmail");if(el)el.textContent=em;return;}catch(_){}}
-  var mid=typeof GT_MID!=="undefined"?GT_MID:"";
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),{headers:{"ngrok-skip-browser-warning":"true"}})
-    .then(function(r){return r.json();}).then(function(d){if(!d.me)return;var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";}).catch(function(){});
+  var btn = document.getElementById("profileBtn");
+  if(btn) btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    document.getElementById("profileMenu").classList.toggle("open");
+  });
 })();
 
-wNav();
+document.addEventListener("mousedown", function(e){
+  var w = document.getElementById("profileDropdown");
+  if(w && !w.contains(e.target)){
+    var m = document.getElementById("profileMenu");
+    if(m) m.classList.remove("open");
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────────────────────────
+function setupNavigation(){
+  var routes = {
+    navDash:    "/bitrix/app",
+    navMap:     "/bitrix/map",
+    navJourney: "/bitrix/journey",
+    navClients: "/bitrix/clients",
+    navServices:"/bitrix/client-services",
+    navTeam:    "/bitrix/team-activity",
+    navUser:    "/bitrix/user-management",
+    navBank:    "/bitrix/bank-account",
+    navExpand:  "/bitrix/expand-capacity",
+    navBilling: "/bitrix/billing-plans"
+  };
+  Object.keys(routes).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onclick = function(){ navTo(routes[id]); };
+  });
+  var pb = document.getElementById("planBoxBtn");
+  if(pb) pb.onclick = function(){ navTo("/bitrix/billing-plans"); };
+}
+
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+setupNavigation();
 loadData();
 </script>
 </body>

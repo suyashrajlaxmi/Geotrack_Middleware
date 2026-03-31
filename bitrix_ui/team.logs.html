@@ -26,7 +26,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#cbd3ee;border-radius:4px}
 .shell{display:flex;height:100vh;overflow:hidden}
 
-/* ── SIDEBAR (unified) ── */
+/* ── SIDEBAR ── */
 .sidebar{width:208px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
 .sb-accent{height:2px;background:linear-gradient(90deg,var(--indigo),var(--indigo2),#a5b4fc);flex-shrink:0}
 .sb-brand{padding:13px 13px 11px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border)}
@@ -86,20 +86,14 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 /* ── CONTENT ── */
 .content{flex:1;overflow-y:auto;padding:14px 18px 28px}
-
-/* Breadcrumb */
 .breadcrumb{margin-bottom:12px}
 .back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;font-family:var(--font);font-size:11px;font-weight:600;color:var(--indigo);cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .12s}
 .back-btn:hover{background:var(--indigo-lt);transform:translateX(-2px)}
 .back-btn svg{width:12px;height:12px}
-
-/* Page Header */
 .page-header{margin-bottom:18px}
 .page-header h1{font-family:var(--font-hd);font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.4px;margin-bottom:4px}
 .page-header .user-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .user-badge{background:var(--indigo-lt);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;color:var(--indigo);font-family:var(--font-mono)}
-
-/* ── STATS GRID (4 cards) ── */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
 .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;transition:box-shadow .18s,transform .18s}
 .stat-card:hover{transform:translateY(-1px);box-shadow:var(--sh-md)}
@@ -113,8 +107,6 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 .ic-emerald{background:var(--emerald-lt)} .ic-emerald svg{color:var(--emerald)}
 .ic-sky    {background:var(--sky-lt)}    .ic-sky svg{color:var(--sky)}
 .ic-amber  {background:var(--amber-lt)}  .ic-amber svg{color:var(--amber)}
-
-/* ── TABLE CARD ── */
 .table-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
 .table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .table-header h3{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.6px}
@@ -135,8 +127,6 @@ tbody tr:hover td{background:var(--indigo-lt)}
 .badge-high{background:var(--emerald-lt);color:var(--emerald)}
 .empty-row td{text-align:center;color:var(--text3);padding:48px;font-size:12px}
 .showing-bar{padding:10px 16px;font-size:10px;color:var(--text3);font-weight:500;border-top:1px solid var(--border)}
-
-/* Toast & Loader */
 .gt-toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;font-size:11px;font-weight:600;z-index:9999;display:none;min-width:160px;text-align:center;border:1px solid transparent;box-shadow:var(--sh-md)}
 .toast-info   {background:var(--indigo-lt);color:var(--indigo);border-color:#c7d2fe}
 .toast-success{background:var(--emerald-lt);color:var(--emerald);border-color:#a7f3d0}
@@ -164,7 +154,10 @@ tbody tr:hover td{background:var(--indigo-lt)}
       <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <div class="sb-brand-name">GeoTrack</div>
     </div>
-    <div class="sb-company"><div class="sb-co-label">Company</div><div class="sb-co-name" id="coN">Loading...</div></div>
+    <div class="sb-company">
+      <div class="sb-co-label">Company</div>
+      <div class="sb-co-name" id="companyName">Loading...</div>
+    </div>
     <nav class="sb-nav">
       <div class="sb-nav-item" id="nD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
       <div class="sb-nav-item" id="nM"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map View</div>
@@ -176,8 +169,21 @@ tbody tr:hover td{background:var(--indigo-lt)}
       <div class="sb-nav-item" id="nBA"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Bank Account</div>
       <div class="sb-nav-item" id="nEC"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Expand Capacity</div>
     </nav>
-    <div class="plan-box" id="planBoxBtn"><div class="plan-tier">⭐ ENTERPRISE</div><div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planBoxUsers">—</span></div><div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v">Unlimited</span></div><div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v">0.0 / 100 GB</span></div></div>
-    <div class="sb-footer"><div class="sb-user"><div class="sb-avatar" id="sbAv">G</div><div class="sb-user-info"><div class="sb-user-name" id="sbN">Admin</div><div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5b3a3f3632351b3834362b3a352275383436">[email&#160;protected]</a></div></div></div></div>
+    <div class="plan-box" id="planBoxBtn">
+      <div class="plan-tier" id="planTier">⭐ ENTERPRISE</div>
+      <div class="plan-row"><span class="plan-k">Users</span><span class="plan-v" id="planUsers">—</span></div>
+      <div class="plan-row"><span class="plan-k">Clients</span><span class="plan-v" id="planClients">—</span></div>
+      <div class="plan-row"><span class="plan-k">Storage</span><span class="plan-v" id="planStorage">0.0 / 100 GB</span></div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">G</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name" id="sbName">Admin</div>
+          <div class="sb-user-email" id="sbEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3f5e5b5256517f585a504b4d5e5c54115c5052">[email&#160;protected]</a></div>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <div class="main">
@@ -200,10 +206,22 @@ tbody tr:hover td{background:var(--indigo-lt)}
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sc-value" id="sT">0</div></div><div class="sc-label">Total Logs</div><div class="sc-sub">Location records</div></div>
-        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3l3-9 3 18 3-9h3"/></svg></div><div class="sc-value" id="sP">0</div></div><div class="sc-label">With Pincode</div><div class="sc-sub">Geocoded locations</div></div>
-        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg></div><div class="sc-value" id="sA">—</div></div><div class="sc-label">Avg Accuracy</div><div class="sc-sub">GPS precision</div></div>
-        <div class="stat-card fi"><div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg></div><div class="sc-value" id="sB">—</div></div><div class="sc-label">Avg Battery</div><div class="sc-sub">Device charge level</div></div>
+        <div class="stat-card fi">
+          <div class="sc-row"><div class="sc-icon ic-indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="sc-value" id="sT">0</div></div>
+          <div class="sc-label">Total Logs</div><div class="sc-sub">Location records</div>
+        </div>
+        <div class="stat-card fi">
+          <div class="sc-row"><div class="sc-icon ic-emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3l3-9 3 18 3-9h3"/></svg></div><div class="sc-value" id="sP">0</div></div>
+          <div class="sc-label">With Pincode</div><div class="sc-sub">Geocoded locations</div>
+        </div>
+        <div class="stat-card fi">
+          <div class="sc-row"><div class="sc-icon ic-sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/></svg></div><div class="sc-value" id="sA">—</div></div>
+          <div class="sc-label">Avg Accuracy</div><div class="sc-sub">GPS precision</div>
+        </div>
+        <div class="stat-card fi">
+          <div class="sc-row"><div class="sc-icon ic-amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg></div><div class="sc-value" id="sB">—</div></div>
+          <div class="sc-label">Avg Battery</div><div class="sc-sub">Device charge level</div>
+        </div>
       </div>
 
       <div class="table-card fi">
@@ -211,7 +229,9 @@ tbody tr:hover td{background:var(--indigo-lt)}
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>TIME</th><th>COORDINATES</th><th>PINCODE</th><th>ACTIVITY</th><th>ACCURACY</th><th>BATTERY</th><th>NOTES</th></tr>
+              <tr>
+                <th>TIME</th><th>COORDINATES</th><th>PINCODE</th><th>ACTIVITY</th><th>ACCURACY</th><th>BATTERY</th><th>NOTES</th>
+              </tr>
             </thead>
             <tbody id="tbody"><tr class="empty-row"><td colspan="7">Loading location logs...</td></tr></tbody>
           </table>
@@ -223,149 +243,284 @@ tbody tr:hover td{background:var(--indigo-lt)}
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-var _SM="{{member_id}}",_SD="{{DOMAIN}}",_SU="{{user_id}}",_SN="{{user_name}}";
-var _P=new URLSearchParams(location.search);
-var GT_MID=(_SM&&_SM!=="{{member_id}}")?_SM:(_P.get("member_id")||"");
-var GT_DOM=(_SD&&_SD!=="{{DOMAIN}}")?_SD:(_P.get("DOMAIN")||"world.bitrix24.com");
-var UID=(_SU&&_SU!=="{{user_id}}")?_SU:(_P.get("user_id")||"");
-var UNM=(_SN&&_SN!=="{{user_name}}")?_SN:(_P.get("user_name")||"User");
-var HG={"ngrok-skip-browser-warning":"true"};
+// Bootstrap with company_id persistence
+var _SM = "{{member_id}}", _SD = "{{DOMAIN}}", _SU = "{{user_id}}", _SN = "{{user_name}}";
+var _P = new URLSearchParams(location.search);
 
-function toast(msg,type,ms){var t=document.getElementById("gtToast");t.textContent=msg;t.className="gt-toast toast-"+type;t.style.display="block";clearTimeout(t._x);t._x=setTimeout(function(){t.style.display="none";},ms||4000);}
-function setLoader(v){document.getElementById("pageLoader").classList.toggle("hidden",!v);}
-function esc(s){return s?String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""; }
+var GT_MID = (window.__GT_MEMBER_ID__ && window.__GT_MEMBER_ID__.length > 3) 
+  ? window.__GT_MEMBER_ID__
+  : (_SM && _SM !== "{{member_id}}" ? _SM : (_P.get("member_id") || ""));
+
+var GT_DOM = (window.__GT_DOMAIN__ && window.__GT_DOMAIN__.length > 3) 
+  ? window.__GT_DOMAIN__
+  : (_SD && _SD !== "{{DOMAIN}}" ? _SD : (_P.get("DOMAIN") || "world.bitrix24.com"));
+
+var GT_CID = (window.__GT_COMPANY_ID__ && window.__GT_COMPANY_ID__.length > 3) 
+  ? window.__GT_COMPANY_ID__
+  : (_P.get("company_id") || "");
+
+var UID = (_SU && _SU !== "{{user_id}}") ? _SU : (_P.get("user_id") || "");
+var UNM = (_SN && _SN !== "{{user_name}}") ? _SN : (_P.get("user_name") || "User");
+
+console.log("Team Logs Load:", {GT_MID, GT_CID, UID});
+
+var HG = {"ngrok-skip-browser-warning":"true"};
+
+function toast(msg, type, ms){
+  var t = document.getElementById("gtToast");
+  t.textContent = msg;
+  t.className = "gt-toast toast-" + (type || "info");
+  t.style.display = "block";
+  clearTimeout(t._x);
+  t._x = setTimeout(function(){ t.style.display = "none"; }, ms || 4000);
+}
+
+function setLoader(v){
+  document.getElementById("pageLoader").classList.toggle("hidden", !v);
+}
+
+function esc(s){
+  return s ? String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+}
+
 function nav(u){
-  if(window.history && window.history.pushState){ window.history.pushState(null,'',u); }
-  fetch(u,{headers:HG}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();}).catch(function(){ window.location.href=u; });
+  var finalUrl = u;
+  if (GT_CID && u.indexOf('company_id') === -1 && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    finalUrl = u + (u.indexOf('?') === -1 ? '?' : '&') + 'company_id=' + encodeURIComponent(GT_CID);
+  }
+  if (GT_MID && finalUrl.indexOf('member_id') === -1 && GT_MID !== "null" && GT_MID !== "undefined" && GT_MID !== "") {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'member_id=' + encodeURIComponent(GT_MID);
+  }
+  if (GT_DOM && finalUrl.indexOf('DOMAIN') === -1 && GT_DOM !== "null" && GT_DOM !== "undefined" && GT_DOM !== "") {
+    finalUrl = finalUrl + (finalUrl.indexOf('?') === -1 ? '?' : '&') + 'DOMAIN=' + encodeURIComponent(GT_DOM);
+  }
+  
+  fetch(finalUrl, {headers: HG})
+    .then(function(r){ return r.text(); })
+    .then(function(h){
+      document.open();
+      document.write(h);
+      document.close();
+    })
+    .catch(function(){ window.location.href = finalUrl; });
 }
-function fdt(d){if(!d)return"—";var dt=new Date(d);return dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short"})+" "+dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true});}
-function fac(v){if(!v&&v!==0)return"—";var n=parseFloat(v);return isNaN(n)?"—":n.toFixed(0)+"m";}
-function bat(p){if(p==null)return"—";var n=Math.round(+p);var cls=n<=20?"badge-low":n<=50?"badge-mid":"badge-high";return'<span class="badge '+cls+'">'+n+'%</span>';}
+
 function wNav(){
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  var m={nD:"/bitrix/app",nM:"/bitrix/map",nJ:"/bitrix/journey",nC:"/bitrix/clients",nS:"/bitrix/client-services",nTA:"/bitrix/team-activity",nUM:"/bitrix/user-management",nBA:"/bitrix/bank-account",nEC:"/bitrix/expand-capacity"};
-  Object.keys(m).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=function(){nav(m[id]+p);};});
-  var backBtn=document.getElementById("backBtn");if(backBtn)backBtn.onclick=function(){nav("/bitrix/team-activity"+p);};
-  var pb=document.getElementById("planBoxBtn");if(pb)pb.onclick=function(){nav("/bitrix/billing-plans"+p);};
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  var routes = {
+    nD: "/bitrix/app",
+    nM: "/bitrix/map",
+    nJ: "/bitrix/journey",
+    nC: "/bitrix/clients",
+    nS: "/bitrix/client-services",
+    nTA: "/bitrix/team-activity",
+    nUM: "/bitrix/user-management",
+    nBA: "/bitrix/bank-account",
+    nEC: "/bitrix/expand-capacity"
+  };
+  
+  Object.keys(routes).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.onclick = function(){ nav(routes[id] + p); };
+  });
+  
+  var backBtn = document.getElementById("backBtn");
+  if(backBtn) backBtn.onclick = function(){ nav("/bitrix/team-activity" + p); };
+  
+  var pb = document.getElementById("planBoxBtn");
+  if(pb) pb.onclick = function(){ nav("/bitrix/billing-plans" + p); };
 }
+
+function fdt(d){
+  if(!d) return "—";
+  var dt = new Date(d);
+  return dt.toLocaleDateString("en-IN", {day:"2-digit", month:"short"}) + " " + 
+         dt.toLocaleTimeString("en-IN", {hour:"2-digit", minute:"2-digit", hour12:true});
+}
+
+function fac(v){
+  if(!v && v !== 0) return "—";
+  var n = parseFloat(v);
+  return isNaN(n) ? "—" : n.toFixed(0) + "m";
+}
+
+function bat(p){
+  if(p == null) return "—";
+  var n = Math.round(+p);
+  var cls = n <= 20 ? "badge-low" : (n <= 50 ? "badge-mid" : "badge-high");
+  return '<span class="badge ' + cls + '">' + n + '%</span>';
+}
+
+function fetchSidebarPlanFromBilling(){
+  var PLAN_META_FALLBACK={
+    starter:      {emoji:'🌱',name:'STARTER',      storageGB:5,   clientLimit:100,  userLimit:5},
+    professional: {emoji:'⚡',name:'PROFESSIONAL',  storageGB:25,  clientLimit:500,  userLimit:25},
+    business:     {emoji:'💼',name:'BUSINESS',      storageGB:100, clientLimit:2000, userLimit:100},
+    enterprise:   {emoji:'⭐',name:'ENTERPRISE',    storageGB:500, clientLimit:null, userLimit:null}
+  };
+  var adminEmail='';
+  try{var _tok=sessionStorage.getItem('bitrix_admin_token');if(_tok){var _pl=JSON.parse(atob(_tok.split('.')[1]));adminEmail=_pl.email||_pl.sub||'';}}catch(_){}
+  var p='member_id='+encodeURIComponent(GT_MID||'')+'&DOMAIN='+encodeURIComponent(GT_DOM||'');
+  if(GT_CID&&GT_CID!=='null'&&GT_CID!=='undefined'&&GT_CID!=='')p+='&company_id='+encodeURIComponent(GT_CID);
+  if(adminEmail)p+='&admin_email='+encodeURIComponent(adminEmail);
+  fetch('/bitrix/billing-plans-data?'+p,{headers:HG})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.error)return;
+      var planKey=(data.current_plan||'enterprise').toLowerCase();
+      var meta=PLAN_META_FALLBACK[planKey]||PLAN_META_FALLBACK.enterprise;
+      var userCount=data.user_count||0;
+      var userLimit=(data.user_limit!=null&&data.user_limit>0)?data.user_limit:(meta.userLimit!=null&&meta.userLimit>0)?meta.userLimit:1000;
+      var clientCount=data.client_count||0;
+      var lic=data.license||{};
+      var liveML=lic.maxLimits||{};
+      var clientLimit=(liveML.clients!=null)?liveML.clients:meta.clientLimit;
+      var storageGB=(liveML.storageGB!=null&&liveML.storageGB>0)?liveML.storageGB:(meta.storageGB||5);
+      var tierEl=document.getElementById('planTier');
+      if(tierEl)tierEl.textContent=(meta.emoji||'⭐')+' '+(meta.name||'ENTERPRISE');
+      var usersEl=document.getElementById('planUsers');
+      if(usersEl)usersEl.textContent=userCount+'/'+userLimit;
+      var clientsEl=document.getElementById('planClients');
+      if(clientsEl)clientsEl.textContent=clientLimit===null?clientCount+' / ∞':clientCount+'/'+clientLimit;
+      var storageEl=document.getElementById('planStorage');
+      if(storageEl)storageEl.textContent='0 / '+storageGB+' GB';
+      var storageEl=document.getElementById('planStorage');
+      if(storageEl)storageEl.textContent='0 / '+storageGB+' GB';
+      if(data.me){
+        var nm=data.me.full_name||data.me.email||'Admin';
+        var pts=nm.trim().split(/\s+/);
+        var ini=((pts[0]?pts[0][0]:'')+(pts[1]?pts[1][0]:'')).toUpperCase()||'A';
+        var av=document.getElementById('sbAvatar');if(av)av.textContent=ini;
+        var sn=document.getElementById('sbName');if(sn)sn.textContent=nm;
+        var em=document.getElementById('sbEmail');if(em)em.textContent=data.me.email||'';
+        var pmn=document.getElementById('pmName');if(pmn)pmn.textContent=data.me.is_super_admin?'Super Admin':'Admin Account';
+        var pme=document.getElementById('pmEmail');if(pme)pme.textContent=data.me.email||'';
+        if(data.company){var cn=document.getElementById('companyName');if(cn)cn.textContent=data.company;}
+      }
+    }).catch(function(){});
+}
+
 function loadData(){
   setLoader(true);
+  
   if(!UID){
     setLoader(false);
-    document.getElementById("tbody").innerHTML='<tr class="empty-row"><td colspan="7">⚠️ No user selected. <a href="#" onclick="nav(\'/bitrix/team-activity?DOMAIN=\'+encodeURIComponent(GT_DOM)+\'&member_id=\'+encodeURIComponent(GT_MID))">Go back to Team Activity</a><\/td><\/tr>';
+    document.getElementById("tbody").innerHTML = '<tr class="empty-row"><td colspan="7">⚠️ No user selected. <a href="#" onclick="nav(\'/bitrix/team-activity?DOMAIN=' + encodeURIComponent(GT_DOM) + '&member_id=' + encodeURIComponent(GT_MID) + '&company_id=' + encodeURIComponent(GT_CID) + '\')">Go back to Team Activity</a></td></tr>';
     return;
   }
-  document.getElementById("ptitle").innerHTML = "Location Logs - "+esc(UNM);
-  document.getElementById("userIdBadge").innerHTML = UID.substring(0,16)+(UID.length>16?"...":"");
-  fetch("/bitrix/team-logs-data?member_id="+encodeURIComponent(GT_MID)+"&user_id="+encodeURIComponent(UID),{headers:HG})
-    .then(function(r){return r.json();})
+  
+  document.getElementById("ptitle").innerHTML = "Location Logs - " + esc(UNM);
+  document.getElementById("userIdBadge").innerHTML = UID.substring(0,16) + (UID.length > 16 ? "..." : "");
+  
+  var url = "/bitrix/team-logs-data?member_id=" + encodeURIComponent(GT_MID) + "&user_id=" + encodeURIComponent(UID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    url += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  
+  console.log("Loading logs with company_id:", GT_CID);
+  
+  fetch(url, {headers: HG})
+    .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.error && d.error !== "NO_COMPANY"){
-        document.getElementById("tbody").innerHTML='<tr class="empty-row"><td colspan="7">⚠️ API Error: '+esc(d.error)+(d.detail?' — '+esc(d.detail):'')+'<\/td><\/tr>';
-        setLoader(false);return;
+        document.getElementById("tbody").innerHTML = '<tr class="empty-row"><td colspan="7">⚠️ API Error: ' + esc(d.error) + (d.detail ? ' — ' + esc(d.detail) : '') + '</td></tr>';
+        setLoader(false);
+        return;
       }
-      document.getElementById("coN").innerHTML=d.company||"Company";
-      document.getElementById("sbN").innerHTML=d.company||"—";
-      var sbAv=document.getElementById("sbAv"); if(sbAv) sbAv.textContent=(d.company||"G")[0].toUpperCase();
-      var pb=document.getElementById("planBoxUsers"); if(pb) pb.textContent=(d.user_count||"—")+"/1000";
-      // Dynamic sidebar plan label
-      var PLAN_META={starter:{emoji:'🌱',label:'STARTER'},professional:{emoji:'⚡',label:'PROFESSIONAL'},business:{emoji:'💼',label:'BUSINESS'},enterprise:{emoji:'⭐',label:'ENTERPRISE'}};
-      var _pm=PLAN_META[(d.current_plan||'enterprise')]||PLAN_META.enterprise;
-      var _pt=document.querySelector('#planBoxBtn .plan-tier');if(_pt)_pt.textContent=_pm.emoji+' '+_pm.label;
-      var logs=d.logs||[];
-      var wp=logs.filter(function(l){return l.pincode;}).length;
-      var aa=0,ac=0,ab2=0,bc=0;
-      logs.forEach(function(l){if(l.accuracy){aa+=parseFloat(l.accuracy)||0;ac++;}if(l.battery!=null){ab2+=+l.battery;bc++;}});
-      document.getElementById("sT").innerHTML=logs.length;
-      document.getElementById("sP").innerHTML=wp;
-      document.getElementById("sA").innerHTML=ac?Math.round(aa/ac)+"m":"—";
-      document.getElementById("sB").innerHTML=bc?Math.round(ab2/bc)+"%":"—";
-      document.getElementById("logsCount").innerHTML=logs.length;
-      document.getElementById("sbar").innerHTML="Showing "+logs.length+" location logs";
-      if(!logs.length){document.getElementById("tbody").innerHTML='<tr class="empty-row"><td colspan="7">No location logs for this user<\/td><\/tr>';setLoader(false);return;}
-      document.getElementById("tbody").innerHTML=logs.map(function(l){
-        var lat=parseFloat(l.latitude),lng=parseFloat(l.longitude);
-        return'<tr>'+
-          '<td style="white-space:nowrap;font-size:11px;color:var(--text2)">'+esc(fdt(l.timestamp||l.created_at))+'<\/td>'+
-          '<td><div class="coord-text">'+lat.toFixed(6)+', '+lng.toFixed(6)+'</div>'+
-            '<a class="map-link" href="https://maps.google.com?q='+lat+','+lng+'" target="_blank">🗺 View on Maps<\/a><\/td>'+
-          '<td><span class="pincode-val">'+esc(l.pincode||"—")+'<\/span><\/td>'+
-          '<td style="font-size:11px;color:var(--text3)">'+esc(l.activity||"—")+'<\/td>'+
-          '<td style="font-size:11px">'+fac(l.accuracy)+'<\/td>'+
-          '<td>'+bat(l.battery)+'<\/td>'+
-          '<td style="font-size:11px;color:var(--text3)">'+esc(l.notes||"—")+'<\/td>'+
-        '<\/tr>';
+      
+      if(d.company) {
+        document.getElementById("companyName").textContent = d.company;
+      }
+      
+      if(d.current_plan) {
+        var planMeta = {
+          starter: {emoji: '🌱', label: 'STARTER'},
+          professional: {emoji: '⚡', label: 'PROFESSIONAL'},
+          business: {emoji: '💼', label: 'BUSINESS'},
+          enterprise: {emoji: '⭐', label: 'ENTERPRISE'}
+        };
+        var pm = planMeta[d.current_plan] || planMeta.enterprise;
+        var planTier = document.getElementById("planTier");
+        if(planTier) planTier.textContent = pm.emoji + ' ' + pm.label;
+      }
+      
+      var logs = d.logs || [];
+      var wp = logs.filter(function(l){ return l.pincode; }).length;
+      var aa = 0, ac = 0, ab2 = 0, bc = 0;
+      
+      logs.forEach(function(l){
+        if(l.accuracy){ aa += parseFloat(l.accuracy) || 0; ac++; }
+        if(l.battery != null){ ab2 += +l.battery; bc++; }
+      });
+      
+      document.getElementById("sT").innerHTML = logs.length;
+      document.getElementById("sP").innerHTML = wp;
+      document.getElementById("sA").innerHTML = ac ? Math.round(aa / ac) + "m" : "—";
+      document.getElementById("sB").innerHTML = bc ? Math.round(ab2 / bc) + "%" : "—";
+      document.getElementById("logsCount").innerHTML = logs.length;
+      document.getElementById("sbar").innerHTML = "Showing " + logs.length + " location logs";
+      
+      if(!logs.length){
+        document.getElementById("tbody").innerHTML = '<tr class="empty-row"><td colspan="7">No location logs for this user</td></tr>';
+        setLoader(false);
+        return;
+      }
+      
+      document.getElementById("tbody").innerHTML = logs.map(function(l){
+        var lat = parseFloat(l.latitude), lng = parseFloat(l.longitude);
+        return '<tr>' +
+          '<td style="white-space:nowrap;font-size:11px;color:var(--text2)">' + esc(fdt(l.timestamp || l.created_at)) + '</td>' +
+          '<td><div class="coord-text">' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</div>' +
+            '<a class="map-link" href="https://maps.google.com?q=' + lat + ',' + lng + '" target="_blank">🗺 View on Maps</a></td>' +
+          '<td><span class="pincode-val">' + esc(l.pincode || "—") + '</span></td>' +
+          '<td style="font-size:11px;color:var(--text3)">' + esc(l.activity || "—") + '</td>' +
+          '<td style="font-size:11px">' + fac(l.accuracy) + '</td>' +
+          '<td>' + bat(l.battery) + '</td>' +
+          '<td style="font-size:11px;color:var(--text3)">' + esc(l.notes || "—") + '</td>' +
+        '</tr>';
       }).join("");
-      fetchSidebarInfo();
       setLoader(false);
     })
     .catch(function(e){
       console.error("team-logs-data fetch error:", e);
-      document.getElementById("tbody").innerHTML='<tr class="empty-row"><td colspan="7">⚠️ Failed to load logs: '+esc(e.message)+'<br><small>member_id='+esc(GT_MID)+' user_id='+esc(UID)+'</small><\/td><\/tr>';
+      document.getElementById("tbody").innerHTML = '<tr class="empty-row"><td colspan="7">⚠️ Failed to load logs: ' + esc(e.message) + '<br><small>member_id=' + esc(GT_MID) + ' user_id=' + esc(UID) + ' company_id=' + esc(GT_CID) + '</small></td></tr>';
       setLoader(false);
     });
 }
-function fetchSidebarInfo(){
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID),{headers:HG})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.error)return;
-      var users=d.users||[];
-      var pb=document.getElementById("planBoxUsers");if(pb)pb.textContent=users.length+"/1000";
-      if(d.me){
-        var n=(d.me.full_name||d.me.email||"");
-        var parts=n.trim().split(/\s+/);
-        var ini=((parts[0]?parts[0][0]:"")+(parts[1]?parts[1][0]:"")).toUpperCase()||((d.me.email||"GT").substring(0,2).toUpperCase());
-        var av=document.getElementById("sbAv");if(av)av.textContent=ini;
-        var nm=document.getElementById("sbN");if(nm)nm.textContent=d.me.full_name||d.me.email||"Admin";
-        var em=document.getElementById("sbEmail");if(em)em.textContent=d.me.email||"";
-        var pmn=document.getElementById("pmName");if(pmn)pmn.textContent=d.me.is_super_admin?"Super Admin":"Admin Account";
-        var pme=document.getElementById("pmEmail");if(pme)pme.textContent=d.me.email||"";
-      }
-    }).catch(function(){});
-}
-wNav(); loadData();
+
+fetchSidebarPlanFromBilling();
+wNav();
+loadData();
 
 (function(){
-  var btn=document.getElementById("profileBtn");
-  if(btn) btn.addEventListener("click",function(e){
+  var btn = document.getElementById("profileBtn");
+  if(btn) btn.addEventListener("click", function(e){
     e.stopPropagation();
     document.getElementById("profileMenu").classList.toggle("open");
   });
 })();
-document.addEventListener("mousedown",function(e){
-  var w=document.getElementById("profileDropdown");
-  if(w&&!w.contains(e.target)){
-    var m=document.getElementById("profileMenu");
+
+document.addEventListener("mousedown", function(e){
+  var w = document.getElementById("profileDropdown");
+  if(w && !w.contains(e.target)){
+    var m = document.getElementById("profileMenu");
     if(m) m.classList.remove("open");
   }
 });
-(function(){
-  var t=sessionStorage.getItem("bitrix_admin_token");
-  if(t){try{
-    var p=JSON.parse(atob(t.split(".")[1]));
-    var em=p.email||p.sub||"";
-    var nm=document.getElementById("pmName");
-    if(nm)nm.textContent=(p.isSuperAdmin||p.is_super_admin)?"Super Admin Account":"Admin Account";
-    var el=document.getElementById("pmEmail");if(el)el.textContent=em;
-    return;
-  }catch(_){}}
-  var mid=typeof GT_MID!=="undefined"?GT_MID:"";
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(mid),
-    {headers:{"ngrok-skip-browser-warning":"true"}})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(!d.me)return;
-      var nm=document.getElementById("pmName");if(nm)nm.textContent="Admin Account";
-      var em=document.getElementById("pmEmail");if(em)em.textContent=d.me.email||"";
-    }).catch(function(){});
-})();
+
 function doLogout(){
-  if(!confirm("Sign out of GeoTrack admin?"))return;
+  if(!confirm("Sign out of GeoTrack admin?")) return;
   sessionStorage.removeItem("bitrix_admin_token");
   sessionStorage.removeItem("bitrix_admin_mid");
-  var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-  window.location.replace("/bitrix/login"+p);
+  var p = "?DOMAIN=" + encodeURIComponent(GT_DOM) + "&member_id=" + encodeURIComponent(GT_MID);
+  if (GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "") {
+    p += "&company_id=" + encodeURIComponent(GT_CID);
+  }
+  window.location.replace("/bitrix/login" + p);
 }
 </script>
 </body>

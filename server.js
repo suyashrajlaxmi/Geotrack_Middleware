@@ -1,10 +1,10 @@
 // server.js
-// UPDATED: Added plan features and limitations
+// UPDATED: Added API key authentication support
 
 import express from "express";
 import cors from "cors";
 import { pool } from "./db.js";
-import { CORS_ORIGIN, PORT } from "./config/constants.js";
+import { CORS_ORIGIN, PORT, API_KEY } from "./config/constants.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { authenticateToken } from "./middleware/auth.js";
 import { attachCompanyContext } from "./middleware/company.js";
@@ -24,22 +24,48 @@ import manualClientRoutes from './routes/manualClient.routes.js';
 import companyRoutes from './routes/company.routes.js';
 import integrationRoutes from "./routes/integrations.routes.js";
 import licenseRoutes from './routes/license.routes.js';
-import planRoutes from './routes/plan.routes.js'; // ← NEW
+import planRoutes from './routes/plan.routes.js';
 import quickVisitsRoutes from './routes/quickVisits.routes.js';
 import bitrixRoutes from './routes/bitrix.routes.js';
 
 const app = express();
 
+// API Key Middleware for external service authentication
+export const authenticateApiKey = (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  
+  if (!apiKey) {
+    return res.status(401).json({ 
+      error: "API_KEY_REQUIRED",
+      message: "x-api-key header is required" 
+    });
+  }
+  
+  if (apiKey !== API_KEY) {
+    console.warn(`⚠️ Invalid API key attempt from ${req.ip}`);
+    return res.status(403).json({ 
+      error: "INVALID_API_KEY",
+      message: "Invalid API key" 
+    });
+  }
+  
+  console.log(`✅ API Key authenticated for ${req.method} ${req.originalUrl}`);
+  next();
+};
+
 // Middleware
 app.use(cors({
   origin: CORS_ORIGIN,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "x-company-id"]
+  allowedHeaders: ["Content-Type", "Authorization", "x-company-id", "x-api-key"]
 }));
 app.options("*", cors());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ← NEW: Serve static HTML files from bitrix_ui folder
+app.use(express.static('bitrix_ui'));
 
 // Request logging
 app.use((req, res, next) => {
@@ -57,6 +83,14 @@ pool.query("SELECT NOW()", (err, res) => {
 });
 
 // ============================================
+// API KEY PROTECTED ROUTES (External Services)
+// ============================================
+app.use("/api/external", authenticateApiKey, (req, res, next) => {
+  console.log(`🔑 External API access from ${req.ip}`);
+  next();
+});
+
+// ============================================
 // PUBLIC ROUTES (No Authentication)
 // ============================================
 app.use("/auth", authRoutes);
@@ -68,7 +102,7 @@ app.use("/integrations", integrationRoutes);
 app.use("/api/plans", authenticateToken, attachCompanyContext, planRoutes);
 
 // ============================================
-// LICENSE ROUTES (Authenticated)
+// LICENSE ROUTES (Authenticated + API Key optional)
 // ============================================
 app.use("/api/license", authenticateToken, licenseRoutes);
 app.use('/bitrix', bitrixRoutes);
@@ -76,18 +110,17 @@ app.use('/bitrix', bitrixRoutes);
 // ============================================
 // COMPANY-SCOPED ROUTES (Authenticated + Company Context + Plan Features)
 // ============================================
-// ⚠️ IMPORTANT: attachPlanFeatures adds req.planFeatures to all these routes
 app.use("/clients", 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW: Attaches plan features
+  attachPlanFeatures,
   clientRoutes
 );
 
 app.use("/location-logs", 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   locationRoutes
 );
 
@@ -101,28 +134,28 @@ app.use("/api/quick-visits",
 app.use("/meetings", 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   meetingRoutes
 );
 
 app.use("/expenses", 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   expenseRoutes
 );
 
 app.use('/services', 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   servicesRoutes
 );
 
 app.use('/api/manual-clients', 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   manualClientRoutes
 );
 
@@ -132,7 +165,7 @@ app.use('/api/manual-clients',
 app.use("/admin", 
   authenticateToken, 
   attachCompanyContext, 
-  attachPlanFeatures,  // ← NEW
+  attachPlanFeatures,
   adminRoutes
 );
 
@@ -157,7 +190,8 @@ app.get("/", (req, res) => {
       "company-scoped", 
       "super-admin", 
       "pincode-filtering",
-      "plan-based-limitations"  // ← NEW
+      "plan-based-limitations",
+      "api-key-authentication"
     ]
   });
 });
@@ -171,7 +205,7 @@ app.get("/dbtest", async (req, res) => {
     res.json({ 
       db_time: result.rows[0].now,
       companies: parseInt(companyCount.rows[0].count),
-      plans_configured: parseInt(planCount.rows[0].count)  // ← NEW
+      plans_configured: parseInt(planCount.rows[0].count)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -186,6 +220,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`🏢 Multi-company mode enabled`);
   console.log(`📍 Pincode-based filtering enabled`);
-  console.log(`💎 Plan-based limitations enabled`);  // ← NEW
+  console.log(`💎 Plan-based limitations enabled`);
+  console.log(`🔑 API Key authentication enabled`);
   console.log(`📦 Request body limit: 10mb`);
 });

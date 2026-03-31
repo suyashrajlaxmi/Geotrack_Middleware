@@ -1,11 +1,18 @@
 // controllers/auth.controller.js
-// UPDATED: Added domain-based signup with automatic company assignment
+// UPDATED: Added API key support for external license sync
 
 import bcrypt from "bcryptjs";
 import { pool } from "../db.js";
 import * as tokenService from "../services/token.service.js";
 import * as trialService from "../services/trial.service.js";
-import * as emailDomainService from "../services/emailDomain.service.js";  // ← NEW
+import * as emailDomainService from "../services/emailDomain.service.js";
+import { sendPasswordResetEmail } from "../services/email.service.js";
+
+// ============================================
+// API Key configuration from environment
+// ============================================
+const LICENSE_SYSTEM_API_KEY = process.env.LICENSE_SYSTEM_API_KEY || 'my-secret-key-123';
+const LICENSE_SYSTEM_URL = process.env.LICENSE_SYSTEM_URL || 'https://lisence-system.onrender.com';
 
 export const login = async (req, res) => {
   const { email, password, deviceId } = req.body;
@@ -58,13 +65,15 @@ export const login = async (req, res) => {
     });
   }
 
+  // Clean up only EXPIRED sessions for this user (not active ones)
+  // This allows multiple admin accounts to be logged in simultaneously
   const deletedSessions = await pool.query(
-    "DELETE FROM user_sessions WHERE user_id = $1 RETURNING id",
+    "DELETE FROM user_sessions WHERE user_id = $1 AND expires_at < NOW() RETURNING id",
     [user.id]
   );
 
   if (deletedSessions.rows.length > 0) {
-    console.log(`🧹 Deleted ${deletedSessions.rows.length} old sessions for ${user.email}`);
+    console.log(`🧹 Cleaned ${deletedSessions.rows.length} expired sessions for ${user.email}`);
   }
 
   const token = tokenService.generateToken({
@@ -72,7 +81,7 @@ export const login = async (req, res) => {
     email: user.email,
     isAdmin: user.is_admin,
     isSuperAdmin: user.is_super_admin || false,
-    isTrialUser: user.is_trial_user || false,  // ← NEW
+    isTrialUser: user.is_trial_user || false,
     companyId: user.company_id
   }, '7d');
 
@@ -92,11 +101,11 @@ export const login = async (req, res) => {
       workHoursEnd: user.work_hours_end,
       isAdmin: user.is_admin,
       isSuperAdmin: user.is_super_admin || false,
-      isTrialUser: user.is_trial_user || false,  // ← NEW
+      isTrialUser: user.is_trial_user || false,
       companyId: user.company_id,
       companyName: user.company_name,
       companySubdomain: user.company_subdomain,
-      companyEmailDomain: user.company_email_domain  // ← NEW
+      companyEmailDomain: user.company_email_domain
     },
   });
 };
@@ -114,11 +123,6 @@ export const signup = async (req, res) => {
     return res.status(400).json({ error: "MissingFields" });
   }
 
-  // ============================================
-  // DOMAIN-BASED COMPANY ASSIGNMENT
-  // ============================================
-  
-  // Check if email already exists
   const existing = await pool.query(
     "SELECT id FROM users WHERE email = $1",
     [email]
@@ -128,27 +132,23 @@ export const signup = async (req, res) => {
     return res.status(409).json({ error: "EmailAlreadyExists" });
   }
 
-  // Extract domain and check if it's generic
   const isGenericEmail = emailDomainService.isGenericEmailDomain(email);
   const isTrialUser = isGenericEmail;
   
   let company = null;
-  let signupType = 'trial'; // 'trial' or 'company'
+  let signupType = 'trial';
 
   if (!isGenericEmail) {
-    // Try to find company by email domain
     company = await emailDomainService.findCompanyByEmailDomain(email);
     
     if (company) {
       signupType = 'company';
       console.log(`📧 Email domain matched: ${email} → ${company.name}`);
     } else {
-      // Corporate email but no company registered yet
       console.log(`⚠️ Corporate email ${email} but no company found. Creating trial user.`);
     }
   }
 
-  // Check trial status for generic emails
   if (isTrialUser && deviceId) {
     const trialStatus = await trialService.checkTrialStatus(deviceId);
 
@@ -165,7 +165,6 @@ export const signup = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create user with appropriate settings
   const userResult = await pool.query(
     `INSERT INTO users (email, password, is_admin, is_trial_user, company_id)
      VALUES ($1, $2, $3, $4, $5)
@@ -173,21 +172,19 @@ export const signup = async (req, res) => {
     [
       email, 
       hashedPassword, 
-      false,                          // Not admin by default
-      isTrialUser,                    // ← NEW: Mark as trial if generic email
-      company?.id || null             // ← NEW: Auto-assign company if found
+      false,
+      isTrialUser,
+      company?.id || null
     ]
   );
 
   const user = userResult.rows[0];
 
-  // Create profile
   await pool.query(
     `INSERT INTO profiles (user_id, full_name) VALUES ($1, $2)`,
     [user.id, fullName || null]
   );
 
-  // Register device in trial system if trial user
   if (isTrialUser && deviceId) {
     await trialService.registerDevice(deviceId, user.id);
   }
@@ -197,7 +194,7 @@ export const signup = async (req, res) => {
     email: user.email,
     isAdmin: false,
     isSuperAdmin: false,
-    isTrialUser: user.is_trial_user,  // ← NEW
+    isTrialUser: user.is_trial_user,
     companyId: user.company_id
   }, '7d');
 
@@ -208,17 +205,16 @@ export const signup = async (req, res) => {
   res.status(201).json({
     message: "SignupSuccess",
     token,
-    signupType,  // ← NEW: Let frontend know what type of signup
+    signupType,
     user: {
       id: user.id,
       email: user.email,
       fullName: fullName || null,
-      isTrialUser: user.is_trial_user,  // ← NEW
+      isTrialUser: user.is_trial_user,
       companyId: user.company_id,
       companyName: company?.name || null,
       companySubdomain: company?.subdomain || null
     },
-    // Show restrictions if trial user
     ...(isTrialUser && {
       restrictions: emailDomainService.getTrialUserRestrictions(),
       message: company 
@@ -235,22 +231,57 @@ export const forgotPassword = async (req, res) => {
     return res.status(400).json({ error: "EmailRequired" });
   }
 
-  const result = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+  try {
+    const result = await pool.query(
+      "SELECT id FROM users WHERE email = $1", [email]
+    );
 
-  if (result.rows.length === 0) {
+    if (result.rows.length === 0) {
+      return res.json({ message: "PasswordResetEmailSent" });
+    }
+
+    const resetToken = tokenService.generateResetToken();
+    await tokenService.saveResetToken(email, resetToken);
+
+    await sendPasswordResetEmail(email, resetToken);
+
+    console.log(`✅ Reset email sent to: ${email}`);
     return res.json({ message: "PasswordResetEmailSent" });
+
+  } catch (err) {
+    console.error("❌ forgotPassword error:", err.message);
+    return res.status(500).json({ error: "InternalError", message: err.message });
   }
+};
 
-  const resetToken = tokenService.generateResetToken();
-  await tokenService.saveResetToken(email, resetToken);
+// ============================================
+// Sync hashed password to license system with API key
+// ============================================
+const syncPasswordToLicenseSystem = async (email, hashedPassword) => {
+  try {
+    const response = await fetch(
+      `${LICENSE_SYSTEM_URL}/api/external/customer-password-sync`,
+      {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": LICENSE_SYSTEM_API_KEY
+        },
+        body: JSON.stringify({ email, hashedPassword })
+      }
+    );
 
-  console.log("🔑 Password Reset Token:", resetToken);
-  console.log("📧 For Email:", email);
+    const data = await response.json();
 
-  res.json({
-    message: "PasswordResetEmailSent",
-    resetToken: resetToken,
-  });
+    if (!response.ok) {
+      console.warn(`⚠️ License system sync failed for ${email}:`, data);
+    } else {
+      console.log(`🔄 License system password synced for: ${email}`);
+    }
+  } catch (err) {
+    // Non-blocking — log but don't fail the reset
+    console.warn(`⚠️ License system sync error (non-fatal): ${err.message}`);
+  }
 };
 
 export const resetPassword = async (req, res) => {
@@ -264,17 +295,54 @@ export const resetPassword = async (req, res) => {
     return res.status(400).json({ error: "PasswordTooShort" });
   }
 
-  const userId = await tokenService.validateResetToken(token);
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  try {
+    // Validate token and get userId
+    const userId = await tokenService.validateResetToken(token);
 
-  await pool.query(
-    "UPDATE users SET password = $1 WHERE id = $2",
-    [hashedPassword, userId]
-  );
+    // Get user email for license sync
+    const userResult = await pool.query(
+      "SELECT email FROM users WHERE id = $1",
+      [userId]
+    );
 
-  await tokenService.clearResetToken(userId);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "UserNotFound" });
+    }
 
-  res.json({ message: "PasswordResetSuccess" });
+    const userEmail = userResult.rows[0].email;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password in local DB
+    await pool.query(
+      "UPDATE users SET password = $1 WHERE id = $2",
+      [hashedPassword, userId]
+    );
+
+    // Clear reset token
+    await tokenService.clearResetToken(userId);
+
+    console.log(`✅ Password reset success for: ${userEmail}`);
+
+    // Respond to user immediately
+    res.json({ message: "PasswordResetSuccess" });
+
+    // Sync hashed password to license system in background (non-blocking)
+    syncPasswordToLicenseSystem(userEmail, hashedPassword);
+
+  } catch (err) {
+    console.error("❌ resetPassword error:", err.message);
+
+    // Handle invalid/expired token specifically
+    if (err.message?.toLowerCase().includes("invalid") || 
+        err.message?.toLowerCase().includes("expired")) {
+      return res.status(400).json({ 
+        error: "InvalidToken",
+        message: "This reset link is invalid or has expired. Please request a new one." 
+      });
+    }
+
+    return res.status(500).json({ error: "InternalError", message: err.message });
+  }
 };
 
 export const getProfile = async (req, res) => {
@@ -318,13 +386,12 @@ export const getProfile = async (req, res) => {
       createdAt: user.created_at,
       isAdmin: user.is_admin,
       isSuperAdmin: user.is_super_admin || false,
-      isTrialUser: user.is_trial_user || false,  // ← NEW
+      isTrialUser: user.is_trial_user || false,
       companyId: user.company_id,
       companyName: user.company_name,
       companySubdomain: user.company_subdomain,
-      companyEmailDomain: user.company_email_domain  // ← NEW
+      companyEmailDomain: user.company_email_domain
     },
-    // Include restrictions if trial user
     ...(user.is_trial_user && {
       restrictions: emailDomainService.getTrialUserRestrictions()
     })
@@ -379,7 +446,7 @@ export const updateProfile = async (req, res) => {
 };
 
 // ============================================
-// NEW: Convert Trial User to Full User
+// Convert Trial User to Full User
 // ============================================
 export const convertTrialUser = async (req, res) => {
   const { newEmail, password } = req.body;
@@ -388,7 +455,6 @@ export const convertTrialUser = async (req, res) => {
     return res.status(400).json({ error: "NewEmailRequired" });
   }
 
-  // Verify current user is trial user
   const userCheck = await pool.query(
     'SELECT is_trial_user, company_id FROM users WHERE id = $1',
     [req.user.id]
@@ -405,7 +471,6 @@ export const convertTrialUser = async (req, res) => {
     });
   }
 
-  // Verify password
   const user = await pool.query(
     'SELECT password FROM users WHERE id = $1',
     [req.user.id]
@@ -416,7 +481,6 @@ export const convertTrialUser = async (req, res) => {
     return res.status(401).json({ error: "InvalidPassword" });
   }
 
-  // Check if new email is from company domain
   const isGeneric = emailDomainService.isGenericEmailDomain(newEmail);
   
   if (isGeneric) {
@@ -426,7 +490,6 @@ export const convertTrialUser = async (req, res) => {
     });
   }
 
-  // Find company by email domain
   const company = await emailDomainService.findCompanyByEmailDomain(newEmail);
   
   if (!company) {
@@ -443,7 +506,6 @@ export const convertTrialUser = async (req, res) => {
       company.id
     );
 
-    // Update company_id if not already set
     await pool.query(
       'UPDATE users SET company_id = $1 WHERE id = $2',
       [company.id, req.user.id]
@@ -483,7 +545,7 @@ export const verifyToken = (req, res) => {
       email: req.user.email,
       isAdmin: req.user.isAdmin || false,
       isSuperAdmin: req.user.isSuperAdmin || false,
-      isTrialUser: req.user.isTrialUser || false,  // ← NEW
+      isTrialUser: req.user.isTrialUser || false,
       companyId: req.user.companyId
     }
   });
