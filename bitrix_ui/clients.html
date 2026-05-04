@@ -1454,6 +1454,7 @@ function saveClient(){
     // Use the Bitrix-specific endpoint that resolves company via member_id
     var payload={
       member_id: GT_MID,
+      company_id: GT_CID || "",   // ← ensures save & fetch resolve the same company
       name:    name,
       email:   document.getElementById("fEmail").value.trim()   ||null,
       phone:   document.getElementById("fPhone").value.trim()   ||null,
