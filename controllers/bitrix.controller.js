@@ -924,10 +924,18 @@ export const clientsSave = async (req, res) => {
     const { company_id } = company;
 
     if (id) {
-      await pool.query(
-        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7 AND company_id=$8`,
-        [name, email||null, phone||null, address||null, pincode||null, status||"active", id, company_id]
+      // Validate UUID before querying — avoids silent zero-row updates
+      if (!isValidUUID(String(id).trim())) {
+        return res.status(400).json({ error: "InvalidClientId", message: `"${id}" is not a valid client UUID` });
+      }
+      const updateResult = await pool.query(
+        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7::uuid AND company_id=$8`,
+        [name, email||null, phone||null, address||null, pincode||null, status||"active", String(id).trim(), company_id]
       );
+      if (updateResult.rowCount === 0) {
+        console.warn(`⚠️ [Bitrix24] Client update matched 0 rows: id=${id} company_id=${company_id}`);
+        return res.status(404).json({ error: "ClientNotFound", message: "Client not found or does not belong to this company" });
+      }
       console.log(`✅ [Bitrix24] Client updated: ${name} (id=${id})`);
       return res.json({ ok: true, action: "updated", id });
     } else {

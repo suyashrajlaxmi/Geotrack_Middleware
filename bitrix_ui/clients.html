@@ -1464,14 +1464,16 @@ function saveClient(){
       longitude:parseFloat(document.getElementById("fLng").value)||null,
       notes:   document.getElementById("fNotes").value.trim()   ||null
     };
-    if(editId) payload.id = +editId;
+    if(editId) payload.id = editId; // UUID — never cast to number
 
     fetch("/api/bitrix/clients-save", {method:"POST", headers:HJ, body:JSON.stringify(payload)})
       .then(function(r){return r.json();})
       .then(function(d){
         if(d.error){toast("Error: "+d.error,"error",6000);return;}
         toast("Client saved successfully!","success");
-        closeModal(); loadClients();
+        closeModal();
+        ALL_CLIENTS = []; CLIENT_MAP = {}; // flush stale cache before reload
+        loadClients();
       })
       .catch(function(e){toast("Error: "+e.message,"error",6000);})
       .finally(function(){btn.disabled=false;btn.textContent="💾 Save Client";});
