@@ -900,7 +900,7 @@ export const clientsData = async (req, res) => {
 export const clientsSave = async (req, res) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   try {
-    const { member_id, id, name, email, phone, address, pincode, status } = req.body;
+    const { member_id, id, name, email, phone, address, pincode, status, latitude, longitude } = req.body;
 
     // ── Guard: name is always required ──────────────────────
     if (!name) {
@@ -923,6 +923,9 @@ export const clientsSave = async (req, res) => {
     if (!company?.company_id) return res.status(400).json({ error: "No company configured for this Bitrix24 portal" });
     const { company_id } = company;
 
+    const lat = (latitude !== undefined && latitude !== null && !isNaN(parseFloat(latitude))) ? parseFloat(latitude) : null;
+    const lng = (longitude !== undefined && longitude !== null && !isNaN(parseFloat(longitude))) ? parseFloat(longitude) : null;
+
     if (id) {
       // Validate UUID before querying
       if (!isValidUUID(String(id).trim())) {
@@ -940,22 +943,24 @@ export const clientsSave = async (req, res) => {
         return res.status(404).json({ error: "ClientNotFound", message: "Client not found" });
       }
       const updateResult = await pool.query(
-        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7::uuid`,
-        [name, email||null, phone||null, address||null, pincode||null, status||"active", String(id).trim()]
+        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6,
+         latitude=COALESCE($8, latitude), longitude=COALESCE($9, longitude), updated_at=NOW()
+         WHERE id=$7::uuid`,
+        [name, email||null, phone||null, address||null, pincode||null, status||"active", String(id).trim(), lat, lng]
       );
       if (updateResult.rowCount === 0) {
         console.warn(`⚠️ [Bitrix24] Client update matched 0 rows: id=${id}`);
         return res.status(404).json({ error: "ClientNotFound", message: "Client not found" });
       }
-      console.log(`✅ [Bitrix24] Client updated: ${name} (id=${id})`);
+      console.log(`✅ [Bitrix24] Client updated: ${name} (id=${id}) lat=${lat} lng=${lng}`);
       return res.json({ ok: true, action: "updated", id });
     } else {
       const r = await pool.query(
-        `INSERT INTO clients (company_id, name, email, phone, address, pincode, status, source, created_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,'bitrix24',NOW()) RETURNING id`,
-        [company_id, name, email||null, phone||null, address||null, pincode||null, status||"active"]
+        `INSERT INTO clients (company_id, name, email, phone, address, pincode, status, latitude, longitude, source, created_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'bitrix24',NOW()) RETURNING id`,
+        [company_id, name, email||null, phone||null, address||null, pincode||null, status||"active", lat, lng]
       );
-      console.log(`✅ [Bitrix24] Client created: ${name} (id=${r.rows[0].id})`);
+      console.log(`✅ [Bitrix24] Client created: ${name} (id=${r.rows[0].id}) lat=${lat} lng=${lng}`);
       return res.json({ ok: true, action: "created", id: r.rows[0].id });
     }
   } catch(e) {
