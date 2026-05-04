@@ -29,6 +29,63 @@ window.__GT_COMPANY_ID__ = ${JSON.stringify(String(data.company_id  || ""))};
   html = html.replace('<script>', injectScript + '\n<script>');
   return html;
 }
+// ── Bitrix Admin Auth Guard ────────────────────────────────────
+// Validates the JWT token passed by admin HTML pages.
+// Pages can pass the token via:
+//   1. Query param:  ?_t=<token>
+//   2. Header:       X-Bitrix-Admin-Token: <token>
+//   3. Cookie:       bitrix_admin_token=<token>  (future use)
+//
+// If the token is missing, expired, or not an admin token,
+// redirects to /bitrix/login instead of serving the page.
+// Returns true if valid, false + sends redirect if not.
+function validateBitrixAdminToken(req, res) {
+  try {
+    const DOMAIN    = req.query.DOMAIN    || req.body?.DOMAIN    || "world.bitrix24.com";
+    const member_id = req.query.member_id || req.body?.member_id || "";
+    const loginUrl  = `/bitrix/login?DOMAIN=${encodeURIComponent(DOMAIN)}&member_id=${encodeURIComponent(member_id)}`;
+
+    // Read token from query param, header, or cookie
+    const token = req.query._t
+      || req.headers["x-bitrix-admin-token"]
+      || req.cookies?.bitrix_admin_token
+      || null;
+
+    if (!token) {
+      // No token — redirect to login
+      console.log(`🔒 validateBitrixAdminToken: no token, redirecting to login`);
+      res.redirect(loginUrl + "&reason=no_token");
+      return false;
+    }
+
+    // Verify the JWT
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Must be an admin
+    if (!payload.isAdmin && !payload.is_admin) {
+      console.log(`🔒 validateBitrixAdminToken: not admin (email=${payload.email})`);
+      res.redirect(loginUrl + "&reason=not_admin");
+      return false;
+    }
+
+    // Valid — attach payload to request for downstream use
+    req.bitrixAdmin = payload;
+    return true;
+
+  } catch (e) {
+    // Invalid or expired token
+    const DOMAIN    = req.query.DOMAIN    || "world.bitrix24.com";
+    const member_id = req.query.member_id || "";
+    const reason    = e.name === "TokenExpiredError" ? "session_expired" : "invalid_token";
+    console.log(`🔒 validateBitrixAdminToken: ${e.name} → redirecting (reason=${reason})`);
+    res.redirect(
+      `/bitrix/login?DOMAIN=${encodeURIComponent(DOMAIN)}&member_id=${encodeURIComponent(member_id)}&reason=${reason}`
+    );
+    return false;
+  }
+}
+
+
 
 // ── Token helpers ─────────────────────────────────────────────
 function loadAllTokens() {
@@ -312,11 +369,20 @@ export const uninstall = async (req, res) => {
 };
 
 export const appLauncher = async (req, res) => {
+  res.setHeader("ngrok-skip-browser-warning", "true");
   try {
-    const DOMAIN     = req.query.DOMAIN    || req.body.DOMAIN    || "world.bitrix24.com";
-    const member_id  = req.query.member_id || req.body.member_id || "";
-    res.setHeader("ngrok-skip-browser-warning", "true");
+    const DOMAIN     = req.query.DOMAIN    || req.body?.DOMAIN    || "world.bitrix24.com";
+    const member_id  = req.query.member_id || req.body?.member_id || "";
     console.log(`🔍 appLauncher: ${req.method} member_id=${member_id}`);
+
+    // ── Server-side auth guard ────────────────────────────────
+    // If a token is passed (via _t query param or header), validate it.
+    // If NOT passed (e.g. direct URL visit after logout), the client-side
+    // guard in dashboard.html handles the redirect using sessionStorage.
+    const _t = req.query._t || req.headers["x-bitrix-admin-token"] || null;
+    if (_t) {
+      if (!validateBitrixAdminToken(req, res)) return; // already redirected
+    }
 
     const company = await resolveCompanyForRequest(req, member_id);
 
@@ -705,8 +771,14 @@ export const journeyAgents = async (req, res) => {
 export const journeyData = async (req, res) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   try {
-    const { member_id, user_id, start, end } = req.query;
-    if (!member_id || !user_id) return res.status(400).json({ error: "member_id and user_id required" });
+    const { user_id, start, end } = req.query;
+    // member_id is the Bitrix24 portal ID — it is EMPTY in the admin panel context
+    // (admins access via /bitrix/journey directly, not via the Bitrix24 iframe).
+    // We only require user_id; company is resolved via company_id query param.
+    const member_id = (req.query.member_id || "").trim();
+    if (!user_id || !user_id.trim()) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
     const company = await resolveCompanyForRequest(req, member_id);
     if (!company?.company_id) return res.status(200).json({ error: "NO_COMPANY" });
     const { company_id } = company;

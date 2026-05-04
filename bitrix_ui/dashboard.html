@@ -360,6 +360,82 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 </div>
 
 <script>
+// ════════════════════════════════════════════════════════════
+// AUTH GUARD — runs immediately on page load.
+// If no valid bitrix_admin_token exists in sessionStorage,
+// redirect straight to /bitrix/login. This prevents any
+// unauthenticated access when a user types /bitrix/app directly
+// after logging out.
+// ════════════════════════════════════════════════════════════
+(function(){
+  var TOKEN_KEY   = "bitrix_admin_token";
+  var COMPANY_KEY = "bitrix_admin_company_id";
+  var MID_KEY     = "bitrix_admin_mid";
+  var _P2         = new URLSearchParams(location.search);
+  var _dom        = _P2.get("DOMAIN") || "world.bitrix24.com";
+  var _mid        = _P2.get("member_id") || "";
+
+  var tok = sessionStorage.getItem(TOKEN_KEY);
+
+  // No token at all → go to login
+  if(!tok){
+    var redir = "/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid);
+    window.location.replace(redir);
+    return;
+  }
+
+  // Token exists — validate it is not expired and is an admin token
+  try{
+    var parts   = tok.split(".");
+    if(parts.length !== 3) throw new Error("bad format");
+    var payload = JSON.parse(atob(parts[1]));
+    var now     = Math.floor(Date.now() / 1000);
+
+    // Check expiry
+    if(payload.exp && payload.exp < now){
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(COMPANY_KEY);
+      sessionStorage.removeItem(MID_KEY);
+      window.location.replace(
+        "/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid)+"&reason=session_expired"
+      );
+      return;
+    }
+
+    // Check admin flag
+    if(!payload.isAdmin && !payload.is_admin){
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(COMPANY_KEY);
+      sessionStorage.removeItem(MID_KEY);
+      window.location.replace(
+        "/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid)+"&reason=not_admin"
+      );
+      return;
+    }
+
+    // Token is valid — if company_id not in URL but is in sessionStorage, inject it
+    if(!_P2.get("company_id")){
+      var storedCID = sessionStorage.getItem(COMPANY_KEY);
+      if(storedCID && storedCID !== "null" && storedCID !== "undefined"){
+        var newUrl = location.pathname + "?DOMAIN="+encodeURIComponent(_dom)
+          +"&member_id="+encodeURIComponent(_mid)
+          +"&company_id="+encodeURIComponent(storedCID);
+        window.history.replaceState(null,"",newUrl);
+      }
+    }
+
+  } catch(e) {
+    // Malformed token — clear and redirect
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(COMPANY_KEY);
+    sessionStorage.removeItem(MID_KEY);
+    window.location.replace(
+      "/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid)
+    );
+    return;
+  }
+})();
+
 var _P=new URLSearchParams(location.search);
 var _INJ_MID="{{member_id}}";var _INJ_DOM="{{DOMAIN}}";
 var GT_MID=(_INJ_MID!=="{{member_id}}"?_INJ_MID:(_P.get("member_id")||""));
@@ -381,7 +457,7 @@ var SYNC_BTNS={all:"btnAll",clients:"btnClients",meetings:"btnMtg"};
 function doSync(type){
   var btn=document.getElementById(SYNC_BTNS[type]);if(btn)btn.disabled=true;
   document.getElementById("tbSync").disabled=true;
-  fetch("/bitrix/do-sync-ajax",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,DOMAIN:GT_DOM,type:type})})
+  fetch("/api/bitrix/do-sync-ajax",{method:"POST",headers:HJ,body:JSON.stringify({member_id:GT_MID,DOMAIN:GT_DOM,type:type})})
     .then(function(r){return r.json();})
     .then(function(d){if(d.error)toast("Sync failed: "+d.error,"error",6000);else{toast(d.message,"success",5000);loadDash();}})
     .catch(function(e){toast("Error: "+e.message,"error",6000);})
@@ -389,7 +465,7 @@ function doSync(type){
 }
 function loadDash(){
   setLoader(true);
-  fetch("/bitrix/data?member_id="+encodeURIComponent(GT_MID)+"&DOMAIN="+encodeURIComponent(GT_DOM)+(GT_CID?"&company_id="+encodeURIComponent(GT_CID):""),{headers:HG})
+  fetch("/api/bitrix/data?member_id="+encodeURIComponent(GT_MID)+"&DOMAIN="+encodeURIComponent(GT_DOM)+(GT_CID?"&company_id="+encodeURIComponent(GT_CID):""),{headers:HG})
     .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
     .then(function(d){
       if(d.error&&d.error!=="NO_COMPANY"){toast("API error: "+d.error,"error",8000);setLoader(false);return;}
@@ -475,7 +551,7 @@ function renderPerformers(team){
 
 function fetchSidebarInfo(){
   // Fetch avatar / name / email from user-management-data
-  fetch("/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID||"")+(GT_CID?"&company_id="+encodeURIComponent(GT_CID):""),{headers:HG})
+  fetch("/api/bitrix/user-management-data?member_id="+encodeURIComponent(GT_MID||"")+(GT_CID?"&company_id="+encodeURIComponent(GT_CID):""),{headers:HG})
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.error)return;
@@ -513,7 +589,7 @@ function fetchSidebarPlanFromBilling(){
   /* Pass admin_email so backend can look up the session token and call the license API */
   if(adminEmail)p+="&admin_email="+encodeURIComponent(adminEmail);
 
-  fetch("/bitrix/billing-plans-data?"+p,{headers:HG})
+  fetch("/api/bitrix/billing-plans-data?"+p,{headers:HG})
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.error)return;
@@ -551,8 +627,15 @@ function fetchSidebarPlanFromBilling(){
 document.addEventListener("mousedown",function(e){var w=document.getElementById("profileDropdown");if(w&&!w.contains(e.target)){var m=document.getElementById("profileMenu");if(m)m.classList.remove("open");}});
 function doLogout(){
   if(!confirm("Sign out of GeoTrack admin?"))return;
+  // Clear ALL admin session keys — not just the token
   sessionStorage.removeItem("bitrix_admin_token");
-  window.location.replace("/bitrix/login?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID));
+  sessionStorage.removeItem("bitrix_admin_company_id");
+  sessionStorage.removeItem("bitrix_admin_mid");
+  localStorage.removeItem("token"); // also clear React app token if present
+  var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
+    p += "&company_id="+encodeURIComponent(GT_CID);
+  window.location.replace("/bitrix/login"+p);
 }
 loadDash();
 fetchSidebarPlanFromBilling();

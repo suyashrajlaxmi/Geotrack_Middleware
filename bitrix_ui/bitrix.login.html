@@ -215,15 +215,62 @@ var GT_DOM=(window.__GT_DOMAIN__&&window.__GT_DOMAIN__.length>3)?window.__GT_DOM
 
 // ── Storage keys (sessionStorage ONLY — never touches React's localStorage) ──
 var TOKEN_KEY    = "bitrix_admin_token";
-var COMPANY_KEY  = "bitrix_admin_company_id";   // ← NEW: stores logged-in user's company_id
+var COMPANY_KEY  = "bitrix_admin_company_id";
 var MID_KEY      = "bitrix_admin_mid";
 var HG = {"ngrok-skip-browser-warning":"true"};
 
 // ── Auto-redirect if already logged in ────────────────────────
 (function(){
-  if(sessionStorage.getItem(TOKEN_KEY)){
-    var p="?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
-    window.location.replace("/bitrix/app"+p);
+  var tok = sessionStorage.getItem(TOKEN_KEY);
+  if(tok){
+    // Validate token is not expired before auto-redirecting
+    try{
+      var pl  = JSON.parse(atob(tok.split(".")[1]));
+      var now = Math.floor(Date.now() / 1000);
+      if(pl.exp && pl.exp < now){
+        // Token expired — clear it and stay on login page
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(COMPANY_KEY);
+        sessionStorage.removeItem("bitrix_admin_mid");
+      } else {
+        // Valid token — redirect to app with company_id
+        var storedCID = sessionStorage.getItem(COMPANY_KEY) || "";
+        var p = "?DOMAIN="+encodeURIComponent(GT_DOM)+"&member_id="+encodeURIComponent(GT_MID);
+        if(storedCID && storedCID !== "null" && storedCID !== "undefined")
+          p += "&company_id="+encodeURIComponent(storedCID);
+        window.location.replace("/bitrix/app"+p);
+        return;
+      }
+    }catch(_){
+      // Malformed token — clear and show login
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(COMPANY_KEY);
+      sessionStorage.removeItem("bitrix_admin_mid");
+    }
+  }
+
+  // ── Show banner based on ?reason= param (set by auth guards) ──
+  var reason = new URLSearchParams(location.search).get("reason");
+  if(reason){
+    var msgs = {
+      "session_expired": "⏱ Your session has expired. Please sign in again.",
+      "no_token":        "🔒 You must be signed in to access the admin panel.",
+      "not_admin":       "🚫 Your account does not have admin privileges.",
+      "invalid_token":   "⚠️ Invalid session. Please sign in again.",
+      "logout":          "✅ You have been signed out successfully."
+    };
+    var msg = msgs[reason] || "🔒 Please sign in to continue.";
+    var errBox = document.getElementById("loginErr");
+    var errMsg = document.getElementById("loginErrMsg");
+    if(errBox && errMsg){
+      errMsg.textContent = msg;
+      // Use success style for logout, error style for others
+      if(reason === "logout"){
+        errBox.className = "alert-box alert-ok show";
+      } else {
+        errBox.className = "alert-box alert-err show";
+      }
+    }
   }
 })();
 
@@ -294,7 +341,7 @@ async function doLogin(){
     // ── Step 3: Resolve this admin's specific company_id ─────
     // We POST to our new /bitrix/login-resolve endpoint which looks up
     // the company_id for this exact email — NOT the largest company fallback.
-    var resolveRes=await fetch(window.location.origin+"/bitrix/login-resolve",{
+    var resolveRes=await fetch(window.location.origin+"/api/bitrix/login-resolve",{
       method:"POST",
       headers:{"Content-Type":"application/json",...HG},
       body:JSON.stringify({email:email,token:token})

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
 :root{
   --bg:#f2f4fb;--white:#fff;--surface:#f7f8fe;--border:#e2e6f3;--border2:#ccd2ec;
@@ -322,6 +322,36 @@ select.f-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xm
 </div>
 
 <script>
+// ── AUTH GUARD — redirects to login if no valid admin session ──
+(function(){
+  var _tok=sessionStorage.getItem("bitrix_admin_token");
+  var _qp=new URLSearchParams(location.search);
+  var _dom=_qp.get("DOMAIN")||"world.bitrix24.com";
+  var _mid=_qp.get("member_id")||"";
+  var _base="/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid);
+  if(!_tok){window.location.replace(_base+"&reason=no_token");return;}
+  try{
+    var _pl=JSON.parse(atob(_tok.split(".")[1]));
+    var _now=Math.floor(Date.now()/1000);
+    if(_pl.exp&&_pl.exp<_now){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=session_expired");return;
+    }
+    if(!_pl.isAdmin&&!_pl.is_admin){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=not_admin");return;
+    }
+  }catch(e){
+    sessionStorage.removeItem("bitrix_admin_token");
+    sessionStorage.removeItem("bitrix_admin_company_id");
+    sessionStorage.removeItem("bitrix_admin_mid");
+    window.location.replace(_base);return;
+  }
+})();
 // ─────────────────────────────────────────────────────────────────
 // BOOTSTRAP — identical priority order to billing_plans.html
 // sessionStorage company_id takes priority over injected/URL values
@@ -394,16 +424,13 @@ function durStr(mins){ if(!mins&&mins!==0)return"—"; var h=Math.floor(mins/60)
 // ─────────────────────────────────────────────────────────────────
 function navTo(url){
   var finalUrl = url;
-  if(GT_CID && finalUrl.indexOf("company_id") === -1)
+  if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "" && finalUrl.indexOf("company_id") === -1)
     finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "company_id=" + encodeURIComponent(GT_CID);
   if(GT_MID && finalUrl.indexOf("member_id") === -1)
     finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "member_id=" + encodeURIComponent(GT_MID);
   if(GT_DOM && finalUrl.indexOf("DOMAIN") === -1)
     finalUrl += (finalUrl.indexOf("?") === -1 ? "?" : "&") + "DOMAIN=" + encodeURIComponent(GT_DOM);
-  fetch(finalUrl, {headers: HG})
-    .then(function(r){ return r.text(); })
-    .then(function(h){ document.open(); document.write(h); document.close(); })
-    .catch(function(){ window.location.replace(finalUrl); });
+  window.location.href = finalUrl;
 }
 
 function setupNavigation(){
@@ -434,7 +461,7 @@ function setupNavigation(){
 //            sbCompany, sbAv, sbName, sbEmail, pmName, pmEmail
 // ─────────────────────────────────────────────────────────────────
 function fetchSidebarPlanFromBilling(){
-  var url = "/bitrix/billing-plans-data?member_id=" + encodeURIComponent(GT_MID)
+  var url = "/api/bitrix/billing-plans-data?member_id=" + encodeURIComponent(GT_MID)
           + "&DOMAIN=" + encodeURIComponent(GT_DOM);
   if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
     url += "&company_id=" + encodeURIComponent(GT_CID);
@@ -548,15 +575,26 @@ document.getElementById("endDate").value   = today();
 
 function initLoad(){
   setLoader(true);
-  var url = "/bitrix/journey-agents?member_id=" + encodeURIComponent(GT_MID);
+  var url = "/api/bitrix/journey-agents?member_id=" + encodeURIComponent(GT_MID)
+          + "&DOMAIN=" + encodeURIComponent(GT_DOM);
   if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
     url += "&company_id=" + encodeURIComponent(GT_CID);
+  if(GT_ADMIN_EMAIL)
+    url += "&admin_email=" + encodeURIComponent(GT_ADMIN_EMAIL);
 
   fetch(url, {headers: HG})
     .then(function(r){ return r.json(); })
     .then(function(d){
       setLoader(false);
-      if(d.error){ toast(d.error, "error"); return; }
+      if(d.error){
+        if(d.error === "NO_COMPANY"){
+          toast("No company found. Please log in again.", "error");
+        } else {
+          toast("Error: " + d.error, "error");
+        }
+        setLoader(false);
+        return;
+      }
 
       // Company name from journey-agents (quick display before billing data arrives)
       var el = document.getElementById("sbCompany");
@@ -596,12 +634,15 @@ function loadReport(){
   if(!uid) return;
   setLoader(true);
 
-  var url = "/bitrix/journey-data?member_id=" + encodeURIComponent(GT_MID)
+  var url = "/api/bitrix/journey-data?member_id=" + encodeURIComponent(GT_MID)
+          + "&DOMAIN=" + encodeURIComponent(GT_DOM)
           + "&user_id=" + encodeURIComponent(uid)
           + "&start="   + encodeURIComponent(start)
           + "&end="     + encodeURIComponent(end);
   if(GT_CID && GT_CID !== "null" && GT_CID !== "undefined" && GT_CID !== "")
     url += "&company_id=" + encodeURIComponent(GT_CID);
+  if(GT_ADMIN_EMAIL)
+    url += "&admin_email=" + encodeURIComponent(GT_ADMIN_EMAIL);
 
   fetch(url, {headers: HG})
     .then(function(r){ return r.json(); })

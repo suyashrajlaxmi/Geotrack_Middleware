@@ -596,6 +596,36 @@ tbody tr:hover{background:#f5f6fd}
 </div><!-- /shell -->
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── AUTH GUARD — redirects to login if no valid admin session ──
+(function(){
+  var _tok=sessionStorage.getItem("bitrix_admin_token");
+  var _qp=new URLSearchParams(location.search);
+  var _dom=_qp.get("DOMAIN")||"world.bitrix24.com";
+  var _mid=_qp.get("member_id")||"";
+  var _base="/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid);
+  if(!_tok){window.location.replace(_base+"&reason=no_token");return;}
+  try{
+    var _pl=JSON.parse(atob(_tok.split(".")[1]));
+    var _now=Math.floor(Date.now()/1000);
+    if(_pl.exp&&_pl.exp<_now){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=session_expired");return;
+    }
+    if(!_pl.isAdmin&&!_pl.is_admin){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=not_admin");return;
+    }
+  }catch(e){
+    sessionStorage.removeItem("bitrix_admin_token");
+    sessionStorage.removeItem("bitrix_admin_company_id");
+    sessionStorage.removeItem("bitrix_admin_mid");
+    window.location.replace(_base);return;
+  }
+})();
 // ── Bootstrap with company_id persistence ──────────────────────────────────────────────
 var _P = new URLSearchParams(location.search);
 var _INJ_MID = "{{member_id}}";
@@ -964,7 +994,7 @@ function deleteSvcCard(svcId) {
   var s=ALL_SERVICES.find(function(x){ return x.id===svcId; });
   if (!s) return;
   openConfirm("Delete Service?","Are you sure you want to delete \""+( s.service_name||"this service")+"\"? This action cannot be undone.",function(){
-    fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify({
+    fetch("/api/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify({
       member_id:GT_MID,id:svcId,client_id:s.client_id,service_name:s.service_name,
       description:s.description||"",price:s.price||null,status:"cancelled",
       start_date:s.start_date?new Date(s.start_date).toISOString().slice(0,10):null,
@@ -998,7 +1028,7 @@ function saveService() {
     price:document.getElementById("sfPrice").value?parseFloat(document.getElementById("sfPrice").value):null
   };
   if (MODAL_EDIT_SVC_ID) payload.id=MODAL_EDIT_SVC_ID;
-  fetch("/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
+  fetch("/api/bitrix/services-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.error){ document.getElementById("sfErr").textContent="Error: "+d.error; return; }

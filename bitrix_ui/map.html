@@ -939,6 +939,37 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--t
 
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── AUTH GUARD — redirects to login if no valid admin session ──
+(function(){
+  var _tok=sessionStorage.getItem("bitrix_admin_token");
+  var _qp=new URLSearchParams(location.search);
+  var _dom=_qp.get("DOMAIN")||"world.bitrix24.com";
+  var _mid=_qp.get("member_id")||"";
+  var _base="/bitrix/login?DOMAIN="+encodeURIComponent(_dom)+"&member_id="+encodeURIComponent(_mid);
+  if(!_tok){window.location.replace(_base+"&reason=no_token");return;}
+  try{
+    var _pl=JSON.parse(atob(_tok.split(".")[1]));
+    var _now=Math.floor(Date.now()/1000);
+    if(_pl.exp&&_pl.exp<_now){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=session_expired");return;
+    }
+    if(!_pl.isAdmin&&!_pl.is_admin){
+      sessionStorage.removeItem("bitrix_admin_token");
+      sessionStorage.removeItem("bitrix_admin_company_id");
+      sessionStorage.removeItem("bitrix_admin_mid");
+      window.location.replace(_base+"&reason=not_admin");return;
+    }
+  }catch(e){
+    sessionStorage.removeItem("bitrix_admin_token");
+    sessionStorage.removeItem("bitrix_admin_company_id");
+    sessionStorage.removeItem("bitrix_admin_mid");
+    window.location.replace(_base);return;
+  }
+})();
+
 
 // ── Bootstrap ──────────────────────────────────────────────────
 
@@ -1296,7 +1327,7 @@ function loadMapData(){
 
   
 
-  fetch(url, {headers: HG})
+  fetch(url.replace("/bitrix/", "/api/bitrix/"), {headers: HG})
 
     .then(function(r){ return r.text(); })
 

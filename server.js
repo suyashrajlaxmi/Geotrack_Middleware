@@ -105,7 +105,12 @@ app.use("/api/plans", authenticateToken, attachCompanyContext, planRoutes);
 // LICENSE ROUTES (Authenticated + API Key optional)
 // ============================================
 app.use("/api/license", authenticateToken, licenseRoutes);
+
+// ============================================
+// BITRIX APP ROUTES (Frontend Pages + APIs)
+// ============================================
 app.use('/bitrix', bitrixRoutes);
+app.use('/api/bitrix', bitrixRoutes);
 
 // ============================================
 // COMPANY-SCOPED ROUTES (Authenticated + Company Context + Plan Features)
@@ -180,20 +185,10 @@ app.use("/super-admin/companies", companyRoutes);
 app.use("/api/sync", syncRoutes);
 
 // ============================================
-// HEALTH CHECK
+// ROOT ROUTE - Redirect to Bitrix Login
 // ============================================
 app.get("/", (req, res) => {
-  res.json({ 
-    message: "Multi-Company Client Tracking API with Plan-Based Limitations",
-    version: "2.1.0",
-    features: [
-      "company-scoped", 
-      "super-admin", 
-      "pincode-filtering",
-      "plan-based-limitations",
-      "api-key-authentication"
-    ]
-  });
+  res.redirect("/bitrix/login");
 });
 
 app.get("/dbtest", async (req, res) => {
