@@ -1,0 +1,11 @@
+{
+  "2d4037fa64ce168c105f71c0a067c3b9": {
+    "domain": "world.bitrix24.com",
+    "access_token": "8872f869008448750056261b000000f4282307d69bf2229b0b07dc8498be1f412fa974",
+    "refresh_token": "78f11f6a008448750056261b000000f4282307c03fcf1055c8c004bcbd2e70c8cffc3a",
+    "expires_in": 3600,
+    "installed_at": "2026-05-04T09:18:48.855Z",
+    "expires_at": 1777889928856,
+    "updated_at": "2026-05-04T09:18:48.856Z"
+  }
+}

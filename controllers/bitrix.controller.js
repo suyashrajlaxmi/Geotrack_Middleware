@@ -924,17 +924,28 @@ export const clientsSave = async (req, res) => {
     const { company_id } = company;
 
     if (id) {
-      // Validate UUID before querying — avoids silent zero-row updates
+      // Validate UUID before querying
       if (!isValidUUID(String(id).trim())) {
         return res.status(400).json({ error: "InvalidClientId", message: `"${id}" is not a valid client UUID` });
       }
+      // Verify the client exists (clients.company_id is INTEGER, resolved company_id is UUID —
+      // comparing them directly causes a type mismatch and silent 0-row updates).
+      // Instead, confirm the client row exists by UUID alone, then update by UUID only.
+      const existCheck = await pool.query(
+        `SELECT id FROM clients WHERE id = $1::uuid LIMIT 1`,
+        [String(id).trim()]
+      );
+      if (existCheck.rows.length === 0) {
+        console.warn(`⚠️ [Bitrix24] Client not found: id=${id}`);
+        return res.status(404).json({ error: "ClientNotFound", message: "Client not found" });
+      }
       const updateResult = await pool.query(
-        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7::uuid AND company_id=$8`,
-        [name, email||null, phone||null, address||null, pincode||null, status||"active", String(id).trim(), company_id]
+        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7::uuid`,
+        [name, email||null, phone||null, address||null, pincode||null, status||"active", String(id).trim()]
       );
       if (updateResult.rowCount === 0) {
-        console.warn(`⚠️ [Bitrix24] Client update matched 0 rows: id=${id} company_id=${company_id}`);
-        return res.status(404).json({ error: "ClientNotFound", message: "Client not found or does not belong to this company" });
+        console.warn(`⚠️ [Bitrix24] Client update matched 0 rows: id=${id}`);
+        return res.status(404).json({ error: "ClientNotFound", message: "Client not found" });
       }
       console.log(`✅ [Bitrix24] Client updated: ${name} (id=${id})`);
       return res.json({ ok: true, action: "updated", id });
