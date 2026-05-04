@@ -1409,9 +1409,15 @@ function editClient(id){
 
   document.getElementById("fStatus").value =c.status  ||"active";
 
-  document.getElementById("fLat").value    =c.lat     ||"";
+  // Support both field name conventions:
+  // Bitrix API returns: lat / lng
+  // GeoTrack REST API returns: latitude / longitude
+  var latVal = c.lat || c.latitude || "";
+  var lngVal = c.lng || c.longitude || "";
 
-  document.getElementById("fLng").value    =c.lng     ||"";
+  document.getElementById("fLat").value    = latVal ? parseFloat(latVal).toFixed(6) : "";
+
+  document.getElementById("fLng").value    = lngVal ? parseFloat(lngVal).toFixed(6) : "";
 
   document.getElementById("fNotes").value  =c.notes   ||"";
 
@@ -1437,49 +1443,81 @@ function saveClient(){
 
   btn.disabled=true;btn.textContent="⏳ Saving…";
 
-  var payload={
+  // ── Detect context: Bitrix24 iframe vs GeoTrack standalone dashboard ──
+  // GT_MID is only populated when running inside a Bitrix24 portal iframe.
+  // When accessed via the GeoTrack dashboard directly (standalone mode),
+  // GT_MID is empty — in that case we call the standard REST API instead.
+  var isBitrixContext = (GT_MID && GT_MID.length > 3);
 
-    member_id:GT_MID,
+  if (isBitrixContext) {
+    // ── BITRIX24 IFRAME MODE ──────────────────────────────────────────
+    // Use the Bitrix-specific endpoint that resolves company via member_id
+    var payload={
+      member_id: GT_MID,
+      name:    name,
+      email:   document.getElementById("fEmail").value.trim()   ||null,
+      phone:   document.getElementById("fPhone").value.trim()   ||null,
+      address: document.getElementById("fAddress").value.trim() ||null,
+      pincode: document.getElementById("fPin").value.trim()     ||null,
+      status:  document.getElementById("fStatus").value,
+      latitude: parseFloat(document.getElementById("fLat").value)||null,
+      longitude:parseFloat(document.getElementById("fLng").value)||null,
+      notes:   document.getElementById("fNotes").value.trim()   ||null
+    };
+    if(editId) payload.id = +editId;
 
-    name:name,
+    fetch("/api/bitrix/clients-save", {method:"POST", headers:HJ, body:JSON.stringify(payload)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error){toast("Error: "+d.error,"error",6000);return;}
+        toast("Client saved successfully!","success");
+        closeModal(); loadClients();
+      })
+      .catch(function(e){toast("Error: "+e.message,"error",6000);})
+      .finally(function(){btn.disabled=false;btn.textContent="💾 Save Client";});
 
-    email:   document.getElementById("fEmail").value.trim()   ||null,
+  } else {
+    // ── GEOTRACK STANDALONE DASHBOARD MODE ───────────────────────────
+    // Use the standard GeoTrack REST API with JWT from sessionStorage
+    var jwtToken = sessionStorage.getItem("bitrix_admin_token") || localStorage.getItem("token") || "";
 
-    phone:   document.getElementById("fPhone").value.trim()   ||null,
+    if (!jwtToken) {
+      toast("Session expired. Please log in again.", "error", 6000);
+      btn.disabled=false; btn.textContent="💾 Save Client";
+      return;
+    }
 
-    address: document.getElementById("fAddress").value.trim() ||null,
+    var restHeaders = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + jwtToken,
+      "ngrok-skip-browser-warning": "true"
+    };
 
-    pincode: document.getElementById("fPin").value.trim()     ||null,
+    var restPayload = {
+      name:    name,
+      email:   document.getElementById("fEmail").value.trim()   ||null,
+      phone:   document.getElementById("fPhone").value.trim()   ||null,
+      address: document.getElementById("fAddress").value.trim() ||null,
+      pincode: document.getElementById("fPin").value.trim()     ||null,
+      status:  document.getElementById("fStatus").value,
+      latitude: parseFloat(document.getElementById("fLat").value)||null,
+      longitude:parseFloat(document.getElementById("fLng").value)||null,
+      notes:   document.getElementById("fNotes").value.trim()   ||null
+    };
 
-    status:  document.getElementById("fStatus").value,
+    var restUrl  = editId ? ("/clients/" + editId) : "/clients";
+    var restMethod = editId ? "PUT" : "POST";
 
-    latitude: parseFloat(document.getElementById("fLat").value)||null,
-
-    longitude:parseFloat(document.getElementById("fLng").value)||null,
-
-    notes:   document.getElementById("fNotes").value.trim()   ||null
-
-  };
-
-  if(editId)payload.id=+editId;
-
-  fetch("/api/bitrix/clients-save",{method:"POST",headers:HJ,body:JSON.stringify(payload)})
-
-    .then(function(r){return r.json();})
-
-    .then(function(d){
-
-      if(d.error){toast("Error: "+d.error,"error",6000);return;}
-
-      toast("Client saved successfully!","success");
-
-      closeModal();loadClients();
-
-    })
-
-    .catch(function(e){toast("Error: "+e.message,"error",6000);})
-
-    .finally(function(){btn.disabled=false;btn.textContent="💾 Save Client";});
+    fetch(restUrl, {method: restMethod, headers: restHeaders, body: JSON.stringify(restPayload)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.error){toast("Error: "+d.error,"error",6000);return;}
+        toast("Client saved successfully!","success");
+        closeModal(); loadClients();
+      })
+      .catch(function(e){toast("Error: "+e.message,"error",6000);})
+      .finally(function(){btn.disabled=false;btn.textContent="💾 Save Client";});
+  }
 
 }
 

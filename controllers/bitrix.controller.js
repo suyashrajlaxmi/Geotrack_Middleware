@@ -901,21 +901,42 @@ export const clientsSave = async (req, res) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   try {
     const { member_id, id, name, email, phone, address, pincode, status } = req.body;
-    if (!member_id || !name) return res.status(400).json({ error: "member_id and name required" });
+
+    // ── Guard: name is always required ──────────────────────
+    if (!name) {
+      return res.status(400).json({ error: "Client name is required" });
+    }
+
+    // ── Guard: member_id is required for Bitrix24 iframe context ──
+    // If it is missing, this request came from the wrong place
+    // (e.g. the GeoTrack dashboard).  Return a clear, actionable
+    // message instead of a confusing low-level error.
+    if (!member_id) {
+      console.warn("⚠️  [clientsSave] Called without member_id — request came from GeoTrack dashboard, not Bitrix24 iframe. Use POST /clients instead.");
+      return res.status(400).json({
+        error: "WrongEndpoint",
+        message: "This endpoint is for Bitrix24 iframe use only. To create a client from the GeoTrack dashboard, use POST /clients with a valid Authorization header.",
+      });
+    }
+
     const company = await resolveCompanyForRequest(req, member_id);
-    if (!company?.company_id) return res.status(400).json({ error: "No company configured" });
+    if (!company?.company_id) return res.status(400).json({ error: "No company configured for this Bitrix24 portal" });
     const { company_id } = company;
+
     if (id) {
       await pool.query(
-        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=$5, status=$6 WHERE id=$7 AND company_id=$8`,
+        `UPDATE clients SET name=$1, email=$2, phone=$3, address=$4, pincode=COALESCE($5, pincode), status=$6, updated_at=NOW() WHERE id=$7 AND company_id=$8`,
         [name, email||null, phone||null, address||null, pincode||null, status||"active", id, company_id]
       );
+      console.log(`✅ [Bitrix24] Client updated: ${name} (id=${id})`);
       return res.json({ ok: true, action: "updated", id });
     } else {
       const r = await pool.query(
-        `INSERT INTO clients (company_id, name, email, phone, address, pincode, status, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,NOW()) RETURNING id`,
+        `INSERT INTO clients (company_id, name, email, phone, address, pincode, status, source, created_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,'bitrix24',NOW()) RETURNING id`,
         [company_id, name, email||null, phone||null, address||null, pincode||null, status||"active"]
       );
+      console.log(`✅ [Bitrix24] Client created: ${name} (id=${r.rows[0].id})`);
       return res.json({ ok: true, action: "created", id: r.rows[0].id });
     }
   } catch(e) {
