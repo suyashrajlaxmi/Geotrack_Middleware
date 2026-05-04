@@ -7,13 +7,13 @@ import axios from "axios";
 
 // ─────────────────────────────────────────────────────────────
 // CONFIGURATION
-// Replace the value below with your real Incoming Webhook URL,
-// or set BITRIX24_WEBHOOK_URL in your .env file.
-// Format: https://<your-domain>.bitrix24.com/rest/<user-id>/<token>/
+// Set BITRIX24_WEBHOOK_URL in your .env file:
+//   BITRIX24_WEBHOOK_URL=https://<your-domain>.bitrix24.com/rest/<user-id>/<token>/
+//
+// To get this URL:
+//   Bitrix24 → Developer resources → Other → Incoming webhook → Create
 // ─────────────────────────────────────────────────────────────
-const BITRIX24_WEBHOOK_URL =
-  process.env.BITRIX24_WEBHOOK_URL ||
-  "https://world.bitrix24.com/rest/244/ts8jdv7plafc4y5y/profile.json";
+const BITRIX24_WEBHOOK_URL = process.env.BITRIX24_WEBHOOK_URL || null;
 
 // ─────────────────────────────────────────────────────────────
 // FIELD MAPPER
@@ -35,18 +35,7 @@ function mapClientToBitrixCompany(clientData) {
     ];
   }
 
-  // ADDRESS fields
-  if (clientData.address) {
-    fields.ADDRESS = clientData.address;
-  }
-  if (clientData.city) {
-    fields.ADDRESS_CITY = clientData.city;
-  }
-  if (clientData.pincode) {
-    fields.ADDRESS_POSTAL_CODE = String(clientData.pincode).trim();
-  }
-
-  // Extra useful metadata (won't break if Bitrix ignores them)
+  // EMAIL
   if (clientData.email) {
     fields.EMAIL = [
       {
@@ -56,7 +45,12 @@ function mapClientToBitrixCompany(clientData) {
     ];
   }
 
-  // Store the GeoTrack client ID as a comment so you can trace it
+  // ADDRESS fields
+  if (clientData.address)  fields.ADDRESS             = clientData.address;
+  if (clientData.city)     fields.ADDRESS_CITY        = clientData.city;
+  if (clientData.pincode)  fields.ADDRESS_POSTAL_CODE = String(clientData.pincode).trim();
+
+  // Store the GeoTrack client ID as a comment so you can trace it back
   if (clientData.id) {
     fields.COMMENTS = `GeoTrack Client ID: ${clientData.id}`;
   }
@@ -67,10 +61,19 @@ function mapClientToBitrixCompany(clientData) {
 // ─────────────────────────────────────────────────────────────
 // createBitrixCompany
 //
+// Called automatically after every successful POST /clients.
+// Always fire-and-forget — never await this in the route handler.
+//
 // @param {object} clientData  — the client row returned by GeoTrack's DB
 // @returns {Promise<number|null>}  — Bitrix24 Company ID, or null on failure
 // ─────────────────────────────────────────────────────────────
 export async function createBitrixCompany(clientData) {
+  // Skip silently if webhook URL is not configured
+  if (!BITRIX24_WEBHOOK_URL) {
+    console.warn("⚠️  [Bitrix24] BITRIX24_WEBHOOK_URL not set in .env — skipping company sync.");
+    return null;
+  }
+
   if (!clientData || !clientData.name) {
     console.warn("⚠️  [Bitrix24] Skipped: clientData has no name.");
     return null;
@@ -79,17 +82,18 @@ export async function createBitrixCompany(clientData) {
   const fields = mapClientToBitrixCompany(clientData);
 
   console.log(
-    `🔗 [Bitrix24] Creating company for GeoTrack client "${clientData.name}" (ID: ${clientData.id ?? "N/A"})`
+    `🔗 [Bitrix24] Syncing client "${clientData.name}" (GeoTrack ID: ${clientData.id ?? "N/A"}) → Bitrix24 CRM Company`
   );
 
   try {
-    const endpoint = `${BITRIX24_WEBHOOK_URL.replace(/\/$/, "")}/crm.company.add.json`;
+    const base     = BITRIX24_WEBHOOK_URL.replace(/\/$/, "");
+    const endpoint = `${base}/crm.company.add.json`;
 
     const response = await axios.post(
       endpoint,
       { fields },
       {
-        timeout: 10_000, // 10 s — don't block GeoTrack's response for long
+        timeout: 10_000, // 10 s — never block GeoTrack's own response
         headers: { "Content-Type": "application/json" },
       }
     );
@@ -98,25 +102,26 @@ export async function createBitrixCompany(clientData) {
 
     if (!bitrixCompanyId) {
       console.error(
-        "❌ [Bitrix24] API returned no company ID. Full response:",
+        "❌ [Bitrix24] crm.company.add returned no ID. Response:",
         JSON.stringify(response.data, null, 2)
       );
       return null;
     }
 
     console.log(
-      `✅ [Bitrix24] Company created — Bitrix24 ID: ${bitrixCompanyId} | GeoTrack client: "${clientData.name}"`
+      `✅ [Bitrix24] Company created — Bitrix24 ID: ${bitrixCompanyId} | Client: "${clientData.name}"`
     );
     return bitrixCompanyId;
 
   } catch (err) {
-    // Distinguish network errors from Bitrix API errors for cleaner logs
     if (err.response) {
+      // Bitrix24 returned an HTTP error
       console.error(
         `❌ [Bitrix24] API error ${err.response.status}:`,
         JSON.stringify(err.response.data, null, 2)
       );
     } else if (err.request) {
+      // Request was sent but no response received (timeout / network)
       console.error(
         "❌ [Bitrix24] No response received (timeout / network issue):",
         err.message
@@ -125,16 +130,25 @@ export async function createBitrixCompany(clientData) {
       console.error("❌ [Bitrix24] Unexpected error:", err.message);
     }
 
-    // Return null — caller must NOT throw; this is a best-effort side-effect
-    return null;
+    return null; // never throw — this is a best-effort side-effect
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// (Optional) Update an existing Bitrix24 Company
-// Useful if you later sync GeoTrack client updates back to Bitrix.
+// updateBitrixCompany
+//
+// Optional: call this from updateClient if you want changes in
+// GeoTrack to propagate back to Bitrix24.
+//
+// @param {number} bitrixCompanyId — ID returned by createBitrixCompany
+// @param {object} clientData      — updated GeoTrack client data
 // ─────────────────────────────────────────────────────────────
 export async function updateBitrixCompany(bitrixCompanyId, clientData) {
+  if (!BITRIX24_WEBHOOK_URL) {
+    console.warn("⚠️  [Bitrix24] BITRIX24_WEBHOOK_URL not set — skipping update sync.");
+    return false;
+  }
+
   if (!bitrixCompanyId) {
     console.warn("⚠️  [Bitrix24] updateBitrixCompany: no bitrixCompanyId supplied.");
     return false;
@@ -143,7 +157,8 @@ export async function updateBitrixCompany(bitrixCompanyId, clientData) {
   const fields = mapClientToBitrixCompany(clientData);
 
   try {
-    const endpoint = `${BITRIX24_WEBHOOK_URL.replace(/\/$/, "")}/crm.company.update.json`;
+    const base     = BITRIX24_WEBHOOK_URL.replace(/\/$/, "");
+    const endpoint = `${base}/crm.company.update.json`;
 
     const response = await axios.post(
       endpoint,
@@ -155,10 +170,7 @@ export async function updateBitrixCompany(bitrixCompanyId, clientData) {
     if (success) {
       console.log(`✅ [Bitrix24] Company ${bitrixCompanyId} updated.`);
     } else {
-      console.warn(
-        `⚠️  [Bitrix24] Update returned unexpected result:`,
-        response.data
-      );
+      console.warn("⚠️  [Bitrix24] Update returned unexpected result:", response.data);
     }
     return success;
 
@@ -170,3 +182,8 @@ export async function updateBitrixCompany(bitrixCompanyId, clientData) {
     return false;
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// FIELD MAPPER
+// Translates a GeoTrack clientData object into the shape that
+// crm.company.add expects.
