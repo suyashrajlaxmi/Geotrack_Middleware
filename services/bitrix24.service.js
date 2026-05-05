@@ -229,6 +229,31 @@ export async function createEmployeeTask(user) {
 
   console.log(`🔗 [Bitrix24:EmployeeTask] Creating task for new employee "${name}" (${email})`);
 
+  // Extract the user ID from the webhook URL
+  // Webhook format: https://domain.bitrix24.com/rest/<USER_ID>/<token>/
+  // Bitrix24 requires RESPONSIBLE_ID — we derive it from the webhook URL itself.
+  const webhookUserId = (() => {
+    try {
+      const parts = BITRIX_WEBHOOK.replace(/\/$/, "").split("/");
+      // parts: ["https:", "", "domain", "rest", "<USER_ID>", "<token>"]
+      const restIndex = parts.indexOf("rest");
+      return restIndex !== -1 ? parseInt(parts[restIndex + 1], 10) : null;
+    } catch (_) {
+      return null;
+    }
+  })();
+
+  if (!webhookUserId) {
+    console.warn("⚠️  [Bitrix24:EmployeeTask] Could not extract user ID from BITRIX_WEBHOOK URL. Set BITRIX_RESPONSIBLE_ID in .env as fallback.");
+  }
+
+  const responsibleId = webhookUserId || parseInt(process.env.BITRIX_RESPONSIBLE_ID, 10) || null;
+
+  if (!responsibleId) {
+    console.error("❌ [Bitrix24:EmployeeTask] No RESPONSIBLE_ID available — task creation aborted. Set BITRIX_RESPONSIBLE_ID in .env.");
+    return null;
+  }
+
   try {
     const base     = BITRIX_WEBHOOK.replace(/\/$/, "");
     const endpoint = `${base}/tasks.task.add.json`;
@@ -237,9 +262,9 @@ export async function createEmployeeTask(user) {
       endpoint,
       {
         fields: {
-          TITLE:       title,
-          DESCRIPTION: description,
-          // RESPONSIBLE_ID intentionally omitted — Bitrix24 auto-assigns to webhook owner
+          TITLE:          title,
+          DESCRIPTION:    description,
+          RESPONSIBLE_ID: responsibleId,  // Required by Bitrix24 — derived from webhook URL
         },
       },
       {
